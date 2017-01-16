@@ -154,11 +154,8 @@ include_directories(
 # add_dependencies(stima ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(random_box_discrete src/Random_box_.cpp)
-target_link_libraries (random_box_discrete ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
-
-add_executable(random_box_discrete_grasping src/Random_box_grasping_.cpp)
-target_link_libraries (random_box_discrete_grasping ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
+add_executable(random_box_discrete_ src/Random_box_.cpp)
+target_link_libraries (random_box_discrete_ ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 
 
 
