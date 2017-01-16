@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(random_box)
+project(grasp_learning)
 
 
 # Check for c++11 support
@@ -154,10 +154,10 @@ include_directories(
 # add_dependencies(stima ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(random_box_discrete src/Random_box.cpp)
+add_executable(random_box_discrete src/Random_box_.cpp)
 target_link_libraries (random_box_discrete ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 
-add_executable(random_box_discrete_grasping src/Random_box_grasping.cpp)
+add_executable(random_box_discrete_grasping src/Random_box_grasping_.cpp)
 target_link_libraries (random_box_discrete_grasping ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 
 
