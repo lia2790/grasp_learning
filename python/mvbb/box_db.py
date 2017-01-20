@@ -5,9 +5,9 @@ from klampt.math import se3, so3
 import numpy as np
 
 class MVBBLoader(object, n_dofs, n_l):
-    def __init__(self, prefix = 'boxes_db'):
-        self.filename = 'db/%s.csv'%prefix
-        self.filename_simulated = 'db/%s_simulated.csv' % prefix
+    def __init__(self, filename_no_ext):
+        self.filename = 'db/%s.csv'%filename_no_ext
+        self.filename_simulated = 'db/%s_simulated.csv' % filename_no_ext
         self.db = {}
         self.db_simulated = {}
         self._load_mvbbs()
@@ -61,8 +61,8 @@ class MVBBLoader(object, n_dofs, n_l):
         except:
             print "Error loading file", self.filename_simulated
 
-    def save_simulation(self, box_dims, pose, q, c_p, c_f):
-        if not self.has_simulateion(object_name, pose):
+    def save_simulation(self, box_dims, pose, h_T_o, q, c_p, c_f):
+        if not self.has_simulation(object_name, pose):
             f = open(self.filename_simulated, 'a')
             values = list(box_dims)
             if isinstance(pose, np.ndarray):
@@ -71,6 +71,15 @@ class MVBBLoader(object, n_dofs, n_l):
             values += pose[1]
             # saving pose.q
             q = np.array(so3.quaternion(pose[0]))
+            value += list(q[1:4])
+            values.append(q[0])
+
+            if isinstance(h_T_o, np.ndarray):
+                h_T_o = se3.from_homogeneous(h_T_o)
+            # saving h_T_o.t
+            values += h_T_o[1]
+            # saving h_T_o.q
+            q = np.array(so3.quaternion(h_T_o[0]))
             value += list(q[1:4])
             values.append(q[0])
 
