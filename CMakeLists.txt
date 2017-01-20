@@ -174,6 +174,8 @@ target_link_libraries (random_box_discrete_ ${catkin_LIBRARIES} ${Eigen_LIBRARIE
 add_executable(jacobian_urdf_model_ src/jacobian_urdf_model_.cpp)
 target_link_libraries (jacobian_urdf_model_ ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
+add_executable(grasp_quality_ src/grasp_quality_.cpp)
+target_link_libraries (grasp_quality_ ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
 
