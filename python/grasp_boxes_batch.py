@@ -22,8 +22,6 @@ import pickle
 from klampt.math import so3, se3
 import numpy as np
 from IPython import embed
-from mvbb.graspvariation import PoseVariation
-from mvbb.TakePoses import SimulationPoses
 from mvbb.draw_bbox import draw_GL_frame, draw_bbox
 from i16mc import make_moving_base_robot
 from mvbb.CollisionCheck import CheckCollision, CollisionTestInterpolate, CollisionTestPose
@@ -31,8 +29,6 @@ from mvbb.box_db import MVBBLoader
 
 
 objects = {}
-objects['ycb'] = [f for f in os.listdir('data/objects/ycb')]
-objects['apc2015'] = [f for f in os.listdir('data/objects/apc2015')]
 robots = ['reflex_col', 'soft_hand', 'reflex']
 
 def make_box(world, x_dim, y_dim, z_dim, mass=0.1):
@@ -63,7 +59,7 @@ def make_box(world, x_dim, y_dim, z_dim, mass=0.1):
     return box
 
 class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
-    def __init__(self, poses, world, p_T_h, R, module):
+    def __init__(self, box_dims, poses, world, p_T_h, module, box_db, links_to_check = None):
         GLRealtimeProgram.__init__(self, "FilteredMVBBTEsterVisualizer")
         self.world = world
         self.p_T_h = p_T_h
@@ -76,13 +72,15 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
         self.q_0 = self.robot.getConfig()
         self.w_T_o = None
         self.obj = None
+        self.box_dims = box_dims
         self.t_0 = None
         self.object_com_z_0 = None
         self.object_fell = None
         self.sim = None
         self.module = module
         self.running = True
-        self.db = None
+        self.db = box_db
+        self.links_to_check = links_to_check
         
         if self.world.numRigidObjects() > 0:
             self.obj = self.world.rigidObject(0)
@@ -96,13 +94,15 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
             "Warning: during initialization of visualizer object is still not loaded in world"
             selp.poses = poses
 
+
+
         print "Will simulate", len(self.poses), "poses,"
 
     def display(self):
         if self.running:
             self.world.drawGL()
 
-            for pose in self.poses+self.poses_variations:
+            for pose in self.poses:
                 T = se3.from_homogeneous(pose)
                 draw_GL_frame(T, color=(0.5,0.5,0.5))
             if self.curr_pose is not None:
@@ -120,6 +120,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
 
         if self.world.numRigidObjects() > 0:
             self.obj = self.world.rigidObject(0)
+            assert(self.box_dims == getObjectDims(self.obj))
         elif self.obj is None:
             return
 
@@ -158,7 +159,6 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                     self.sim.body(self.robot.link(l)).setCollisionPreshrink(visPreshrink)
                 for l in range(self.world.numRigidObjects()):
                     self.sim.body(self.world.rigidObject(l)).setCollisionPreshrink(visPreshrink)
-                self.db = MVBBLoader(self.hand.n_u + self.hand.n_d)
 
             self.object_com_z_0 = getObjectGlobalCom(self.obj)[2]
             self.object_fell = False
@@ -208,7 +208,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
 
                     c_p, c_f = getObjectPhalanxMeanContactPoint(self.obj, self.robot)
 
-                    self.db.save_simulation(getObjectDims(self.obj), self.curr_pose, h_T_o,
+                    self.db.save_simulation(self.obj_dims, self.curr_pose, h_T_o,
                                             q_grasp, c_p, c_f)
                 self.is_simulating = False
                 self.sim = None
@@ -222,7 +222,7 @@ def getObjectDims(obj):
     dims = vectorops.sub(BB[1],BB[0])
     return tuple(dims)
 
-def getObjectPhalanxMeanContactPoint(obj, robot):
+def getObjectPhalanxMeanContactPoint(obj, robot, links = None):
     """
     Returns a contact point for each link in the robot, which is the simple arithmetic mean of all contact points,
     expressed in the object frame of reference
@@ -232,15 +232,28 @@ def getObjectPhalanxMeanContactPoint(obj, robot):
 
     :param obj: object to grasp
     :param robot: robot grasping the object
+    :param links: the links to check for collision
     :return: (cps_avg, wrench_avg) where cps_avg is a vector 3*n_links, and wrench_avg is a vector 6*n_links
     """
     oId = obj.getId()
     lIds = []
+    _lIds = [] # if links is not None, this contains the set of link Ids which should not be checked
     lId_to_lIndex = {}
-    for l_i in xrange(robot.numLinks()):
+    links_to_check = []
+
+    # let's first create the map from lId to lIndex, with all links
+    links_to_check = range(robot.numLinks())
+    for l_i in links_to_check:
+        link = robot.link(l_i)
+        lId_to_lIndex[link.getID()] = l_i
+        if links is not None and l_i not in links:
+            _lIds.append(link.getID())
+
+    if links is not None:
+        links_to_check = links
+    for l_i in links_to_check:
         link = robot.link(l_i)
         lIds.append(link.getID())
-        lId_to_lIndex[link.getID()] = l_i
 
     cps_avg = np.array([float('nan')] * 3 * len(lIds))
     wrench_avg = np.array([float('nan')] * 6 * len(lIds))
@@ -259,10 +272,19 @@ def getObjectPhalanxMeanContactPoint(obj, robot):
 
             wrench_avg[l_i*3:l_i*3+3] = sim.contactForce(oId, i)
             wrench_avg[l_i*3+3:l_i*3+6] = sim.contactTorque(oId, i)
+
+            if np.all(wrench_avg[l_i*3+3:l_i*3+5] > 1e-12):
+                print "WARNING: moments on cp for link", robot.link(lId_to_lIndex[lId]).getName(), "are not soft finger model"
+
+    for lId in _lIds:
+        clist = self.sim.getContacts(oId, lId)
+
+        if len(clist) > 0:
+            print "ERROR: link", robot.link(lId_to_lIndex[lId]).getName(), "is in contact with", obj.getName(), "but should not be"
     return (cps_avg, wrench_avg)
 
 
-def launch_test_mvbb_grasps(robotname, box_db):
+def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
     """Launches a very simple program that spawns a box with dimensions specified in boxes_db.
     """
 
@@ -271,36 +293,41 @@ def launch_test_mvbb_grasps(robotname, box_db):
     robot = make_moving_base_robot(robotname, world)
     xform = resource.get("default_initial_%s.xform" % robotname, description="Initial hand transform",
                          default=se3.identity(), world=world, doedit=False)
-    for box_dims, box_params in box_db.db:
-        obj = make_box(box_dims[0],
+
+    for box_dims, poses in box_db.db.items():
+        obj = make_box(world,
+                       box_dims[0],
                        box_dims[1],
                        box_dims[2])
 
-        poses = [p['T'] for p in box_params]
         poses_filtered = []
 
         R,t = obj.getTransform()
-        obj.setTransform(R, ['', 0, z_dim/2.])
-
-        # embed()
+        obj.setTransform(R, [0, 0, box_dims[2]/2.])
 
         p_T_h = np.array(se3.homogeneous(xform))
 
         for pose in poses:
             if CollisionTestPose(world, robot, obj, pose):
-                print "Pose", pose, "has been filtered since it is in collision for box", box
+                pose_pp = se3.from_homogeneous(pose)
+                t_pp = pose_pp[1]
+                q_pp = so3.quaternion(pose_pp[0])
+                q_pp = [q_pp[1], q_pp[2], q_pp[3], q_pp[0]]
+                print "Pose", t_pp + q_pp, "has been filtered since it is in collision for box", box_dims
             else:
                 poses_filtered.append(pose)
-
+        print "Filtered", len(poses)-len(poses_filtered), "out of", len(poses), "poses"
         # embed()
         # create a hand emulator from the given robot name
         module = importlib.import_module('plugins.' + robotname)
         # emulator takes the robot index (0), start link index (6), and start driver index (6)
-
-        program = FilteredMVBBTesterVisualizer(poses_filtered,
+        program = FilteredMVBBTesterVisualizer(box_dims,
+                                               poses_filtered,
                                                world,
                                                p_T_h,
-                                               module)
+                                               module,
+                                               box_db,
+                                               links_to_check)
 
         vis.setPlugin(None)
         vis.setPlugin(program)
@@ -313,15 +340,16 @@ def launch_test_mvbb_grasps(robotname, box_db):
     return
 
 if __name__ == '__main__':
-    box_db = []
+    box_db = None
     try:
         import os.path
         filename = os.path.splitext(sys.argv[1])[0]
     except:
         filename = 'box_db'
-    try:
-        box_db = MVBBLoader(filename)
-        launch_test_mvbb_grasps("soft_hand", box_db)
-    except:
-        print "Error loading", filename
+
+    box_db = MVBBLoader(filename, 19, 16)
+    # palm, index (proximal, middle, distal), little, middle, ring, thumb
+    links_to_check = [3, 4, 6, 8, 10, 13, 15, 17, 20, 22, 24, 27, 29, 31, 33, 35, 37]
+    launch_test_mvbb_grasps("soft_hand", box_db, links_to_check)
+
 

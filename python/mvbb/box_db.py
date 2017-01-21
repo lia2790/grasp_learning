@@ -4,10 +4,10 @@ import csv
 from klampt.math import se3, so3
 import numpy as np
 
-class MVBBLoader(object, n_dofs, n_l):
-    def __init__(self, filename_no_ext):
-        self.filename = 'db/%s.csv'%filename_no_ext
-        self.filename_simulated = 'db/%s_simulated.csv' % filename_no_ext
+class MVBBLoader(object):
+    def __init__(self, filename_no_ext, n_dofs, n_l):
+        self.filename = '%s.csv'%filename_no_ext
+        self.filename_simulated = '%s_simulated.csv' % filename_no_ext
         self.db = {}
         self.db_simulated = {}
         self._load_mvbbs()
@@ -24,7 +24,8 @@ class MVBBLoader(object, n_dofs, n_l):
             for row in reader:
                 object_dims = tuple([float(v) for i, v in enumerate(row) if i in range(3)])
                 t = [float(v) for i, v in enumerate(row) if i in range(3, 6)]
-                q = [float(v) for i, v in enumerate(row) if i in range(6, 10)]
+                q = [float(row[9])] + [float(v) for i, v in enumerate(row) if i in range(6, 9)]
+                print q
 
                 T = (so3.from_quaternion(q),t)
                 if tuple(object_dims) not in self.db:

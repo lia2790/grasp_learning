@@ -28,8 +28,6 @@ shelf_height = 0.5
 moving_base_template_fn = 'data/robots/moving_base_template.rob'
 object_template_fn = 'data/objects/object_template.obj'
 objects = {}
-objects['ycb'] = [f for f in sorted(os.listdir('data/objects/ycb'))]
-objects['apc2015'] = [f for f in sorted(os.listdir('data/objects/apc2015'))]
 robots = ['reflex_col', 'soft_hand', 'reflex']
 
 object_geom_file_patterns = {
