@@ -291,7 +291,7 @@ class CompliantHandEmulator(ActuatorEmulator):
         q = q[self.q_to_t]
         q_u = q[self.u_to_n]
         q_d = q[self.d_to_n]
-        return q_u + q_d
+        return np.hstack((q_u,q_d))
 
     def process(self, commands, dt):
         if commands:

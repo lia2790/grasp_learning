@@ -38,9 +38,9 @@ def make_box(world, x_dim, y_dim, z_dim, mass=0.1):
         """
     boxgeom = Geometry3D()
     boxgeom.loadFile("data/objects/cube.tri")
-    #boxgeom.transform([x_dim, 0, 0, 0, y_dim, 0, 0, 0, z_dim], [-x_dim * 0.5, -y_dim * 0.5, -z_dim * 0.5])
+
     # box is centered at the origin
-    boxgeom.transform([x_dim, 0, 0, 0, y_dim, 0, 0, 0, z_dim], [0., 0., 0.])
+    boxgeom.transform([x_dim, 0, 0, 0, y_dim, 0, 0, 0, z_dim], [-x_dim * 0.5, -y_dim * 0.5, -z_dim * 0.5])
 
     print "Making a box a rigid object"
     bmass = Mass()
@@ -92,7 +92,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                     print "Pose", p, "already simulated"
         else:
             "Warning: during initialization of visualizer object is still not loaded in world"
-            selp.poses = poses
+            self.poses = poses
 
 
 
@@ -120,7 +120,6 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
 
         if self.world.numRigidObjects() > 0:
             self.obj = self.world.rigidObject(0)
-            assert(self.box_dims == getObjectDims(self.obj))
         elif self.obj is None:
             return
 
