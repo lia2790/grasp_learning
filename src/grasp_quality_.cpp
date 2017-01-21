@@ -103,22 +103,22 @@ int main (int argc, char **argv)
 
 
 
-	std::fstream file("box_db.csv");
+	std::fstream file("box_db.csv"); // load the file.csv
 	std::string line;
 
-	bool cr = true;
-	
+	bool is_count = true; // flag
 
-	while(std::getline(file,line))
-	{	
+	while(std::getline(file,line))  // loop for count the dimension of data base 
+	{								// and then build an array containing all value 
 		n_rows++;
 
 		char *vettore;
 		vettore = (char *)line.c_str();
 
 
-		if(cr)
-		{	for(int j = 0 ; j < line.length() ; j++)
+		if(is_count)
+		{	
+			for(int j = 0 ; j < line.length() ; j++)
 			{
 				if(vettore[j] == ' ') break;
 				if(vettore[j] == ',') break;
@@ -126,10 +126,16 @@ int main (int argc, char **argv)
 				n_cols++;
 			}
 			
-			cr = false;
+			is_count = false;
 		}
 
 	}
+
+
+	cout << "rows_in_data_set : " << n_rows << endl;
+	cout << "cols_in_data_set : " << n_cols << endl;
+
+
 
 
 	Eigen::MatrixXd data_set(n_rows,n_cols);
@@ -141,7 +147,7 @@ int main (int argc, char **argv)
 	
 
 
-	while(std::getline(file,line))	
+	while(std::getline(file,line))	// take the value from file
 	{
 
 		char *vettore;
@@ -173,7 +179,7 @@ int main (int argc, char **argv)
 ////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
 
-//								TAKE HAND
+//								TAKE SOFT_HAND
 
 ////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
@@ -231,11 +237,44 @@ int main (int argc, char **argv)
   hand_tree.getChain(root_name, end_chain_name[4], chain4_little);
 
 
-  unsigned int nj_0 = chain0_thumb.getNrOfJoints();   // 5
-  unsigned int nj_1 = chain1_index.getNrOfJoints();   // 7
-  unsigned int nj_2 = chain2_middle.getNrOfJoints();  // 7
-  unsigned int nj_3 = chain3_ring.getNrOfJoints();    // 7
-  unsigned int nj_4 = chain4_little.getNrOfJoints();  // 7 
+ 
+
+
+
+///////////////////////////// 		END		///////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+
+		
+		
+////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+
+//			CALCULATE THE GRASP_MATRIX AND HAND_JACOBIAN FOR EACH ROW
+
+//	I supposed to have 19 joint variables and a single point of contact for each phalanx
+
+////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
+
+
+  		double q_thumb[5] ;
+		double q_index[7] ;
+		double q_middle[7] ;
+		double q_ring[7] ;
+		double q_little[7] ;
+
+		KDL::Jacobian jacobian0_thumb;
+		KDL::Jacobian jacobian1_index;
+		KDL::Jacobian jacobian2_middle;
+		KDL::Jacobian jacobian3_ring;
+		KDL::Jacobian jacobian4_little;
+
+
+		unsigned int nj_0 = chain0_thumb.getNrOfJoints();   // 5
+  		unsigned int nj_1 = chain1_index.getNrOfJoints();   // 7
+  		unsigned int nj_2 = chain2_middle.getNrOfJoints();  // 7
+  		unsigned int nj_3 = chain3_ring.getNrOfJoints();    // 7
+  		unsigned int nj_4 = chain4_little.getNrOfJoints();  // 7 
 
 
 
@@ -255,27 +294,6 @@ int main (int argc, char **argv)
 
 
 
-///////////////////////////// 		END		///////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
-
-		
-		
-////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
-
-//								TAKE JACOBIAN FOR EACH ROW
-
-////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
-
-
-  		double q_thumb[5] ;
-		double q_index[7] ;
-		double q_middle[7] ;
-		double q_ring[7] ;
-		double q_little[7] ;
-
-
 
 
    		KDL::JntArray jointpositions_0 = JntArray(nj_0);    // thumb
@@ -283,15 +301,6 @@ int main (int argc, char **argv)
     	KDL::JntArray jointpositions_2 = JntArray(nj_2);    // middlefinger
     	KDL::JntArray jointpositions_3 = JntArray(nj_3);    // ringfinger
     	KDL::JntArray jointpositions_4 = JntArray(nj_4);    // littlefinger
-
-
-    	KDL::Jacobian jacobian0_thumb;
-		KDL::Jacobian jacobian1_index;
-		KDL::Jacobian jacobian2_middle;
-		KDL::Jacobian jacobian3_ring;
-		KDL::Jacobian jacobian4_little;
-
-
 
 
 
@@ -314,13 +323,10 @@ int main (int argc, char **argv)
 
 
 
-	for(int i = 0; i < n_rows ; i++)  // per ogni riga
+	for(int i = 0; i < n_rows ; i++)  // for each row calculation the grasp matrix and hand jacobian
 	{
-		
-		
+		//take the value of joints from data
 
-
-		//take first joint 
 		q_thumb[0] = data_set(i,10);
 
 		q_thumb[1] = data_set(i,11) / 2;
@@ -385,45 +391,10 @@ int main (int argc, char **argv)
 
 
 
-
-
-
-		Eigen::MatrixXd Contacts(15,3);
-
-
-		int gap = 0;
-
-		for(int k = 0; k < 15; k++)
-		{	
-			for(int h = 0; h < 3; h++ )
-				Contacts(k,h) = data_set(i,29+h+gap);
-
-			gap += 3;
-
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		// initialize jntarray then be able to calculate the Jacobian to that point of contact
 
 		for ( int i = 0 ; i < 5 ; i++)
-          jointpositions_0(i) = q_thumb[i];
+          	jointpositions_0(i) = q_thumb[i];
 
 
 	    for ( int i = 0 ; i < 7 ; i++)
@@ -432,7 +403,28 @@ int main (int argc, char **argv)
           	jointpositions_2(i) = q_middle[i];
           	jointpositions_3(i) = q_ring[i];
           	jointpositions_4(i) = q_little[i];
-      	}    
+      	}   
+
+
+
+
+
+
+
+
+		Eigen::MatrixXd Contacts(14,3);  // I build a matrix of contact points for convenience only
+
+
+		int gap_point_coordinate = 0;
+
+		for(int k = 0; k < 15; k++)
+		{	
+			for(int h = 0; h < 3; h++ )
+				Contacts(k,h) = data_set(i,29+h+gap_point_coordinate);
+
+			gap_point_coordinate += 3;
+
+		}
 
 
 
