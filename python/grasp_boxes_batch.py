@@ -102,12 +102,16 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
         if self.running:
             self.world.drawGL()
 
+            w_T_o = np.array(se3.homogeneous(self.obj.getTransform()))
+
             for pose in self.poses:
-                T = se3.from_homogeneous(pose)
-                draw_GL_frame(T, color=(0.5,0.5,0.5))
+                w_T_p_des = w_T_o.dot(pose)
+                w_T_p__des_se3 = se3.from_homogeneous(w_T_p_des)
+                draw_GL_frame(w_T_p__des_se3, color=(0.5,0.5,0.5))
             if self.curr_pose is not None:
-                T = se3.from_homogeneous(self.curr_pose)
-                draw_GL_frame(T)
+                w_T_p_des = w_T_o.dot(self.curr_pose)
+                w_T_p__des_se3 = se3.from_homogeneous(w_T_p_des)
+                draw_GL_frame(w_T_p__des_se3)
 
             hand_xform = get_moving_base_xform(self.robot)
             w_T_p = np.array(se3.homogeneous(hand_xform)).dot(self.h_T_p)
@@ -205,9 +209,9 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                     h_T_o = np.linalg.inv(w_T_h_curr).dot(w_T_o_curr)
                     q_grasp = self.hand.getConfiguration()
 
-                    c_p, c_f = getObjectPhalanxMeanContactPoint(self.obj, self.robot)
+                    c_p, c_f = getObjectPhalanxMeanContactPoint(self.sim, self.obj, self.robot, self.links_to_check)
 
-                    self.db.save_simulation(self.obj_dims, self.curr_pose, h_T_o,
+                    self.db.save_simulation(self.box_dims, self.curr_pose, h_T_o,
                                             q_grasp, c_p, c_f)
                 self.is_simulating = False
                 self.sim = None
@@ -221,7 +225,7 @@ def getObjectDims(obj):
     dims = vectorops.sub(BB[1],BB[0])
     return tuple(dims)
 
-def getObjectPhalanxMeanContactPoint(obj, robot, links = None):
+def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
     """
     Returns a contact point for each link in the robot, which is the simple arithmetic mean of all contact points,
     expressed in the object frame of reference
@@ -234,7 +238,7 @@ def getObjectPhalanxMeanContactPoint(obj, robot, links = None):
     :param links: the links to check for collision
     :return: (cps_avg, wrench_avg) where cps_avg is a vector 3*n_links, and wrench_avg is a vector 6*n_links
     """
-    oId = obj.getId()
+    oId = obj.getID()
     lIds = []
     _lIds = [] # if links is not None, this contains the set of link Ids which should not be checked
     lId_to_lIndex = {}
@@ -258,7 +262,7 @@ def getObjectPhalanxMeanContactPoint(obj, robot, links = None):
     wrench_avg = np.array([float('nan')] * 6 * len(lIds))
 
     for lId in lIds:
-        clist = self.sim.getContacts(oId, lId)
+        clist = sim.getContacts(oId, lId)
         for c in clist:
             pavg = vectorops.add(pavg, c[0:3])
             navg = vectorops.add(navg, c[3:6])
@@ -276,7 +280,7 @@ def getObjectPhalanxMeanContactPoint(obj, robot, links = None):
                 print "WARNING: moments on cp for link", robot.link(lId_to_lIndex[lId]).getName(), "are not soft finger model"
 
     for lId in _lIds:
-        clist = self.sim.getContacts(oId, lId)
+        clist = sim.getContacts(oId, lId)
 
         if len(clist) > 0:
             print "ERROR: link", robot.link(lId_to_lIndex[lId]).getName(), "is in contact with", obj.getName(), "but should not be"
@@ -303,11 +307,12 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
 
         R,t = obj.getTransform()
         obj.setTransform(R, [0, 0, box_dims[2]/2.])
-
+        w_T_o = np.array(se3.homogeneous(obj.getTransform()))
         p_T_h = np.array(se3.homogeneous(xform))
 
         for pose in poses:
-            if CollisionTestPose(world, robot, obj, pose):
+            w_T_h_des_se3 = se3.from_homogeneous(w_T_o.dot(pose).dot(p_T_h))
+            if CollisionTestPose(world, robot, obj, w_T_h_des_se3):
                 pose_pp = se3.from_homogeneous(pose)
                 t_pp = pose_pp[1]
                 q_pp = so3.quaternion(pose_pp[0])
