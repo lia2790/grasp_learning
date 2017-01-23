@@ -4,10 +4,10 @@ import csv
 from klampt.math import se3, so3
 import numpy as np
 
-class MVBBLoader(object, n_dofs, n_l):
-    def __init__(self, filename_no_ext):
-        self.filename = 'db/%s.csv'%filename_no_ext
-        self.filename_simulated = 'db/%s_simulated.csv' % filename_no_ext
+class MVBBLoader(object):
+    def __init__(self, filename_no_ext, n_dofs, n_l):
+        self.filename = '%s.csv'%filename_no_ext
+        self.filename_simulated = '%s_simulated.csv' % filename_no_ext
         self.db = {}
         self.db_simulated = {}
         self._load_mvbbs()
@@ -24,7 +24,8 @@ class MVBBLoader(object, n_dofs, n_l):
             for row in reader:
                 object_dims = tuple([float(v) for i, v in enumerate(row) if i in range(3)])
                 t = [float(v) for i, v in enumerate(row) if i in range(3, 6)]
-                q = [float(v) for i, v in enumerate(row) if i in range(6, 10)]
+                q = [float(row[9])] + [float(v) for i, v in enumerate(row) if i in range(6, 9)]
+                print q
 
                 T = (so3.from_quaternion(q),t)
                 if tuple(object_dims) not in self.db:
@@ -62,7 +63,7 @@ class MVBBLoader(object, n_dofs, n_l):
             print "Error loading file", self.filename_simulated
 
     def save_simulation(self, box_dims, pose, h_T_o, q, c_p, c_f):
-        if not self.has_simulation(object_name, pose):
+        if not self.has_simulation(box_dims, pose):
             f = open(self.filename_simulated, 'a')
             values = list(box_dims)
             if isinstance(pose, np.ndarray):
@@ -71,7 +72,7 @@ class MVBBLoader(object, n_dofs, n_l):
             values += pose[1]
             # saving pose.q
             q = np.array(so3.quaternion(pose[0]))
-            value += list(q[1:4])
+            values += list(q[1:4])
             values.append(q[0])
 
             if isinstance(h_T_o, np.ndarray):
@@ -80,7 +81,7 @@ class MVBBLoader(object, n_dofs, n_l):
             values += h_T_o[1]
             # saving h_T_o.q
             q = np.array(so3.quaternion(h_T_o[0]))
-            value += list(q[1:4])
+            values += list(q[1:4])
             values.append(q[0])
 
             # saving q
@@ -108,14 +109,14 @@ class MVBBLoader(object, n_dofs, n_l):
         if self.db == {}:
             self._load_mvbbs()
         if tuple(box_dims) in self.db:
-            return self.db[object_name]
+            return self.db[box_dims]
         return []
 
     def get_simulated_poses(self, box_dims, only_successful = True):
         if self.db_simulated == {}:
             self._load_mvbbs_simulated()
         if tuple(box_dims) in self.db_simulated:
-            return [ pose['T'] for pose in self.db_simulated[object_name]]
+            return [ pose['T'] for pose in self.db_simulated[box_dims]]
         return []
 
     def get_all_simulated_poses(self):
@@ -125,5 +126,5 @@ class MVBBLoader(object, n_dofs, n_l):
         for box_dims in self.db_simulated:
             poses = [ pose['T'] for pose in self.db_simulated[box_dims]]
             if len(poses) > 0:
-                obj_poses[object_name] = poses
+                obj_poses[box_dims] = poses
         return obj_poses

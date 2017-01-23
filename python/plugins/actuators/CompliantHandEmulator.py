@@ -248,8 +248,8 @@ class CompliantHandEmulator(ActuatorEmulator):
                     f_l[l_id] = f_v
                     t_l[l_id] = t_v
                 else:
-                    f_l[l_id] = f_v
-                    t_l[l_id] = t_v
+                    f_l[l_id] += f_v
+                    t_l[l_id] += t_v
 
 
             ### debugging ###
@@ -286,6 +286,12 @@ class CompliantHandEmulator(ActuatorEmulator):
     def getCommand(self):
         return np.hstack([self.q_a_ref, self.q_d_ref])
 
+    def getConfiguration(self):
+        q = np.array(self.sim.getActualConfig(self.robotindex))
+        q = q[self.q_to_t]
+        q_u = q[self.u_to_n]
+        q_d = q[self.d_to_n]
+        return np.hstack((q_u,q_d))
 
     def process(self, commands, dt):
         if commands:
