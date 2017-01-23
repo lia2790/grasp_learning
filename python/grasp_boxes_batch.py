@@ -124,7 +124,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
 
         if self.world.numRigidObjects() > 0:
             self.obj = self.world.rigidObject(0)
-        elif self.obj is None:
+        else:
             return
 
         if not self.is_simulating:
@@ -210,7 +210,8 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                     h_T_o = np.linalg.inv(w_T_h_curr).dot(w_T_o_curr)
                     q_grasp = self.hand.getConfiguration()
 
-                    c_p, c_f = getObjectPhalanxMeanContactPoint(self.sim, self.obj, self.robot, self.links_to_check)
+                    c_p, c_f = getObjectPhalanxMeanContactPoint(self.sim, self.obj,
+                                                                self.robot, self.links_to_check)
 
                     self.db.save_simulation(self.box_dims, self.curr_pose, h_T_o,
                                             q_grasp, c_p, c_f)
@@ -311,11 +312,12 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
                          default=se3.identity(), world=world, doedit=False)
 
     for box_dims, poses in box_db.db.items():
+        if world.numRigidObjects() > 0:
+            world.remove(world.rigidObject(0))
         obj = make_box(world,
                        box_dims[0],
                        box_dims[1],
                        box_dims[2])
-
         poses_filtered = []
 
         R,t = obj.getTransform()
