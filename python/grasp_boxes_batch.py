@@ -151,7 +151,8 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                 self.hand = self.module.HandEmulator(self.sim, 0, 6, 6)
                 self.sim.addEmulator(0, self.hand)
                 # the next line latches the current configuration in the PID controller...
-                self.sim.controller(0).setPIDCommand(self.robot.getConfig(), self.robot.getVelocity())
+                self.sim.controller(0).setPIDCommand(self.robot.getConfig(),
+                                                     vectorops.mul(self.robot.getVelocity(),0.0))
 
                 obj_b = self.sim.body(self.obj)
                 obj_b.setVelocity([0., 0., 0.],[0., 0., 0.])
@@ -184,7 +185,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                 # print "Lifting"
                 t_i = w_T_h_des_se3[1]
                 t_f = vectorops.add(t_i, (0,0,0.2))
-                u = np.min((self.sim.getTime() - self.t_0 - t_lift, 1))
+                u = np.min((self.sim.getTime() - self.t_0 - t_lift, 1.))
                 send_moving_base_xform_PID(self.sim.controller(0), w_T_h_des_se3[0], vectorops.interpolate(t_i, t_f ,u))
 
             if (self.sim.getTime() - self.t_0) >= t_lift: # wait for a lift before checking if object fell
@@ -193,7 +194,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                 if d_hand - d_com > 0.1:
                     self.object_fell = True
                     print "!!!!!!!!!!!!!!!!!!"
-                    print "Object fell"
+                    print "Grasp Unsuccessful"
                     print "!!!!!!!!!!!!!!!!!!"
 
             self.sim.simulate(0.01)
@@ -202,8 +203,8 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
             if not vis.shown() or (self.sim.getTime() - self.t_0) >= 2.5 or self.object_fell:
                 if vis.shown(): # simulation stopped because it was successful
                     print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-                    print "Saving grasp, object fall status:", "fallen" if self.object_fell else "grasped"
-                    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+                    print "Saving grasp, status:", "failure" if self.object_fell else "success"
+                    print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n\n"
                     w_T_h_curr = np.array(se3.homogeneous(w_T_h_curr_se3))
                     w_T_o_curr = np.array(se3.homogeneous(self.obj.getTransform()))
                     h_T_o = np.linalg.inv(w_T_h_curr).dot(w_T_o_curr)
@@ -277,13 +278,25 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
             wrench_avg[l_i*3+3:l_i*3+6] = sim.contactTorque(oId, i)
 
             if np.all(wrench_avg[l_i*3+3:l_i*3+5] > 1e-12):
+                print "\n\n\n\n\n"
+                print "xxxxxxxxxxxxxxxxxxxxxxxxx"
+                print "xxxxxxxxxxxxxxxxxxxxxxxxx"
                 print "WARNING: moments on cp for link", robot.link(lId_to_lIndex[lId]).getName(), "are not soft finger model"
+                print "xxxxxxxxxxxxxxxxxxxxxxxxx"
+                print "xxxxxxxxxxxxxxxxxxxxxxxxx"
+                print "\n\n\n\n\n"
 
     for lId in _lIds:
         clist = sim.getContacts(oId, lId)
 
         if len(clist) > 0:
+            print "\n\n\n\n\n"
+            print "xxxxxxxxxxxxxxxxxxxxxxxxx"
+            print "xxxxxxxxxxxxxxxxxxxxxxxxx"
             print "ERROR: link", robot.link(lId_to_lIndex[lId]).getName(), "is in contact with", obj.getName(), "but should not be"
+            print "xxxxxxxxxxxxxxxxxxxxxxxxx"
+            print "xxxxxxxxxxxxxxxxxxxxxxxxx"
+            print "\n\n\n\n\n"
     return (cps_avg, wrench_avg)
 
 
@@ -311,13 +324,16 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
         p_T_h = np.array(se3.homogeneous(xform))
 
         for pose in poses:
-            w_T_h_des_se3 = se3.from_homogeneous(w_T_o.dot(pose).dot(p_T_h))
+            w_T_p = w_T_o.dot(pose)
+            w_T_h_des_se3 = se3.from_homogeneous(w_T_p.dot(p_T_h))
             if CollisionTestPose(world, robot, obj, w_T_h_des_se3):
                 pose_pp = se3.from_homogeneous(pose)
                 t_pp = pose_pp[1]
                 q_pp = so3.quaternion(pose_pp[0])
                 q_pp = [q_pp[1], q_pp[2], q_pp[3], q_pp[0]]
                 print "Pose", t_pp + q_pp, "has been filtered since it is in collision for box", box_dims
+            elif  w_T_p[2][3] <= 0.:
+                print "Pose", t_pp + q_pp, "has been filtered since it penetrates with table"
             else:
                 poses_filtered.append(pose)
         print "Filtered", len(poses)-len(poses_filtered), "out of", len(poses), "poses"
