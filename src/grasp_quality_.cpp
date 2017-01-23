@@ -491,7 +491,7 @@ bool count_cols_only_one = true;
 
 
 
-		int how_finger = 0;
+		int which_finger = 0;
 
       	//for each contact point 
 		std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;  //
@@ -535,80 +535,50 @@ bool count_cols_only_one = true;
 
 
 
+            	jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
+      			jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
+      			jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
+      			jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
+      			jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
 
 
 
 
 
 
-            	int stop_chain = 0;
 
 
-            	if((0 <= i) && (i <= 2)){ how_finger = 0; stop_chain = i;}
-            	if((3 <= i) && (i <= 6)){ how_finger = 1; stop_chain = i-3;}
-            	if((7 <= i) && (i <= 10)){ how_finger = 2; stop_chain = i-7;}
-            	if((11 <= i) && (i <= 14)){ how_finger = 3; stop_chain = i-11;}
-            	if((15 <= i) && (i <= 18)){ how_finger = 4; stop_chain = i-15;}
+            	int which_falange = 0;
 
 
+            	if((0 <= i) && (i <= 2)){ which_finger = 0; which_falange = i;}
+            	if((3 <= i) && (i <= 6)){ which_finger = 1; which_falange = i-3;}
+            	if((7 <= i) && (i <= 10)){ which_finger = 2; which_falange = i-7;}
+            	if((11 <= i) && (i <= 14)){ which_finger = 3; which_falange = i-11;}
+            	if((15 <= i) && (i <= 18)){ which_finger = 4; which_falange = i-15;}
 
-            switch(how_finger)
+
+            switch(which_finger)
             {
             	case 0: // thumb
-
-            				// compute Jacobian in realtime
-      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, stop_chain);
-      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
-      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
-      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
-      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
-
-	  						break;
+      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, which_falange);
+      						break;
 
 	  			case 1: // index
-
-            				// compute Jacobian in realtime
-      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
-      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, stop_chain);
-      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
-      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
-      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
-
-	  						break;
+      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, which_falange);
+      						break;
 
 	  			case 2: // middle
-
-            				// compute Jacobian in realtime
-      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
-      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
-      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, stop_chain);
-      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
-      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
-
-	  						break;
+							jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, which_falange);
+      						break;
 
 	  			case 3: // ring
-
-            				// compute Jacobian in realtime
-      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
-      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
-      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
-      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, stop_chain);
-      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
-
+      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, which_falange);
 	  						break;
 
 
 	  			case 4: // little
-
-            				// compute Jacobian in realtime
-      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
-      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
-      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
-      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
-      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, stop_chain);
-
-	  						
+      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, which_falange);
 	  						break;
 
 	  		}// end switch
@@ -623,6 +593,10 @@ bool count_cols_only_one = true;
 
 
         	}// and if true contact
+        	
+
+
+
         }// end for contact
 
 
@@ -651,7 +625,7 @@ bool count_cols_only_one = true;
 						Singular_Value_Grasp_Matrix = svd.singularValues();
 
 
-						double sigma_min = Singular_Value_Grasp_Matrix[0];
+						double sigma_min = Singular_Value_Grasp_Matrix[Singular_Value_Grasp_Matrix.size()];
 						
 
 
