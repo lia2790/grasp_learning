@@ -80,8 +80,27 @@ using namespace Eigen;
 using namespace KDL;
 
 
-int n_rows = 1;
-int n_cols = 1;
+int n_rows = 0;
+int n_cols = 0;
+
+
+int dim_file_row = 108;
+int dim_file_col = 10; 
+
+
+int n_c = 19; // numero di punti di contatto avendo supposto di avere 
+			  // un punto di contatto per ogni falange 
+			  // 3 falangi per il pollice
+			  // 4 per le altre dita  
+
+
+
+int quality_index = 0;
+
+
+
+std::vector<double> Quality;
+
 
 
 int main (int argc, char **argv)
@@ -94,47 +113,76 @@ int main (int argc, char **argv)
 ////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
 
-//									TAKE DATA_BASE
+//	TAKE DATA_BASE : load a file .csv and put the values into Eigen::MatrixXd
 
 ////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
 
 
 
+std::string file_name;
+
+if(argc > 1)
+	file_name = std::string( argv[1] );
+else
+	file_name = std::string("box_db.csv");
 
 
-	std::fstream file("box_db.csv"); // load the file.csv
-	std::string line;
-
-	bool is_count = true; // flag
-
-	while(std::getline(file,line))  // loop for count the dimension of data base 
-	{								// and then build an array containing all value 
-		n_rows++;
-
-		char *vettore;
-		vettore = (char *)line.c_str();
 
 
-		if(is_count)
-		{	
-			for(int j = 0 ; j < line.length() ; j++)
-			{
-				if(vettore[j] == ' ') break;
-				if(vettore[j] == ',') break;
+ifstream file(file_name); 
 
-				n_cols++;
-			}
-			
-			is_count = false;
-		}
 
+
+/*
+
+cout << "3:::::::::::::::" << endl;
+
+
+bool count_cols_only_one = true;
+
+
+	for(std::string line; getline ( file, line, '\n' ); ) // ciclo sulla riga
+	{
+    	cout << "Value " << line << endl;
+
+    	n_rows++;
+
+    	std::istringstream iss_line(line);	
+
+    	
+
+    	if(count_cols_only_one)
+    	{	
+
+    		for(std::string value; getline(iss_line, value, ',' ); )
+    		{
+    			cout << "Value : " << value << " Value stod : " << stod(value) << endl;
+    			n_cols++;
+    		}
+
+
+    		count_cols_only_one = false;
+    	}
+    	
+
+    	
 	}
 
+	cout << "ROWS : " << n_rows << endl;
+	cout << "COLS : " << n_cols << endl;
 
-	cout << "rows_in_data_set : " << n_rows << endl;
-	cout << "cols_in_data_set : " << n_cols << endl;
 
+	cout << "7:::::::::::" << endl;
+
+*/
+
+
+	if(	(n_rows == 0) || (n_cols==0) )
+	{	
+		n_rows = dim_file_row;
+		n_cols = dim_file_col;
+	}
 
 
 
@@ -144,28 +192,34 @@ int main (int argc, char **argv)
 	int i = 0;
 	int j = 0;
 
-	
 
 
-	while(std::getline(file,line))	// take the value from file
+	for(std::string line; getline ( file, line, '\n' ); ) // ciclo sulla riga
 	{
 
-		char *vettore;
-		vettore = (char *)line.c_str();
+    	std::istringstream iss_line(line);	
 
-		for(int k = 0 ; k < line.length() ; k++)
-		{
-			if(vettore[k] == ' ') break;
-			if(vettore[k] == ',') break;
+  
+    	for(std::string value; getline(iss_line, value, ',' ); )
+    	{
+    		data_set(i,j) = stod(value);
+    		j++;
+    	}
 
-			data_set(i,j) = (double)vettore[k];
-			j++;
-		}	
+    	cout << endl;
 
-		j=0;
-		i++;
+    	j=0;
+    	i++;
 	}
 
+
+	file.close();
+
+
+
+
+
+	cout << " DATA_SET" << data_set << endl;
 
 
 
@@ -257,12 +311,6 @@ int main (int argc, char **argv)
 	/////////////////////////////////////////////////////////////////////////
 
 
-  		double q_thumb[5] ;
-		double q_index[7] ;
-		double q_middle[7] ;
-		double q_ring[7] ;
-		double q_little[7] ;
-
 		KDL::Jacobian jacobian0_thumb;
 		KDL::Jacobian jacobian1_index;
 		KDL::Jacobian jacobian2_middle;
@@ -275,6 +323,17 @@ int main (int argc, char **argv)
   		unsigned int nj_2 = chain2_middle.getNrOfJoints();  // 7
   		unsigned int nj_3 = chain3_ring.getNrOfJoints();    // 7
   		unsigned int nj_4 = chain4_little.getNrOfJoints();  // 7 
+
+
+
+
+  		KDL::JntArray q_thumb = JntArray(nj_0);    // thumb
+    	KDL::JntArray q_index = JntArray(nj_1);    // forefinger
+    	KDL::JntArray q_middle = JntArray(nj_2);    // middlefinger
+    	KDL::JntArray q_ring = JntArray(nj_3);    // ringfinger
+    	KDL::JntArray q_little = JntArray(nj_4);    // littlefinger
+
+
 
 
 
@@ -296,20 +355,15 @@ int main (int argc, char **argv)
 
 
 
-   		KDL::JntArray jointpositions_0 = JntArray(nj_0);    // thumb
-    	KDL::JntArray jointpositions_1 = JntArray(nj_1);    // forefinger
-    	KDL::JntArray jointpositions_2 = JntArray(nj_2);    // middlefinger
-    	KDL::JntArray jointpositions_3 = JntArray(nj_3);    // ringfinger
-    	KDL::JntArray jointpositions_4 = JntArray(nj_4);    // littlefinger
-
+   		
 
 
     	// resizes the joint state vectors in non-realtime
-  		jointpositions_0.resize(chain0_thumb.getNrOfJoints());
-  		jointpositions_1.resize(chain1_index.getNrOfJoints());
-  		jointpositions_2.resize(chain2_middle.getNrOfJoints());
-  		jointpositions_3.resize(chain3_ring.getNrOfJoints());
-  		jointpositions_4.resize(chain4_little.getNrOfJoints());
+  		q_thumb.resize(chain0_thumb.getNrOfJoints());
+  		q_index.resize(chain1_index.getNrOfJoints());
+  		q_middle.resize(chain2_middle.getNrOfJoints());
+  		q_ring.resize(chain3_ring.getNrOfJoints());
+  		q_little.resize(chain4_little.getNrOfJoints());
 
   		jacobian0_thumb.resize(chain0_thumb.getNrOfJoints());
   		jacobian1_index.resize(chain1_index.getNrOfJoints());
@@ -323,110 +377,108 @@ int main (int argc, char **argv)
 
 
 
-	for(int i = 0; i < n_rows ; i++)  // for each row calculation the grasp matrix and hand jacobian
+	for(int r = 0; r < n_rows ; r++)  // for each row calculation the grasp matrix and hand jacobian
 	{
-		//take the value of joints from data
-
-		q_thumb[0] = data_set(i,10);
-
-		q_thumb[1] = data_set(i,11) / 2;
-		q_thumb[2] = data_set(i,11) / 2;
-
-		q_thumb[3] = data_set(i,12) / 2;
-		q_thumb[4] = data_set(i,12) / 2;
-
-
-
-		q_index[0] = data_set(i,13);
-
-		q_index[1] = data_set(i,14) / 2;
-		q_index[2] = data_set(i,14) / 2;
-
-		q_index[3] = data_set(i,15) / 2;
-		q_index[4] = data_set(i,15) / 2;
-
-		q_index[5] = data_set(i,16) / 2;
-		q_index[6] = data_set(i,16) / 2;
-
-
-
-		q_middle[0] = data_set(i,17);
-
-		q_middle[1] = data_set(i,18) / 2;
-		q_middle[2] = data_set(i,18) / 2;
-
-		q_middle[3] = data_set(i,19) / 2;
-		q_middle[4] = data_set(i,19) / 2;
-
-		q_middle[5] = data_set(i,20) / 2;
-		q_middle[6] = data_set(i,20) / 2;
-
-
-
-		q_ring[0] = data_set(i,21);
-
-		q_ring[1] = data_set(i,22) / 2;
-		q_ring[2] = data_set(i,22) / 2;
-
-		q_ring[3] = data_set(i,23) / 2;
-		q_ring[4] = data_set(i,23) / 2;
-
-		q_ring[5] = data_set(i,24) / 2;
-		q_ring[6] = data_set(i,24) / 2;
-
-
-
-
-
-		q_little[0] = data_set(i,25);
-
-		q_little[1] = data_set(i,26) / 2;
-		q_little[2] = data_set(i,26) / 2;
-
-		q_little[3] = data_set(i,27) / 2;
-		q_little[4] = data_set(i,27) / 2;
-
-		q_little[5] = data_set(i,28) / 2;
-		q_little[6] = data_set(i,28) / 2;
-
-
-
+		//take the value of joints from data		
 		// initialize jntarray then be able to calculate the Jacobian to that point of contact
 
-		for ( int i = 0 ; i < 5 ; i++)
-          	jointpositions_0(i) = q_thumb[i];
 
+		q_thumb(0) = data_set(r,10);
 
-	    for ( int i = 0 ; i < 7 ; i++)
-      	{    
-        	jointpositions_1(i) = q_index[i];
-          	jointpositions_2(i) = q_middle[i];
-          	jointpositions_3(i) = q_ring[i];
-          	jointpositions_4(i) = q_little[i];
-      	}   
+		q_thumb(1) = data_set(r,11) / 2;
+		q_thumb(2) = data_set(r,11) / 2;
+
+		q_thumb(3) = data_set(r,12) / 2;
+		q_thumb(4) = data_set(r,12) / 2;
 
 
 
+		q_index(0) = data_set(r,13);
+
+		q_index(1) = data_set(r,14) / 2;
+		q_index(2) = data_set(r,14) / 2;
+
+		q_index(3) = data_set(r,15) / 2;
+		q_index(4) = data_set(r,15) / 2;
+
+		q_index(5) = data_set(r,16) / 2;
+		q_index(6) = data_set(r,16) / 2;
+
+
+
+		q_middle(0) = data_set(r,17);
+
+		q_middle(1) = data_set(r,18) / 2;
+		q_middle(2) = data_set(r,18) / 2;
+
+		q_middle(3) = data_set(r,19) / 2;
+		q_middle(4) = data_set(r,19) / 2;
+
+		q_middle(5) = data_set(r,20) / 2;
+		q_middle(6) = data_set(r,20) / 2;
+
+
+
+		q_ring(0) = data_set(r,21);
+
+		q_ring(1) = data_set(r,22) / 2;
+		q_ring(2) = data_set(r,22) / 2;
+
+		q_ring(3) = data_set(r,23) / 2;
+		q_ring(4) = data_set(r,23) / 2;
+
+		q_ring(5) = data_set(r,24) / 2;
+		q_ring(6) = data_set(r,24) / 2;
 
 
 
 
 
-		Eigen::MatrixXd Contacts(14,3);  // I build a matrix of contact points for convenience only
+		q_little(0) = data_set(r,25);
+
+		q_little(1) = data_set(r,26) / 2;
+		q_little(2) = data_set(r,26) / 2;
+
+		q_little(3) = data_set(r,27) / 2;
+		q_little(4) = data_set(r,27) / 2;
+
+		q_little(5) = data_set(r,28) / 2;
+		q_little(6) = data_set(r,28) / 2;
 
 
+
+
+
+
+
+
+
+
+		Eigen::MatrixXd Contacts(n_c,3); // I build a matrix of contact points for convenience only
+										 // each row is a contact point
+										 // rows 0 and 1 for thumb
+										 // rows 2, 3, 4 for index
+										 // rows 5, 6, 7 for middle
+										 // rows 8, 9, 10 for ring
+										 // rows 11, 12, 13 for little
+
+
+
+		
+		int start = 29; // indice del primo valore utile nel database 
 		int gap_point_coordinate = 0;
 
-		for(int k = 0; k < 15; k++)
+		for(int k = 0; k < n_c; k++)
 		{	
 			for(int h = 0; h < 3; h++ )
-				Contacts(k,h) = data_set(i,29+h+gap_point_coordinate);
+				Contacts(k,h) = data_set(i, h + start + gap_point_coordinate);
 
 			gap_point_coordinate += 3;
 
 		}
 
 
+		
 
 
 
@@ -436,16 +488,21 @@ int main (int argc, char **argv)
 
 
 
-      	int count = 0;
 
 
-      	std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;
-      	//std::vector<std::vector<Eigen::MatrixXd>> Hand_Jacobian_ ;
 
-      	for(int r = 0 ; r < 15 ; r++)
+		int how_finger = 0;
+
+      	//for each contact point 
+		std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;  //
+      	std::vector<Eigen::MatrixXd> Hand_Jacobian_ ;
+
+
+
+      	for(int i = 0 ; i < n_c ; i++) //calc the grasp_matrix and hand_jacobian for each contact point
       	{
       		
-      		if(Contacts(r,0) != 99999)
+      		if(Contacts(i,0) != 99999) //99999 similar to NaN in dataset
       		{	
 
 
@@ -458,62 +515,204 @@ int main (int argc, char **argv)
 
 
 
-      		Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
-            Skew_Matrix(0,1) = - Contacts(r,2); // -rz
-            Skew_Matrix(0,2) = Contacts(r,1);   // ry
-            Skew_Matrix(1,0) = Contacts(r,2);   // rz
-            Skew_Matrix(2,0) = - Contacts(r,1); // -ry
-            Skew_Matrix(1,2) = - Contacts(r,0); // -rx
-            Skew_Matrix(2,1) = Contacts(r,0);   // rx
+      			Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+            	Skew_Matrix(0,1) = - Contacts(i,2); // -rz
+            	Skew_Matrix(0,2) = Contacts(i,1);   // ry
+            	Skew_Matrix(1,0) = Contacts(i,2);   // rz
+            	Skew_Matrix(2,0) = - Contacts(i,1); // -ry
+            	Skew_Matrix(1,2) = - Contacts(i,0); // -rx
+            	Skew_Matrix(2,1) = Contacts(i,0);   // rx
 
 
 
-            Grasp_Matrix.block<3,3>(0,0) = Rotation;
-            Grasp_Matrix.block<3,3>(3,3) = Rotation;
-            Grasp_Matrix.block<3,3>(0,3) = Skew_Matrix * Rotation;
-            Grasp_Matrix.block<3,3>(3,0) = MatrixXd::Zero(3,3);
+            	Grasp_Matrix.block<3,3>(0,0) = Rotation;
+            	Grasp_Matrix.block<3,3>(3,3) = Rotation;
+            	Grasp_Matrix.block<3,3>(0,3) = Skew_Matrix * Rotation;
+            	Grasp_Matrix.block<3,3>(3,0) = MatrixXd::Zero(3,3);
 
 
-            Grasp_Matrix_.push_back(Grasp_Matrix);
-
-
-
-            // compute Jacobian in realtime
-      jnt_to_jac_solver_0->JntToJac(jointpositions_0, jacobian0_thumb);
-      jnt_to_jac_solver_1->JntToJac(jointpositions_1, jacobian1_index);
-      jnt_to_jac_solver_2->JntToJac(jointpositions_2, jacobian2_middle);
-      jnt_to_jac_solver_3->JntToJac(jointpositions_3, jacobian3_ring);
-      jnt_to_jac_solver_4->JntToJac(jointpositions_4, jacobian4_little);
-
-
-      std::vector<Eigen::MatrixXd>  Jacobian_finger;// KDL::Jacobian jacobian0_thumb;
-                                                    // KDL::Jacobian jacobian1_forefinger;
-                                                    // KDL::Jacobian jacobian2_middlefinger;
-                                                    // KDL::Jacobian jacobian3_ringfinger;
-                                                    // KDL::Jacobian jacobian4_littlefinger;
+            	Grasp_Matrix_.push_back(Grasp_Matrix);
 
 
 
-      Jacobian_finger.push_back(jacobian0_thumb.data);
-      Jacobian_finger.push_back(jacobian1_index.data);
-      Jacobian_finger.push_back(jacobian2_middle.data);
-      Jacobian_finger.push_back(jacobian3_ring.data);
-      Jacobian_finger.push_back(jacobian4_little.data);
 
 
 
-        	}
+
+
+
+            	int stop_chain = 0;
+
+
+            	if((0 <= i) && (i <= 2)){ how_finger = 0; stop_chain = i;}
+            	if((3 <= i) && (i <= 6)){ how_finger = 1; stop_chain = i-3;}
+            	if((7 <= i) && (i <= 10)){ how_finger = 2; stop_chain = i-7;}
+            	if((11 <= i) && (i <= 14)){ how_finger = 3; stop_chain = i-11;}
+            	if((15 <= i) && (i <= 18)){ how_finger = 4; stop_chain = i-15;}
+
+
+
+            switch(how_finger)
+            {
+            	case 0: // thumb
+
+            				// compute Jacobian in realtime
+      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, stop_chain);
+      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
+      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
+      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
+      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
+
+	  						break;
+
+	  			case 1: // index
+
+            				// compute Jacobian in realtime
+      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
+      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, stop_chain);
+      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
+      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
+      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
+
+	  						break;
+
+	  			case 2: // middle
+
+            				// compute Jacobian in realtime
+      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
+      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
+      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, stop_chain);
+      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
+      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
+
+	  						break;
+
+	  			case 3: // ring
+
+            				// compute Jacobian in realtime
+      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
+      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
+      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
+      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, stop_chain);
+      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
+
+	  						break;
+
+
+	  			case 4: // little
+
+            				// compute Jacobian in realtime
+      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
+      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
+      						jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
+      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
+      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, stop_chain);
+
+	  						
+	  						break;
+
+	  		}// end switch
+
+	  		Hand_Jacobian_.push_back(jacobian0_thumb.data);
+	  		Hand_Jacobian_.push_back(jacobian1_index.data);
+	 		Hand_Jacobian_.push_back(jacobian2_middle.data);
+	  		Hand_Jacobian_.push_back(jacobian3_ring.data);
+	  		Hand_Jacobian_.push_back(jacobian4_little.data);
+
+
+
+
+        	}// and if true contact
+        }// end for contact
+
+
+
+
+
+
+
+
+
+
+        int quality_ = 9999;
+
+
+
+        switch(quality_index)
+        {
+        	case 0: // "minimum_singular_value_of_G"
+
+
+					for(int k = 0; k < Grasp_Matrix_.size(); k++ )
+					{	
+						JacobiSVD<MatrixXd> svd(Grasp_Matrix_[k], ComputeThinU | ComputeThinV);  
+
+						Eigen::VectorXd Singular_Value_Grasp_Matrix;
+						Singular_Value_Grasp_Matrix = svd.singularValues();
+
+
+						double sigma_min = Singular_Value_Grasp_Matrix[0];
+						
+
+
+						for(int i = 0 ; i < Singular_Value_Grasp_Matrix.size() ; i++)
+							if(Singular_Value_Grasp_Matrix[i] < sigma_min) sigma_min = Singular_Value_Grasp_Matrix[i];
+							
+
+						if(sigma_min < quality_) quality_ = sigma_min;
+
+					}
+
+					Quality.push_back(quality_);
+
+        		break;
+
+
+
+
+
+
+
+        	case 1: // "Grasp isotropy index"
+
+
+
+					for(int k = 0; k < Grasp_Matrix_.size(); k++ )
+					{	
+						JacobiSVD<MatrixXd> svd(Grasp_Matrix_[k], ComputeThinU | ComputeThinV);  
+
+						Eigen::VectorXd Singular_Value_Grasp_Matrix;
+						Singular_Value_Grasp_Matrix = svd.singularValues();
+
+
+						double sigma_min = Singular_Value_Grasp_Matrix[0];
+						double sigma_max = Singular_Value_Grasp_Matrix[0];
+
+
+
+						for(int i = 0 ; i < Singular_Value_Grasp_Matrix.size() ; i++)
+						{
+							if(Singular_Value_Grasp_Matrix[i] < sigma_min) sigma_min = Singular_Value_Grasp_Matrix[i];
+							if(Singular_Value_Grasp_Matrix[i] > sigma_max) sigma_max = Singular_Value_Grasp_Matrix[i];
+						}
+
+
+
+
+						double quality_in = sigma_min / sigma_max ;
+
+						if(quality_in < quality_) quality_ = quality_in;
+
+					}
+
+					Quality.push_back(quality_);
+
+        		break;
+
+
+
+
         }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -530,6 +729,21 @@ int main (int argc, char **argv)
 
 	} // per ogni riga !!!!!!!!!!! panic !!!!!!!!!!!!!
 
+
+
+
+
+
+
+
+
   file.close();
+
+  cout << " YEAH ENJOY " << endl;
+  cout << "   fine   " << endl;
+
+
+	ros::spin();
+	return 0;
 
 }
