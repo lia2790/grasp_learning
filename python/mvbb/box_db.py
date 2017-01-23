@@ -3,6 +3,8 @@
 import csv
 from klampt.math import se3, so3
 import numpy as np
+import os.path
+import traceback
 
 class MVBBLoader(object):
     def __init__(self, filename_no_ext, n_dofs, n_l):
@@ -10,11 +12,10 @@ class MVBBLoader(object):
         self.filename_simulated = '%s_simulated.csv' % filename_no_ext
         self.db = {}
         self.db_simulated = {}
-        self._load_mvbbs()
-        self._load_mvbbs_simulated()
-
         self.n_dofs = n_dofs
         self.n_l = n_l
+        self._load_mvbbs()
+        self._load_mvbbs_simulated()
 
     def _load_mvbbs(self):
         try:
@@ -34,6 +35,7 @@ class MVBBLoader(object):
 
         except:
             print "Error loading file", self.filename
+            traceback.print_exc()
 
     def _load_mvbbs_simulated(self):
         try:
@@ -44,23 +46,68 @@ class MVBBLoader(object):
             for row in reader:
                 object_dims = tuple([float(v) for i, v in enumerate(row) if i in range(3)])
                 t = [float(v) for i, v in enumerate(row) if i in range(3, 6)]
-                q = [float(v) for i, v in enumerate(row) if i in range(6, 10)]
+                q = [float(row[9])] + [float(v) for i, v in enumerate(row) if i in range(6, 9)]
 
-                T = (so3.from_quaternion(q), t)
+                T = np.array(se3.homogeneous((so3.from_quaternion(q), t)))
 
-                q_hand = [float(v) for i, v in enumerate(row) if i in range(10, 10 + n_dofs)]
-                c_p = [float(v) for i, v in enumerate(row) if i in range(10 + n_dofs, 10 + n_dofs + n_l)]
-                c_f = [float(v) for i, v in enumerate(row) if i in range(10 + n_dofs + n_l, 10 + n_dofs + 2 * n_l)]
+                t = [float(v) for i, v in enumerate(row) if i in range(10, 13)]
+                q = [float(row[16])] + [float(v) for i, v in enumerate(row) if i in range(13, 16)]
+
+                h_T_o = np.array(se3.homogeneous((so3.from_quaternion(q), t)))
+
+                q_hand = [float(v) for i, v in enumerate(row) if i in range(17, 17 + self.n_dofs)]
+                c_p = [float(v) for i, v in enumerate(row) if i in range(17 + self.n_dofs, 17 + self.n_dofs + self.n_l)]
+                c_f = [float(v) for i, v in enumerate(row) if i in range(17 + self.n_dofs + self.n_l, 17 + self.n_dofs + 2 * self.n_l)]
 
                 if tuple(object_dims) not in self.db_simulated:
                     self.db_simulated[tuple(object_dims)] = []
-                obj_pose_q_c_p_c_f = {'T' :  T,
-                                      'q':   q_hand,
-                                      'c_p': c_p,
-                                      'c_f': c_f}
+                obj_pose_q_c_p_c_f = {'T' :    T,
+                                      'h_T_o': h_T_o,
+                                      'q':     q_hand,
+                                      'c_p':   c_p,
+                                      'c_f':   c_f}
                 self.db_simulated[tuple(object_dims)].append(obj_pose_q_c_p_c_f)
         except:
             print "Error loading file", self.filename_simulated
+            traceback.print_exc()
+
+    def join_results(self, filenames):
+        dbs = {}
+        for filename in sorted(filenames):
+            db = MVBBLoader(filename, self.n_dofs, self.n_l)
+            dbs.update(db.db_simulated)
+        out = MVBBLoader(os.path.splitext(self.filename)[0], self.n_dofs, self.n_l)
+        for k in sorted(dbs.keys()):
+            poses = dbs[k]
+            for v in poses:
+                out.save_simulation(k, v['T'], v['h_T_o'], v['q'], v['c_p'], v['c_f'])
+
+
+
+    def split_db(self):
+        filenames = []
+        precision = int(np.ceil(np.log10(len(self.db.keys()))))
+        n = 0
+        for k in sorted(self.db.keys()):
+            fname = os.path.splitext(self.filename)[0] + '_' + str(n).zfill(precision)
+            filenames.append(fname)
+            f = open(fname + '.csv', 'w')
+            for pose in self.db[k]:
+                f.write(','.join([str(d) for d in k]))
+                f.write(',')
+                values = []
+                pose = se3.from_homogeneous(pose)
+                # saving pose.t
+                values += pose[1]
+                # saving pose.q
+                q = np.array(so3.quaternion(pose[0]))
+                values += list(q[1:4])
+                values.append(q[0])
+                f.write(','.join([str(v) for v in values]))
+                f.write('\n')
+            f.close()
+            n=n+1
+        return filenames
 
     def save_simulation(self, box_dims, pose, h_T_o, q, c_p, c_f):
         if not self.has_simulation(box_dims, pose):
