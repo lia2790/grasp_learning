@@ -576,7 +576,6 @@ bool count_cols_only_one = true;
       						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, which_falange);
 	  						break;
 
-
 	  			case 4: // little
       						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, which_falange);
 	  						break;
@@ -626,12 +625,6 @@ bool count_cols_only_one = true;
 
 
 						double sigma_min = Singular_Value_Grasp_Matrix[Singular_Value_Grasp_Matrix.size()];
-						
-
-
-						for(int i = 0 ; i < Singular_Value_Grasp_Matrix.size() ; i++)
-							if(Singular_Value_Grasp_Matrix[i] < sigma_min) sigma_min = Singular_Value_Grasp_Matrix[i];
-							
 
 						if(sigma_min < quality_) quality_ = sigma_min;
 
@@ -659,18 +652,8 @@ bool count_cols_only_one = true;
 						Singular_Value_Grasp_Matrix = svd.singularValues();
 
 
-						double sigma_min = Singular_Value_Grasp_Matrix[0];
+						double sigma_min = Singular_Value_Grasp_Matrix[Singular_Value_Grasp_Matrix.size()];
 						double sigma_max = Singular_Value_Grasp_Matrix[0];
-
-
-
-						for(int i = 0 ; i < Singular_Value_Grasp_Matrix.size() ; i++)
-						{
-							if(Singular_Value_Grasp_Matrix[i] < sigma_min) sigma_min = Singular_Value_Grasp_Matrix[i];
-							if(Singular_Value_Grasp_Matrix[i] > sigma_max) sigma_max = Singular_Value_Grasp_Matrix[i];
-						}
-
-
 
 
 						double quality_in = sigma_min / sigma_max ;
