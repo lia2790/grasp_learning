@@ -194,7 +194,7 @@ bool count_cols_only_one = true;
 
 
 
-	for(std::string line; getline ( file, line, '\n' ); ) // ciclo sulla riga
+	for(std::string line; getline( file, line, '\n' ); ) // ciclo sulla riga
 	{
 
     	std::istringstream iss_line(line);	
@@ -264,17 +264,14 @@ bool count_cols_only_one = true;
 
 
 
-  KDL::Chain chain0_thumb;
-  KDL::Chain chain1_index;
-  KDL::Chain chain2_middle;
-  KDL::Chain chain3_ring;
-  KDL::Chain chain4_little;
+  KDL::Chain hand_finger[5];
+  KDL::Jacobian hand_jacob[5];
 
 
 
 
   std::string root_name = "right_hand_palm_link" ;
-  std::string end_chain_name[5] ;
+  std::string end_chain_name[5];
 
 
   end_chain_name[0] = "right_hand_thumb_distal_link";
@@ -284,11 +281,11 @@ bool count_cols_only_one = true;
   end_chain_name[4] = "right_hand_little_distal_link";
 
 
-  hand_tree.getChain(root_name, end_chain_name[0], chain0_thumb);      
-  hand_tree.getChain(root_name, end_chain_name[1], chain1_index); 
-  hand_tree.getChain(root_name, end_chain_name[2], chain2_middle);
-  hand_tree.getChain(root_name, end_chain_name[3], chain3_ring);
-  hand_tree.getChain(root_name, end_chain_name[4], chain4_little);
+  hand_tree.getChain(root_name, end_chain_name[0], hand_finger[0]);      
+  hand_tree.getChain(root_name, end_chain_name[1], hand_finger[1]); 
+  hand_tree.getChain(root_name, end_chain_name[2], hand_finger[2]);
+  hand_tree.getChain(root_name, end_chain_name[3], hand_finger[3]);
+  hand_tree.getChain(root_name, end_chain_name[4], hand_finger[4]);
 
 
  
@@ -311,18 +308,12 @@ bool count_cols_only_one = true;
 	/////////////////////////////////////////////////////////////////////////
 
 
-		KDL::Jacobian jacobian0_thumb;
-		KDL::Jacobian jacobian1_index;
-		KDL::Jacobian jacobian2_middle;
-		KDL::Jacobian jacobian3_ring;
-		KDL::Jacobian jacobian4_little;
 
-
-		unsigned int nj_0 = chain0_thumb.getNrOfJoints();   // 5
-  		unsigned int nj_1 = chain1_index.getNrOfJoints();   // 7
-  		unsigned int nj_2 = chain2_middle.getNrOfJoints();  // 7
-  		unsigned int nj_3 = chain3_ring.getNrOfJoints();    // 7
-  		unsigned int nj_4 = chain4_little.getNrOfJoints();  // 7 
+		unsigned int nj_0 = hand_finger[0].getNrOfJoints();   // 5
+  		unsigned int nj_1 = hand_finger[1].getNrOfJoints();   // 7
+  		unsigned int nj_2 = hand_finger[2].getNrOfJoints();  // 7
+  		unsigned int nj_3 = hand_finger[3].getNrOfJoints();    // 7
+  		unsigned int nj_4 = hand_finger[4].getNrOfJoints();  // 7 
 
 
 
@@ -345,11 +336,11 @@ bool count_cols_only_one = true;
 
 
   // constructs the kdl solvers in non-realtime
-  jnt_to_jac_solver_0.reset(new KDL::ChainJntToJacSolver(chain0_thumb));
-  jnt_to_jac_solver_1.reset(new KDL::ChainJntToJacSolver(chain1_index));
-  jnt_to_jac_solver_2.reset(new KDL::ChainJntToJacSolver(chain2_middle));
-  jnt_to_jac_solver_3.reset(new KDL::ChainJntToJacSolver(chain3_ring));
-  jnt_to_jac_solver_4.reset(new KDL::ChainJntToJacSolver(chain4_little));
+  jnt_to_jac_solver_0.reset(new KDL::ChainJntToJacSolver(hand_finger[0]));
+  jnt_to_jac_solver_1.reset(new KDL::ChainJntToJacSolver(hand_finger[1]));
+  jnt_to_jac_solver_2.reset(new KDL::ChainJntToJacSolver(hand_finger[2]));
+  jnt_to_jac_solver_3.reset(new KDL::ChainJntToJacSolver(hand_finger[3]));
+  jnt_to_jac_solver_4.reset(new KDL::ChainJntToJacSolver(hand_finger[4]));
 
 
 
@@ -359,17 +350,17 @@ bool count_cols_only_one = true;
 
 
     	// resizes the joint state vectors in non-realtime
-  		q_thumb.resize(chain0_thumb.getNrOfJoints());
-  		q_index.resize(chain1_index.getNrOfJoints());
-  		q_middle.resize(chain2_middle.getNrOfJoints());
-  		q_ring.resize(chain3_ring.getNrOfJoints());
-  		q_little.resize(chain4_little.getNrOfJoints());
+  		q_thumb.resize(hand_finger[0].getNrOfJoints());
+  		q_index.resize(hand_finger[1].getNrOfJoints());
+  		q_middle.resize(hand_finger[2].getNrOfJoints());
+  		q_ring.resize(hand_finger[3].getNrOfJoints());
+  		q_little.resize(hand_finger[4].getNrOfJoints());
 
-  		jacobian0_thumb.resize(chain0_thumb.getNrOfJoints());
-  		jacobian1_index.resize(chain1_index.getNrOfJoints());
-  		jacobian2_middle.resize(chain2_middle.getNrOfJoints());
- 		jacobian3_ring.resize(chain3_ring.getNrOfJoints());
-  		jacobian4_little.resize(chain4_little.getNrOfJoints());
+  		hand_jacob[0].resize(hand_finger[0].getNrOfJoints());
+  		hand_jacob[1].resize(hand_finger[1].getNrOfJoints());
+  		hand_jacob[2].resize(hand_finger[2].getNrOfJoints());
+ 		hand_jacob[3].resize(hand_finger[3].getNrOfJoints());
+  		hand_jacob[4].resize(hand_finger[4].getNrOfJoints());
 
 
 
@@ -535,11 +526,11 @@ bool count_cols_only_one = true;
 
 
 
-            	jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, 0);
-      			jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, 0);
-      			jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, 0);
-      			jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, 0);
-      			jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, 0);
+            	jnt_to_jac_solver_0->JntToJac(q_thumb, hand_jacob[0], 0);
+      			jnt_to_jac_solver_1->JntToJac(q_index, hand_jacob[1], 0);
+      			jnt_to_jac_solver_2->JntToJac(q_middle, hand_jacob[2], 0);
+      			jnt_to_jac_solver_3->JntToJac(q_ring, hand_jacob[3], 0);
+      			jnt_to_jac_solver_4->JntToJac(q_little, hand_jacob[4], 0);
 
 
 
@@ -561,32 +552,32 @@ bool count_cols_only_one = true;
             switch(which_finger)
             {
             	case 0: // thumb
-      						jnt_to_jac_solver_0->JntToJac(q_thumb, jacobian0_thumb, which_falange);
+      						jnt_to_jac_solver_0->JntToJac(q_thumb, hand_jacob[0], which_falange);
       						break;
 
 	  			case 1: // index
-      						jnt_to_jac_solver_1->JntToJac(q_index, jacobian1_index, which_falange);
+      						jnt_to_jac_solver_1->JntToJac(q_index, hand_jacob[1], which_falange);
       						break;
 
 	  			case 2: // middle
-							jnt_to_jac_solver_2->JntToJac(q_middle, jacobian2_middle, which_falange);
+							jnt_to_jac_solver_2->JntToJac(q_middle, hand_jacob[2], which_falange);
       						break;
 
 	  			case 3: // ring
-      						jnt_to_jac_solver_3->JntToJac(q_ring, jacobian3_ring, which_falange);
+      						jnt_to_jac_solver_3->JntToJac(q_ring, hand_jacob[3], which_falange);
 	  						break;
 
 	  			case 4: // little
-      						jnt_to_jac_solver_4->JntToJac(q_little, jacobian4_little, which_falange);
+      						jnt_to_jac_solver_4->JntToJac(q_little, hand_jacob[4], which_falange);
 	  						break;
 
 	  		}// end switch
 
-	  		Hand_Jacobian_.push_back(jacobian0_thumb.data);
-	  		Hand_Jacobian_.push_back(jacobian1_index.data);
-	 		Hand_Jacobian_.push_back(jacobian2_middle.data);
-	  		Hand_Jacobian_.push_back(jacobian3_ring.data);
-	  		Hand_Jacobian_.push_back(jacobian4_little.data);
+	  		Hand_Jacobian_.push_back(hand_jacob[0].data);
+	  		Hand_Jacobian_.push_back(hand_jacob[1].data);
+	 		Hand_Jacobian_.push_back(hand_jacob[2].data);
+	  		Hand_Jacobian_.push_back(hand_jacob[3].data);
+	  		Hand_Jacobian_.push_back(hand_jacob[4].data);
 
 
 
