@@ -74,6 +74,9 @@ class MVBBLoader(object):
         dbs = {}
         for filename in sorted(filenames):
             db = MVBBLoader(filename, self.n_dofs, self.n_l)
+            # note the following simple udpate method will work as each file corresponds to a box.
+            # In case poses from the same box are split across different boxes, the corresponding list of poses
+            # for each box should get concatenated manually
             dbs.update(db.db_simulated)
         out = MVBBLoader(os.path.splitext(self.filename)[0], self.n_dofs, self.n_l)
         for k in sorted(dbs.keys()):
@@ -172,5 +175,8 @@ class MVBBLoader(object):
         for box_dims in self.db_simulated:
             poses = [ pose['T'] for pose in self.db_simulated[box_dims]]
             if len(poses) > 0:
-                obj_poses[box_dims] = poses
+                if not obj_poses.has_key(box_dims):
+                    obj_poses[box_dims] = []
+                obj_poses[box_dims] += poses
+
         return obj_poses
