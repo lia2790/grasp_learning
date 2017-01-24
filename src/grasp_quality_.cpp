@@ -255,11 +255,11 @@ bool count_cols_only_one = true;
 
 
 
-  int nj_hand = hand_tree.getNrOfJoints();  // 34
+  int nq_hand = hand_tree.getNrOfJoints();  // 34
   int ns_hand = hand_tree.getNrOfSegments(); // 39
 
 
-  cout << "number_of_joint_in_hand : " << nj_hand << endl;
+  cout << "number_of_joint_in_hand : " << nq_hand << endl;
   cout << "number_of_segment_in_hand : " << ns_hand << endl;
 
 
@@ -268,8 +268,7 @@ bool count_cols_only_one = true;
   KDL::Jacobian hand_jacob[5];
 
 
-
-
+  //std::string root_name = "right_hand_softhand_base";
   std::string root_name = "right_hand_palm_link" ;
   std::string end_chain_name[5];
 
@@ -482,10 +481,9 @@ bool count_cols_only_one = true;
 
 
 
-		int which_finger = 0;
-
+		
       	//for each contact point 
-		std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;  //
+		std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;  
       	std::vector<Eigen::MatrixXd> Hand_Jacobian_ ;
 
 
@@ -493,11 +491,11 @@ bool count_cols_only_one = true;
       	for(int i = 0 ; i < n_c ; i++) //calc the grasp_matrix and hand_jacobian for each contact point
       	{
       		
-      		if(Contacts(i,0) != 99999) //99999 similar to NaN in dataset
+      		if(Contacts(i,0) != 9999) //9999 similar to NaN in dataset
       		{	
 
 
-      			Eigen::MatrixXd Grasp_Matrix(6,6);
+      			Eigen::MatrixXd Grasp_Matrix(6,6);  // calculation of the already transposed
  				Eigen::MatrixXd Skew_Matrix(3,3);
   				Eigen::MatrixXd Rotation(3,3);
 
@@ -522,31 +520,40 @@ bool count_cols_only_one = true;
             	Grasp_Matrix.block<3,3>(3,0) = MatrixXd::Zero(3,3);
 
 
+            	cout << "Grasp_Matrix" << Grasp_Matrix << endl;
+
+
             	Grasp_Matrix_.push_back(Grasp_Matrix);
 
 
 
-            	jnt_to_jac_solver_0->JntToJac(q_thumb, hand_jacob[0], 0);
-      			jnt_to_jac_solver_1->JntToJac(q_index, hand_jacob[1], 0);
-      			jnt_to_jac_solver_2->JntToJac(q_middle, hand_jacob[2], 0);
-      			jnt_to_jac_solver_3->JntToJac(q_ring, hand_jacob[3], 0);
-      			jnt_to_jac_solver_4->JntToJac(q_little, hand_jacob[4], 0);
+            	jnt_to_jac_solver_0->JntToJac(q_thumb, hand_jacob[0],-1);
+      			jnt_to_jac_solver_1->JntToJac(q_index, hand_jacob[1],-1);
+      			jnt_to_jac_solver_2->JntToJac(q_middle, hand_jacob[2],-1);
+      			jnt_to_jac_solver_3->JntToJac(q_ring, hand_jacob[3],-1);
+      			jnt_to_jac_solver_4->JntToJac(q_little, hand_jacob[4],-1);
+
+
+      			cout << "Hand_Jacobian_ THUMB" << hand_jacob[0].data << endl;
+      			cout << "Hand_Jacobian_ INDEX" << hand_jacob[1].data << endl;
+      			cout << "Hand_Jacobian_ MIDDLE"<< hand_jacob[2].data << endl;
+      			cout << "Hand_Jacobian_ RING"  << hand_jacob[3].data << endl;
+      			cout << "Hand_Jacobian_ LITTLE"<< hand_jacob[4].data << endl;
 
 
 
-
-
-
-
-
+      			int which_finger = 0;
             	int which_falange = 0;
 
 
-            	if((0 <= i) && (i <= 2)){ which_finger = 0; which_falange = i;}
+            	if((0 <= i) && (i <= 2)){ which_finger = 0; which_falange = i;} // control flag which_falange there mey be some error
             	if((3 <= i) && (i <= 6)){ which_finger = 1; which_falange = i-3;}
             	if((7 <= i) && (i <= 10)){ which_finger = 2; which_falange = i-7;}
             	if((11 <= i) && (i <= 14)){ which_finger = 3; which_falange = i-11;}
             	if((15 <= i) && (i <= 18)){ which_finger = 4; which_falange = i-15;}
+
+
+
 
 
             switch(which_finger)
@@ -573,16 +580,26 @@ bool count_cols_only_one = true;
 
 	  		}// end switch
 
-	  		Hand_Jacobian_.push_back(hand_jacob[0].data);
-	  		Hand_Jacobian_.push_back(hand_jacob[1].data);
-	 		Hand_Jacobian_.push_back(hand_jacob[2].data);
-	  		Hand_Jacobian_.push_back(hand_jacob[3].data);
-	  		Hand_Jacobian_.push_back(hand_jacob[4].data);
+	  		cout << " Jacobian thumb " << hand_jacob[0].data << endl ;
+	  		cout << " Jacobian index " << hand_jacob[1].data << endl ;
+	  		cout << " Jacobian middle " << hand_jacob[2].data << endl ;
+			cout << " Jacobian ring " << hand_jacob[3].data << endl ;
+			cout << " Jacobian little " << hand_jacob[4].data << endl ;
 
 
 
 
-        	}// and if true contact
+
+	  		Hand_Jacobian_.push_back(hand_jacob[0].data); // 5
+	  		Hand_Jacobian_.push_back(hand_jacob[1].data); // 7
+	 		Hand_Jacobian_.push_back(hand_jacob[2].data); // 7
+	  		Hand_Jacobian_.push_back(hand_jacob[3].data); // 7
+	  		Hand_Jacobian_.push_back(hand_jacob[4].data); // 7
+
+
+
+
+        	}// end if  contact
         	
 
 
@@ -590,76 +607,34 @@ bool count_cols_only_one = true;
         }// end for contact
 
 
+        cout << " Dim of the vectors of the matrices grasp " << Grasp_Matrix_.size() << endl;
+        cout << " Dim of the hand jacobian " << Hand_Jacobian_.size() << endl;
+
+
+        int n_c = Grasp_Matrix_.size();
+
+
+        
+        Eigen::MatrixXd Hand_Jacobian_Contact(6*n_c,nq_hand-1);
+        Eigen::MatrixXd Grasp_Matrix_Contact(6,6*n_c);
 
 
 
+        int s = 0; // dimension 
 
 
-
-
-
-        int quality_ = 9999;
-
-
-
-        switch(quality_index)
+        for(int i = 0; i < n_c; i++)
         {
-        	case 0: // "minimum_singular_value_of_G"
+        	Grasp_Matrix_Contact.block<6,6>(0,s) = Grasp_Matrix_[i];
+        	
 
+        	Hand_Jacobian_Contact.block<6,5>(i,0) = Hand_Jacobian_[i];
+        	Hand_Jacobian_Contact.block<6,7>(i,5) = Hand_Jacobian_[i+1];
+        	Hand_Jacobian_Contact.block<6,7>(i,12) = Hand_Jacobian_[i+2];
+        	Hand_Jacobian_Contact.block<6,7>(i,19) = Hand_Jacobian_[i+3];
+        	Hand_Jacobian_Contact.block<6,7>(i,26) = Hand_Jacobian_[i+4];
 
-					for(int k = 0; k < Grasp_Matrix_.size(); k++ )
-					{	
-						JacobiSVD<MatrixXd> svd(Grasp_Matrix_[k], ComputeThinU | ComputeThinV);  
-
-						Eigen::VectorXd Singular_Value_Grasp_Matrix;
-						Singular_Value_Grasp_Matrix = svd.singularValues();
-
-
-						double sigma_min = Singular_Value_Grasp_Matrix[Singular_Value_Grasp_Matrix.size()];
-
-						if(sigma_min < quality_) quality_ = sigma_min;
-
-					}
-
-					Quality.push_back(quality_);
-
-        		break;
-
-
-
-
-
-
-
-        	case 1: // "Grasp isotropy index"
-
-
-
-					for(int k = 0; k < Grasp_Matrix_.size(); k++ )
-					{	
-						JacobiSVD<MatrixXd> svd(Grasp_Matrix_[k], ComputeThinU | ComputeThinV);  
-
-						Eigen::VectorXd Singular_Value_Grasp_Matrix;
-						Singular_Value_Grasp_Matrix = svd.singularValues();
-
-
-						double sigma_min = Singular_Value_Grasp_Matrix[Singular_Value_Grasp_Matrix.size()];
-						double sigma_max = Singular_Value_Grasp_Matrix[0];
-
-
-						double quality_in = sigma_min / sigma_max ;
-
-						if(quality_in < quality_) quality_ = quality_in;
-
-					}
-
-					Quality.push_back(quality_);
-
-        		break;
-
-
-
-
+        	s+=6;
         }
 
 
@@ -668,19 +643,122 @@ bool count_cols_only_one = true;
 
 
 
+        // GRASP JACOBIAN
+
+
+        Eigen::MatrixXd GRASP_Jacobian(6,nq_hand-1);
+
+        Eigen::MatrixXd Grasp_Matrix_app = Grasp_Matrix_Contact.inverse();
+
+        GRASP_Jacobian = Grasp_Matrix_app.transpose() * Hand_Jacobian_Contact;
 
 
 
-      	
+        int quality_ = 9999;
+        Eigen::VectorXd Singular;
+        double sigma_min ;
+		double sigma_max ;
 
 
 
-	} // per ogni riga !!!!!!!!!!! panic !!!!!!!!!!!!!
+        switch(quality_index) 
+        {
+        	case 0: // "minimum_singular_value_of_G"  Q = sigma_min(G)
+					{
+        				JacobiSVD<MatrixXd> svd0(Grasp_Matrix_Contact, ComputeThinU | ComputeThinV);  
+        				Singular = svd0.singularValues();
+						Quality.push_back(Singular[Singular.size()-1]);
+					}
+        		break;
+
+
+        	case 1: // "Volume of the ellipsoid in the wrench space"  Q = K sqrt(det(GG.t)) = k ( sigma_0 **** sigma_d)
+        		{
+
+					Eigen::MatrixXd G_G_t = Grasp_Matrix_Contact * Grasp_Matrix_Contact.transpose();
+
+					JacobiSVD<MatrixXd> svd1(G_G_t, ComputeThinU | ComputeThinV);  
+					Singular = svd1.singularValues();
+
+				
+
+					for(int i = 0 ; i < Singular.size() ; i++)
+						quality_ *= Singular[i];
+
+
+					Quality.push_back(quality_);
+
+				}
+        		break;
+
+
+        	case 2: // "Grasp isotropy index" Q = sigma_min(G) / sigma_max(G) 
+        		{
+        			JacobiSVD<MatrixXd> svd2(Grasp_Matrix_Contact, ComputeThinU | ComputeThinV);  
+
+        			
+					Singular = svd2.singularValues();
+
+					sigma_min = Singular[Singular.size()-1];
+					sigma_max = Singular[0];
+
+					Quality.push_back(sigma_min/sigma_max);
+				}
+				break;
 
 
 
+			case 3: // "Distance to singular configuration" Q = sigma_min(H) H = G.pseudo_inverse.transpose * J
+				{
+					JacobiSVD<MatrixXd> svd3(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
+
+					Singular = svd3.singularValues();
 
 
+					Quality.push_back(Singular[Singular.size()-1]);
+				}
+				break;
+
+
+
+			case 4: // "Volume of manipulability ellipsoid" 
+				{
+					Eigen::MatrixXd H_H_t = GRASP_Jacobian * GRASP_Jacobian.transpose();
+
+					JacobiSVD<MatrixXd> svd4(H_H_t, ComputeThinU | ComputeThinV);  
+
+        		
+					Singular = svd4.singularValues();
+
+					
+					for(int i = 0 ; i < Singular.size() ; i++)
+						quality_ *= Singular[i];
+
+
+					Quality.push_back(quality_);
+				}
+				break;
+
+
+			case 5: // "Uniformity of transformations"
+				{
+					JacobiSVD<MatrixXd> svd5(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
+
+        			
+					Singular = svd5.singularValues();
+
+					sigma_min = Singular[Singular.size()-1];
+					sigma_max = Singular[0];
+
+					Quality.push_back(sigma_min/sigma_max);
+				}
+				break;
+
+        }
+
+
+
+	} 
 
 
 
