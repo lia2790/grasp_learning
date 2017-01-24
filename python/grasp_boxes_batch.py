@@ -88,7 +88,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
             self.obj = self.world.rigidObject(0)
             self.w_T_o = np.array(se3.homogeneous(self.obj.getTransform()))
             for p in poses:
-                if not self.db.has_simulation(self.obj.getName(), p):
+                if not self.db.has_simulation(self.box_dims, p):
                     self.poses.append(p)
                 else:
                     print "Pose", p, "already simulated"
@@ -144,7 +144,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                 print "!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n"
 
             else:
-                print "Done testing all", len(self.poses), "poses for object", self.obj.getName()
+                print "Done testing all", len(self.poses), "poses for object", self.box_dims
                 print "Quitting"
                 self.running = False
                 vis.show(hidden=True)
@@ -218,7 +218,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                     w_T_h_curr = np.array(se3.homogeneous(w_T_h_curr_se3))
                     w_T_o_curr = np.array(se3.homogeneous(self.obj.getTransform()))
                     h_T_o = np.linalg.inv(w_T_h_curr).dot(w_T_o_curr)
-                    q_grasp = self.hand.getConfiguration()
+                    q_grasp = [float('nan')]*self.db.n_dofs if self.object_fell else self.hand.getConfiguration()
 
                     c_p, c_f = getObjectPhalanxMeanContactPoint(self.sim, self.obj,
                                                                 self.robot, self.links_to_check)
@@ -284,8 +284,11 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
             pavg = vectorops.div(pavg, len(clist))
             navg = vectorops.div(navg, len(clist))
             l_i = lId_to_lIndex[lId]
+            # TODO transform pavg in object coordinate frame
             cps_avg[l_i*3:l_i*3+3] = pavg
 
+            # TODO rotate contact forces, modify contact torques to refer
+            # to the object center
             wrench_avg[l_i*3:l_i*3+3] = sim.contactForce(oId, lId)
             wrench_avg[l_i*3+3:l_i*3+6] = sim.contactTorque(oId, lId)
 
@@ -380,6 +383,9 @@ if __name__ == '__main__':
         filename = os.path.splitext(sys.argv[1])[0]
     except:
         filename = 'box_db'
+    if not os.path.isfile(filename+'.csv'):
+        print "Error: file", filename, "doesn't exist"
+        exit()
 
     box_db = MVBBLoader(filename, 19, 16)
     # palm, index (proximal, middle, distal), little, middle, ring, thumb

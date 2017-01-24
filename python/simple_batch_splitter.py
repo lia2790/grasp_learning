@@ -15,6 +15,10 @@ if __name__ == '__main__':
     except:
         filename = 'box_db'
 
+    if not os.path.isfile(filename+'.csv'):
+        print "Error: file", filename, "doesn't exist"
+        exit()
+
     try:
         n_dofs = int(sys.argv[2])
         n_l = int(sys.argv[3])

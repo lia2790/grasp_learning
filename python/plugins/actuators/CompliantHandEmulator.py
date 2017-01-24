@@ -293,6 +293,15 @@ class CompliantHandEmulator(ActuatorEmulator):
         q_d = q[self.d_to_n]
         return np.hstack((q_u,q_d))
 
+    def setConfiguration(self, q):
+        qdes = np.array(self.sim.getActualConfig(self.robotindex))
+        q_u_ref = q[0:self.u_dofs]
+        q_d_ref = q[self.u_dofs:self.u_dofs+self.d_dofs]
+        qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref
+        qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref
+        qdes[[self.q_to_t[d_id] for d_id in self.d_to_n]] = q_d_ref
+        self.robot.setConfig(qdes)
+
     def process(self, commands, dt):
         if commands:
             if 'position' in commands:
