@@ -31,7 +31,7 @@ from mvbb.box_db import MVBBLoader
 objects = {}
 robots = ['reflex_col', 'soft_hand', 'reflex']
 
-def make_box(world, x_dim, y_dim, z_dim, mass=0.1):
+def make_box(world, x_dim, y_dim, z_dim, mass=0.5):
     """Makes a new axis-aligned box centered at the origin with
     dimensions width x depth x height. The box is a RigidObject
     with automatically determined inertia.
@@ -52,9 +52,11 @@ def make_box(world, x_dim, y_dim, z_dim, mass=0.1):
     box.appearance().setColor(0.6, 0.3, 0.2, 1.0)
     box.setMass(bmass)
     cparams = box.getContactParameters()
+    cparams.kFriction = 1.5
     cparams.kStiffness = 100000
     cparams.kDamping = 30000
     cparams.kRestitution = 0.5
+
 
     return box
 
@@ -131,8 +133,16 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
             if len(self.poses) > 0:
                 self.curr_pose = self.poses.pop(0)
 
+                print "\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                print "!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                print "!!!!!!!!!!!!!!!!!!!!!!!!!!"
                 print "Simulating Next Pose Grasp"
-                print self.curr_pose
+                print "Dims:\n", self.box_dims
+                print "Pose:\n", self.curr_pose
+                print "!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                print "!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                print "!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n"
+
             else:
                 print "Done testing all", len(self.poses), "poses for object", self.obj.getName()
                 print "Quitting"
@@ -217,6 +227,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                                             q_grasp, c_p, c_f)
                 self.is_simulating = False
                 self.sim = None
+                self.robot.setConfig(self.q_0)
 
 def getObjectGlobalCom(obj):
     return se3.apply(obj.getTransform(), obj.getMass().getCom())
@@ -275,8 +286,8 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
             l_i = lId_to_lIndex[lId]
             cps_avg[l_i*3:l_i*3+3] = pavg
 
-            wrench_avg[l_i*3:l_i*3+3] = sim.contactForce(oId, i)
-            wrench_avg[l_i*3+3:l_i*3+6] = sim.contactTorque(oId, i)
+            wrench_avg[l_i*3:l_i*3+3] = sim.contactForce(oId, lId)
+            wrench_avg[l_i*3+3:l_i*3+6] = sim.contactTorque(oId, lId)
 
             if np.all(wrench_avg[l_i*3+3:l_i*3+5] > 1e-12):
                 print "\n\n\n\n\n"
@@ -324,6 +335,7 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
         obj.setTransform(R, [0, 0, box_dims[2]/2.])
         w_T_o = np.array(se3.homogeneous(obj.getTransform()))
         p_T_h = np.array(se3.homogeneous(xform))
+        p_T_h[2][3]+=0.02
 
         for pose in poses:
             w_T_p = w_T_o.dot(pose)
