@@ -26,7 +26,6 @@ class MVBBLoader(object):
                 object_dims = tuple([float(v) for i, v in enumerate(row) if i in range(3)])
                 t = [float(v) for i, v in enumerate(row) if i in range(3, 6)]
                 q = [float(row[9])] + [float(v) for i, v in enumerate(row) if i in range(6, 9)]
-                print q
 
                 T = (so3.from_quaternion(q),t)
                 if tuple(object_dims) not in self.db:
@@ -118,18 +117,18 @@ class MVBBLoader(object):
             # saving pose.t
             values += pose[1]
             # saving pose.q
-            q = np.array(so3.quaternion(pose[0]))
-            values += list(q[1:4])
-            values.append(q[0])
+            q_wxyz = np.array(so3.quaternion(pose[0]))
+            values += list(q_wxyz[1:4])
+            values.append(q_wxyz[0])
 
             if isinstance(h_T_o, np.ndarray):
                 h_T_o = se3.from_homogeneous(h_T_o)
             # saving h_T_o.t
             values += h_T_o[1]
             # saving h_T_o.q
-            q = np.array(so3.quaternion(h_T_o[0]))
-            values += list(q[1:4])
-            values.append(q[0])
+            q_wxyz = np.array(so3.quaternion(h_T_o[0]))
+            values += list(q_wxyz[1:4])
+            values.append(q_wxyz[0])
 
             # saving q
             values += list(q)
