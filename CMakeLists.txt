@@ -146,6 +146,7 @@ DEPENDS orocos_kdl
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${orocos_kdl_INCLUDE_DIRS}
+  include
 )
 
 
