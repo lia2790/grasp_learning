@@ -238,6 +238,15 @@ def getObjectDims(obj):
     dims = vectorops.sub(BB[1],BB[0])
     return tuple(dims)
 
+def countContactPoints(c_p):
+    n_c = len(c_p) / 3
+    n_contacts = 0
+    for i in range(n_c):
+        c_p_i = c_p[3*i:3*i+3]
+        if np.all([False if math.isnan(c_p_i[i]) else True for i in range(3)]):
+            n_contacts += 1
+    return n_contacts
+
 def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
     """
     Returns a contact point for each link in the robot, which is the simple arithmetic mean of all contact points,
@@ -255,27 +264,30 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
     lIds = []
     _lIds = [] # if links is not None, this contains the set of link Ids which should not be checked
     lId_to_lIndex = {}
-    links_to_check = []
+    lId_to_i = {}
 
     # let's first create the map from lId to lIndex, with all links
     links_to_check = range(robot.numLinks())
-    for l_i in links_to_check:
-        link = robot.link(l_i)
-        lId_to_lIndex[link.getID()] = l_i
-        if links is not None and l_i not in links:
+    for l_ind in links_to_check:
+        link = robot.link(l_ind)
+        lId_to_lIndex[link.getID()] = l_ind
+        if links is not None and l_ind not in links:
             _lIds.append(link.getID())
 
     if links is not None:
         links_to_check = links
-    for l_i in links_to_check:
-        link = robot.link(l_i)
+    for i, l_ind in enumerate(links_to_check):
+        link = robot.link(l_ind)
         lIds.append(link.getID())
+        lId_to_i[link.getID()] = i
 
     cps_avg = np.array([float('nan')] * 3 * len(lIds))
     wrench_avg = np.array([float('nan')] * 6 * len(lIds))
 
     for lId in lIds:
         clist = sim.getContacts(oId, lId)
+        pavg = [0, 0, 0]
+        navg = [0, 0, 0]
         for c in clist:
             pavg = vectorops.add(pavg, c[0:3])
             navg = vectorops.add(navg, c[3:6])
@@ -283,7 +295,7 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
         if len(clist) > 0:
             pavg = vectorops.div(pavg, len(clist))
             navg = vectorops.div(navg, len(clist))
-            l_i = lId_to_lIndex[lId]
+            l_i = lId_to_i[lId]
             # TODO transform pavg in object coordinate frame
             cps_avg[l_i*3:l_i*3+3] = pavg
 
@@ -308,10 +320,11 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
             print "\n\n\n\n\n"
             print "xxxxxxxxxxxxxxxxxxxxxxxxx"
             print "xxxxxxxxxxxxxxxxxxxxxxxxx"
-            print "ERROR: link", robot.link(lId_to_lIndex[lId]).getName(), "is in contact with", obj.getName(), "but should not be"
+            print "ERROR: link", robot.link(lId_to_lIndex[lId]).getName(), "is in contact with", obj.getName(), "but is not checked for collision"
             print "xxxxxxxxxxxxxxxxxxxxxxxxx"
             print "xxxxxxxxxxxxxxxxxxxxxxxxx"
             print "\n\n\n\n\n"
+
     return (cps_avg, wrench_avg)
 
 
@@ -389,7 +402,7 @@ if __name__ == '__main__':
 
     box_db = MVBBLoader(filename, 19, 16)
     # palm, index (proximal, middle, distal), little, middle, ring, thumb
-    links_to_check = [3, 4, 6, 8, 10, 13, 15, 17, 20, 22, 24, 27, 29, 31, 33, 35, 37]
+    links_to_check = np.array([3, 4, 6, 8, 10, 13, 15, 17, 20, 22, 24, 27, 29, 31, 33, 35, 37]) + 6
     launch_test_mvbb_grasps("soft_hand", box_db, links_to_check)
 
 

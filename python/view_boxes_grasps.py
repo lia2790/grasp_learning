@@ -93,7 +93,7 @@ class GraspVisualizer(GLNavigationProgram):
                     print "Switched to next box"
                     poses = self.box_db.db_simulated[self.keys[self.box_dims_i]]
                     pose_i = 0
-        print "Visualizing pose", pose_i, ":", poses[pose_i]
+        print "Visualizing pose", pose_i, "for box", self.keys[self.box_dims_i], ":", poses[pose_i]
 
         self.pose_i = pose_i
         if self.world.numRigidObjects() > 0:
