@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_quality)/param/random_box_generate.yaml" command="load"/>
+
+	<node name="Random_box" pkg="grasp_quality" type="random_box_discrete" respawn="false" output="screen"/>
+
+
+</launch>
