@@ -1,4 +1,5 @@
 /*
+
 Software License Agreement (BSD License)
 
 Copyright (c) 2016--, Liana Bertoni (liana.bertoni@gmail.com)
@@ -32,8 +33,6 @@ Contact GitHub API Training Shop Blog About
 */
 
 
-
-
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -63,7 +62,8 @@ using namespace Eigen;
 
 
  
-int n_samples = 1; //quante scatole voglio generare, ogni scatola è vista come un campione
+int n_samples; //quante scatole voglio generare, ogni scatola è vista come un campione
+double distance_hand_; // meters
 
 
 struct box                  
@@ -76,7 +76,7 @@ struct box
 };
 int offset = 1; // centimetri
 int interval_size = 100; // centimetri
-// intervallo di campionamento da 1cm (offset) a 1 m (interval_size)
+// intervallo di campionamento da 1 cm (offset) a 100 cm (interval_size)
 
 
 double quality = 0;
@@ -84,7 +84,7 @@ double quality = 0;
 //valori casuali da 0 a 100 (da offset a interval_size)
 
 
-ofstream file_output_comparison;
+ofstream file_output; //output file
 
 
 
@@ -215,9 +215,18 @@ int main (int argc, char **argv)
 	ros::init(argc, argv, "Random_box");	// ROS node
 	ros::NodeHandle nh;
 
+
+    nh.param<int>("number_box",n_samples,1);
+    nh.param<double>("distance_hand",distance_hand_,0.005);
+
+
+
+
+
+
 	srand(time(NULL)); //se non voglio la stessa sequenza di numeri casuali
 
-	file_output_comparison.open("box_db.csv", ofstream::app);
+	file_output.open("box_db.csv", ofstream::app);
 
 
 	box n_box[n_samples];  //array di box
@@ -234,7 +243,7 @@ int main (int argc, char **argv)
 
 	axis_dimensions_box << n_box[i].width , n_box[i].height , n_box[i].length; // dimensioni della box
 	int discrete_side = 2;         // in quante parti voglio discretizzare i lati della box
-	double distance_hand = 0.05;   // 5 centimetri
+	double distance_hand = distance_hand_;   // 5 centimetri
 	Eigen::Matrix4d T_fixed_frame(4,4);
 	T_fixed_frame << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1; // nessuna rotazione nessuna traslazione 
                                                                      // corrisponde al centro della box
@@ -263,15 +272,51 @@ int main (int argc, char **argv)
 
 
 
+            /* STD OUTPUT 
 
-			file_output_comparison 
+
+			file_output 
             <<n_box[i].width<<','<<n_box[i].height<<','<<n_box[i].length<<','                // box h l d
             <<grasp_point[j](0,3)<<','<<grasp_point[j](1,3)<<','<<grasp_point[j](2,3)<<','   // x y z
-            <<q.x()<<','<<q.y()<<','<<q.z()<<','<<q.w()<<endl;                                              // qx qy qz qw
+            <<q.x()<<','<<q.y()<<','<<q.z()<<','<<q.w()<<endl;                               // qx qy qz qw
+            */
+
+
+
+
+            Eigen::VectorXd Joints(19);
+
+            for(int i = 0 ; i < 19 ; i++)
+                Joints(i) = (double) (rand() % 2); 
+
+
+            Eigen::VectorXd Contacts(57);
+
+            for(int i = 0 ; i < 57 ; i++)
+                Contacts(i) = (double) (rand() % 2); 
+
+
+
+            file_output 
+            <<n_box[i].width<<','<<n_box[i].height<<','<<n_box[i].length<<','                // box h l d
+            <<grasp_point[j](0,3)<<','<<grasp_point[j](1,3)<<','<<grasp_point[j](2,3)<<','   // x y z
+            <<q.x()<<','<<q.y()<<','<<q.z()<<','<<q.w();  
+            for(int i = 0 ; i < 19 ; i++)
+                file_output << ',' << Joints(i); 
+            for(int i = 0 ; i < 57 ; i++)
+                file_output << ',' << Contacts(i);
+            file_output << endl; 
+
+
+
 
 
             
-          /*  <<quality
+            /*  OUTPUT for LIBSVM
+
+
+
+            <<quality
             <<' '<<"1:"<<n_box[i].width<<' '<<"2:"<<n_box[i].height<<' '<<"3:"<<n_box[i].length
             <<' '<<"4:"<<grasp_point[j](0,0)<<' '<<"5:"<<grasp_point[j](0,1)<<' '<<"6:"<<grasp_point[j](0,2)<<' '<<"7:"<<grasp_point[j](0,3)
             <<' '<<"8:"<<grasp_point[j](1,0)<<' '<<"9:"<<grasp_point[j](1,1)<<' '<<"10:"<<grasp_point[j](1,2)<<' '<<"11:"<<grasp_point[j](1,3)
@@ -284,7 +329,7 @@ int main (int argc, char **argv)
 	}// end for
 
 
-    file_output_comparison.close();
+    file_output.close();
 
 
 	cout << " STAMPATO " << endl;
