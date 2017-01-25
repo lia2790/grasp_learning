@@ -2,9 +2,8 @@
 
 <launch>
 
-	<rosparam file="$(find grasp_quality)/param/random_box_generate.yaml" command="load"/>
+	<rosparam file="$(find grasp_learning)/param/random_box_generate.yaml" command="load"/>
 
-	<node name="Random_box" pkg="grasp_quality" type="random_box_discrete" respawn="false" output="screen"/>
-
+	<node name="Random_box" pkg="grasp_learning" type="random_box_discrete_" respawn="false" output="screen"/>
 
 </launch>

@@ -82,26 +82,16 @@ using namespace Eigen;
 using namespace KDL;
 
 
-int n_rows = 0;
-int n_cols = 0;
-
-
-int dim_file_row = 108;
-int dim_file_col = 86; 
-
-
-int n_c_max = 19; // numero di punti di contatto avendo supposto di avere 
-			  // un punto di contatto per ogni falange 
-			  // 3 falangi per il pollice
-			  // 4 per le altre dita  
 
 
 
-int quality_index = 0;
-
-std::vector<double> Quality;
 
 
+// take it from yaml file
+int n_rows;
+int n_cols;
+int quality_index;
+string file_name;
 
 
 
@@ -110,6 +100,28 @@ int main (int argc, char **argv)
 
 	ros::init(argc, argv, "Hand_Jacobian");	// ROS node
 	ros::NodeHandle nh;
+
+
+
+  nh.param<int>("n_rows_file",n_rows,108);
+  nh.param<int>("n_cols_file",n_cols,10);
+  nh.param<int>("quality_index",quality_index,0);
+  nh.param<std::string>("file_name", file_name, "src/grasp_learning/db/box_db_2.csv" );
+
+
+
+
+
+int n_c_max = 19; // number of contact point, assumed that 
+                  // 1 contact point for each phalanx 
+
+
+
+
+std::vector<double> Quality;
+ifstream file(file_name); 
+
+
 
 
 
@@ -123,73 +135,7 @@ int main (int argc, char **argv)
 
 
 
-std::string file_name;
-
-if(argc > 1)
-	file_name = std::string( argv[1] );
-else
-	file_name = std::string("box_db_.txt");
-
-
-
-
-ifstream file(file_name); 
-
-
-
-/* account the size of the file
-
-cout << "3:::::::::::::::" << endl;
-
-
-bool count_cols_only_one = true;
-
-
-	for(std::string line; getline ( file, line, '\n' ); ) // ciclo sulla riga
-	{
-    	cout << "Value " << line << endl;
-
-    	n_rows++;
-
-    	std::istringstream iss_line(line);	
-
-    	
-
-    	if(count_cols_only_one)
-    	{	
-
-    		for(std::string value; getline(iss_line, value, ',' ); )
-    		{
-    			cout << "Value : " << value << " Value stod : " << stod(value) << endl;
-    			n_cols++;
-    		}
-
-
-    		count_cols_only_one = false;
-    	}
-    	
-
-    	
-	}
-
-	cout << "ROWS : " << n_rows << endl;
-	cout << "COLS : " << n_cols << endl;
-
-
-	cout << "7:::::::::::" << endl;
-
-*/
-
-
-	if(	(n_rows == 0) || (n_cols==0) )
-	{	
-		n_rows = dim_file_row;
-		n_cols = dim_file_col;
-	}
-
-
-
-	Eigen::MatrixXd data_set(n_rows,n_cols);
+Eigen::MatrixXd data_set(n_rows,n_cols);
 
 
 	int i = 0;
@@ -199,10 +145,7 @@ bool count_cols_only_one = true;
 
 	for(std::string line; getline( file, line, '\n' ); ) // ciclo sulla riga
 	{
-
     	std::istringstream iss_line(line);	
-
-  
     	for(std::string value; getline(iss_line, value, ',' ); )
     	{
     		data_set(i,j) = stod(value);
@@ -243,10 +186,6 @@ bool count_cols_only_one = true;
 
 
 
-
-
-
-
   KDL::Tree hand_tree;
 
   std::string robot_desc_string;
@@ -262,17 +201,13 @@ bool count_cols_only_one = true;
   int ns_hand = hand_tree.getNrOfSegments(); // 39
 
 
-  cout << "number_of_joint_in_hand : " << nq_hand << endl;
-  cout << "number_of_segment_in_hand : " << ns_hand << endl;
-
-
 
   KDL::Chain chains_hand_finger[5];
   KDL::Jacobian hand_jacob[5];
 
 
   //std::string root_name = "right_hand_softhand_base";
-  std::string root_name = "right_hand_palm_link" ;
+  std::string root_name = "right_hand_palm_link";
   std::string end_chain_name[5];
 
 
@@ -310,18 +245,11 @@ bool count_cols_only_one = true;
 
 
 
-		unsigned int nj_0 = chains_hand_finger[0].getNrOfJoints();   // 5
+		  unsigned int nj_0 = chains_hand_finger[0].getNrOfJoints();   // 5
   		unsigned int nj_1 = chains_hand_finger[1].getNrOfJoints();   // 7
   		unsigned int nj_2 = chains_hand_finger[2].getNrOfJoints();  // 7
   		unsigned int nj_3 = chains_hand_finger[3].getNrOfJoints();    // 7
   		unsigned int nj_4 = chains_hand_finger[4].getNrOfJoints();  // 7 
-
-
-cout << "nj_0 : " << nj_0 << endl;
-cout << "nj_1 : " << nj_1 << endl;
-cout << "nj_2 : " << nj_2 << endl;
-cout << "nj_3 : " << nj_3 << endl;
-cout << "nj_4 : " << nj_4 << endl;
 
 
 
@@ -366,12 +294,9 @@ cout << "nj_4 : " << nj_4 << endl;
   		hand_jacob[0].resize(chains_hand_finger[0].getNrOfJoints());
   		hand_jacob[1].resize(chains_hand_finger[1].getNrOfJoints());
   		hand_jacob[2].resize(chains_hand_finger[2].getNrOfJoints());
- 		hand_jacob[3].resize(chains_hand_finger[3].getNrOfJoints());
+ 		  hand_jacob[3].resize(chains_hand_finger[3].getNrOfJoints());
   		hand_jacob[4].resize(chains_hand_finger[4].getNrOfJoints());
 
-
-
-cout << " n_rows : " << n_rows << endl;
 
 
 
