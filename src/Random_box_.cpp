@@ -62,8 +62,11 @@ using namespace Eigen;
 
 
  
-int n_samples; //quante scatole voglio generare, ogni scatola è vista come un campione
-double distance_hand_; // meters
+int number_box; //quante scatole voglio generare, ogni scatola è vista come un campione
+double distance_hand; // meters
+int discretize_side;         // in quante parti voglio discretizzare i lati della box
+
+
 
 
 struct box                  
@@ -216,8 +219,9 @@ int main (int argc, char **argv)
 	ros::NodeHandle nh;
 
 
-    nh.param<int>("number_box",n_samples,1);
-    nh.param<double>("distance_hand",distance_hand_,0.005);
+    nh.param<int>("number_box",number_box,1);
+    nh.param<double>("distance_hand",distance_hand,0.005);
+    nh.param<int>("discrete_side",discretize_side,2);
 
 
 
@@ -229,11 +233,11 @@ int main (int argc, char **argv)
 	file_output.open("box_db.csv", ofstream::app);
 
 
-	box n_box[n_samples];  //array di box
+	box n_box[number_box];  //array di box
 
     
 
-	for(int i = 0; i < n_samples ; i++)  //per ogni box individuata dall'indice i-esimo vado a discretizzare la superficie
+	for(int i = 0; i < number_box ; i++)  //per ogni box individuata dall'indice i-esimo vado a discretizzare la superficie
 	{
         n_box[i].width  = (double)((rand() % interval_size) + offset ) / 100; // x
 		n_box[i].height = (double)((rand() % interval_size) + offset ) / 100; // y
@@ -241,9 +245,8 @@ int main (int argc, char **argv)
 	
 	Eigen::Vector3d axis_dimensions_box(3);
 
-	axis_dimensions_box << n_box[i].width , n_box[i].height , n_box[i].length; // dimensioni della box
-	int discrete_side = 2;         // in quante parti voglio discretizzare i lati della box
-	double distance_hand = distance_hand_;   // 5 centimetri
+	axis_dimensions_box << n_box[i].width , n_box[i].height , n_box[i].length; // dimensioni della box   
+
 	Eigen::Matrix4d T_fixed_frame(4,4);
 	T_fixed_frame << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1; // nessuna rotazione nessuna traslazione 
                                                                      // corrisponde al centro della box
@@ -252,7 +255,7 @@ int main (int argc, char **argv)
 
 
   
-	std::vector<Eigen::MatrixXd> grasp_point = populate_face(axis_dimensions_box, discrete_side, distance_hand, T_fixed_frame );
+	std::vector<Eigen::MatrixXd> grasp_point = populate_face(axis_dimensions_box, discretize_side, distance_hand, T_fixed_frame );
     //discretizzo le facce della i-esima box
     //ad ogni punto discretizzato corrisponde una trasformazione 
 
