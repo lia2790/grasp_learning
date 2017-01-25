@@ -33,8 +33,9 @@ class MVBBLoader(object):
                 self.db[object_dims].append(np.array(se3.homogeneous(T)))
 
         except:
-            print "Error loading file", self.filename
-            traceback.print_exc()
+            pass
+            #print "Error loading file", self.filename
+            #traceback.print_exc()
 
     def _load_mvbbs_simulated(self):
         try:
@@ -67,8 +68,9 @@ class MVBBLoader(object):
                                       'c_f':   c_f}
                 self.db_simulated[tuple(object_dims)].append(obj_pose_q_c_p_c_f)
         except:
-            print "Error loading file", self.filename_simulated
-            traceback.print_exc()
+            pass
+            #print "Error loading file", self.filename_simulated
+            #traceback.print_exc()
 
     def join_results(self, filenames):
         dbs = {}
