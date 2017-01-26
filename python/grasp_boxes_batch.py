@@ -83,7 +83,7 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
         self.running = True
         self.db = box_db
         self.links_to_check = links_to_check
-        
+
         if self.world.numRigidObjects() > 0:
             self.obj = self.world.rigidObject(0)
             self.w_T_o = np.array(se3.homogeneous(self.obj.getTransform()))
@@ -351,7 +351,6 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
         obj.setTransform(R, [0, 0, box_dims[2]/2.])
         w_T_o = np.array(se3.homogeneous(obj.getTransform()))
         p_T_h = np.array(se3.homogeneous(xform))
-        p_T_h[2][3]+=0.02
 
         for pose in poses:
             w_T_p = w_T_o.dot(pose)
