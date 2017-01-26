@@ -32,6 +32,7 @@ find_package(orocos_kdl REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  roslib
   sensor_msgs
   std_msgs
   urdf

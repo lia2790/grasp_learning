@@ -1,4 +1,4 @@
 n_rows_file: 108
-n_cols_file: 10
+n_cols_file: 86
 quality_index: 0
-file_name: "src/grasp_learning/db/box_db_2.csv"
+file_name: "/db/box_db_2.csv"

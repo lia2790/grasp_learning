@@ -34,6 +34,7 @@ Contact GitHub API Training Shop Blog About
 
 
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
@@ -91,6 +92,7 @@ using namespace KDL;
 int n_rows;
 int n_cols;
 int quality_index;
+string relative_path_file;
 string file_name;
 
 
@@ -102,24 +104,27 @@ int main (int argc, char **argv)
 	ros::NodeHandle nh;
 
 
+  std::string path = ros::package::getPath("grasp_learning");
+
+
 
   nh.param<int>("n_rows_file",n_rows,108);
-  nh.param<int>("n_cols_file",n_cols,10);
+  nh.param<int>("n_cols_file",n_cols,86);
   nh.param<int>("quality_index",quality_index,0);
-  nh.param<std::string>("file_name", file_name, "src/grasp_learning/db/box_db_2.csv" );
+  nh.param<std::string>("file_name", relative_path_file, "/db/box_db_2.csv" );
 
 
+  file_name = path + relative_path_file ;
 
 
-
-int n_c_max = 19; // number of contact point, assumed that 
+  int n_c_max = 19; // number of contact point, assumed that 
                   // 1 contact point for each phalanx 
 
 
 
 
-std::vector<double> Quality;
-ifstream file(file_name); 
+  std::vector<double> Quality;
+  ifstream file(file_name); 
 
 
 
@@ -133,9 +138,11 @@ ifstream file(file_name);
 ////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
 
+std::cout << "file: " << file_name.c_str() << " is " << (file.is_open() == true ? "already" : "not") << " open" << std::endl;
+if(!file.is_open())
+return 0;
 
-
-Eigen::MatrixXd data_set(n_rows,n_cols);
+Eigen::MatrixXd data_set(n_rows,86);
 
 
 	int i = 0;
@@ -152,7 +159,7 @@ Eigen::MatrixXd data_set(n_rows,n_cols);
     		j++;
     	}
 
-    	cout << endl;
+    	//cout << endl;
 
     	j=0;
     	i++;
