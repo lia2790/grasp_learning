@@ -365,7 +365,7 @@ int main (int argc, char **argv)
   hand_jacob[4].resize(chains_hand_finger[4].getNrOfJoints());
 
 
-
+/*
 
 	for(int r = 0; r < n_rows ; r++)  // for each row calculation the grasp matrix and hand jacobian
 	{
@@ -650,7 +650,7 @@ int main (int argc, char **argv)
 */
 
         // GRASP JACOBIAN
-
+/*
 
       Eigen::MatrixXd GRASP_Jacobian(6,nq_hand-1);
       Eigen::MatrixXd Grasp_Matrix_pseudo(Grasp_Matrix_Contact.rows(),Grasp_Matrix_Contact.cols()) ;
@@ -765,7 +765,7 @@ int main (int argc, char **argv)
 	} 
   // end for each row
 
-
+*/
   
 
   cout << " YEAH ENJOY " << endl;

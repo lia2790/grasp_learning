@@ -2,30 +2,103 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" 
        name="robot">
        
-  <!-- MODELS -->
-  <xacro:include filename="$(find vito_description)/model/materials.urdf"/>
-  <xacro:include filename="$(find soft_hand_description)/model/soft_hand.urdf.xacro"/>
+	<!-- MODELS -->
+ 	<xacro:include filename="$(find vito_description)/model/materials.urdf"/>
+	<xacro:include filename="$(find soft_hand_description)/model/soft_hand.urdf.xacro"/>
   
 
-  <link name="world" />  
-   <link name="floating_base_link" />  
+	<!-- joint properties -->
+	<xacro:property name="pris_lb" value="-3" />
+	<xacro:property name="pris_ub" value="3" />
+	<xacro:property name="rev_lb" value="0" />
+	<xacro:property name="rev_ub" value="360" />
+	<xacro:property name="pris_eff" value="100" />
+	<xacro:property name="pris_vel" value="100" />
+	<xacro:property name="rev_eff" value="100" />
+	<xacro:property name="rev_vel" value="100" />
 
-   
-   <joint name="floating_base_joint" type="floating">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <parent link="world"/>
-    <child link="floating_base_link"/>
 
-    <calibration rising="0.0"/>
-    <dynamics damping="0.0" friction="0.0"/>
-    <limit effort="30" velocity="1.0" lower="-2.2" upper="0.7" />
-    <safety_controller k_velocity="10" k_position="15" soft_lower_limit="-2.0" soft_upper_limit="0.5" />
- </joint>
 
-  <xacro:soft_hand parent="floating_base_link" name="right_hand" left="false" withAdaptiveTransmission="true" useMimicTag="false"> 
+		<link name="world" /> 
+
+
+		<link name="floating_base_link_trasl_x" />
+		<link name="floating_base_link_trasl_y" />
+		<link name="floating_base_link_trasl_z" />
+		<link name="floating_base_link_rot_x" />
+		<link name="floating_base_link_rot_y" />
+		<link name="floating_base_link_rot_z" />
+
+
+		<!-- FLOATING BASE -->
+		<joint name="floating_base_joint_trasl_x" type="prismatic">
+  			<origin xyz="0 0 0" rpy="0 0 0" />
+			<parent link="world"/>
+			<child link="floating_base_link_trasl_x"/>
+			<axis xyz="1 0 0" />
+			<limit lower="${pris_lb}" upper="${pris_ub}" effort="${pris_eff}" velocity="${pris_vel}"/>
+  		</joint>
+
+  		
+
+  		<joint name="floating_base_joint_trasl_y" type="prismatic">
+  			<origin xyz="0 0 0" rpy="0 0 0" />
+			<parent link="floating_base_link_trasl_x"/>
+			<child link="floating_base_link_trasl_y"/>
+			<axis xyz="0 1 0" />
+			<limit lower="${pris_lb}" upper="${pris_ub}" effort="${pris_eff}" velocity="${pris_vel}"/>
+  		</joint>
+
+  		
+
+  		<joint name="floating_base_joint_trasl_z" type="prismatic">
+  			<origin xyz="0 0 0" rpy="0 0 0" />
+			<parent link="floating_base_link_trasl_y"/>
+			<child link="floating_base_link_trasl_z"/>
+			<axis xyz="0 0 1" />
+			<limit lower="${pris_lb}" upper="${pris_ub}" effort="${pris_eff}" velocity="${pris_vel}"/>
+  		</joint>
+
+  		
+  		<joint name="floating_base_joint_rot_x" type="revolute">
+  			<origin xyz="0 0 0" rpy="0 0 0" />
+  			<parent link="floating_base_link_trasl_z"/>
+  			<child link="floating_base_link_rot_x"/>
+  			<axis xyz="1 0 0" />
+  			<limit lower="${rev_lb *pi/180}" upper="${rev_ub *pi/180}" effort="${rev_eff}" velocity="${rev_vel}"/>
+  		</joint>
+
+  		  
+
+  		<joint name="floating_base_joint_rot_y" type="revolute">
+  			<origin xyz="0 0 0" rpy="0 0 0" />
+  			<parent link="floating_base_link_rot_x"/>
+  			<child link="floating_base_link_rot_y"/>
+  			<axis xyz="0 1 0" />
+  			<limit lower="${rev_lb *pi/180}" upper="${rev_ub *pi/180}" effort="${rev_eff}" velocity="${rev_vel}"/>
+  		</joint>
+
+  		
+
+  		<joint name="floating_base_joint_rot_z" type="revolute">
+  			<origin xyz="0 0 0" rpy="0 0 0" />
+  			<parent link="floating_base_link_rot_y"/>
+  			<child link="floating_base_link_rot_z"/>
+  			<axis xyz="0 0 1" />
+  			<limit lower="${rev_lb *pi/180}" upper="${rev_ub *pi/180}" effort="${rev_eff}" velocity="${rev_vel}"/>
+  		</joint>
+
+  		 <!-- don t work 
+   		<joint name="floating_base_joint" type="floating">
+    		<origin xyz="0 0 1" rpy="0 0 0"/>
+    		<parent link="world"/>
+    		<child link="floating_base_link"/>
+   		</joint>
+
+   		<link name="floating_base_link" /> -->
+		
+
+	<xacro:soft_hand parent="floating_base_link_rot_z" name="right_hand" left="false" withAdaptiveTransmission="true" useMimicTag="false"> 
     <origin xyz="0 0 0" rpy="0 0 0"/> 
-  </xacro:soft_hand>
-
-
-
+  	</xacro:soft_hand>
 </robot>
