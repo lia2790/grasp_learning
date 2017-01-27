@@ -2,21 +2,22 @@
 
 import sys, os, glob
 import unittest
-sys.path.append('../')
+abspath = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(abspath+'/../')
 from mvbb.box_db import MVBBLoader
 import numpy as np
 
 class MVBBLoaderTest(unittest.TestCase):
     def setUp(self):
-        for fname in glob.glob("data/test_db_*.csv"):
+        for fname in glob.glob(abspath+"/data/test_db_*.csv"):
             os.remove(fname)
 
     def tearDown(self):
-        for fname in glob.glob("data/test_db_*.csv"):
+        for fname in glob.glob(abspath+"/data/test_db_*.csv"):
             os.remove(fname)
 
     def test_save_simulation(self):
-        db = MVBBLoader('data/test_db', 19, 15)
+        db = MVBBLoader(abspath+'/data/test_db', 19, 15)
         k = db.db.keys()[0]
         p = db.db[k][0]
         self.assertFalse(db.has_simulation(k,p))
@@ -25,11 +26,11 @@ class MVBBLoaderTest(unittest.TestCase):
         self.assertTrue(db.has_simulation(k, p))
 
         print "Reloading..."
-        db2 = MVBBLoader('data/test_db', 19, 15)
+        db2 = MVBBLoader(abspath+'/data/test_db', 19, 15)
         self.assertTrue(db2.has_simulation(k, p))
 
     def test_split_join(self):
-        db = MVBBLoader('data/test_db', 19, 15)
+        db = MVBBLoader(abspath+'/data/test_db', 19, 15)
         filenames = db.split_db()
         self.assertEqual(len(filenames), 6)
         for fname in filenames:
