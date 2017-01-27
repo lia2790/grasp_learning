@@ -3,6 +3,7 @@
 import csv
 from klampt.math import se3, so3
 import numpy as np
+import pyKDL as kdl
 import os.path
 import traceback
 

@@ -169,7 +169,7 @@ if __name__ == '__main__':
     except:
         filename = 'box_db'
 
-    box_db = MVBBLoader(filename, 19, 16)
+    box_db = MVBBLoader(filename, 19, 20)
 
     poses = box_db.db_simulated
     suc_pose_count = 0
