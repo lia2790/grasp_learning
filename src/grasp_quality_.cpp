@@ -94,6 +94,10 @@ int n_cols;
 int quality_index;
 string relative_path_file;
 string file_name;
+std::vector<double> Quality;
+int n_c_max = 19; // number of contact point, assumed that 1 contact point for each phalanx 
+
+
 
 
 
@@ -104,8 +108,7 @@ int main (int argc, char **argv)
 	ros::NodeHandle nh;
 
 
-  std::string path = ros::package::getPath("grasp_learning");
-
+  
 
 
   nh.param<int>("n_rows_file",n_rows,108);
@@ -113,20 +116,14 @@ int main (int argc, char **argv)
   nh.param<int>("quality_index",quality_index,0);
   nh.param<std::string>("file_name", relative_path_file, "/db/box_db_2.csv" );
 
-
+  std::string path = ros::package::getPath("grasp_learning");
   file_name = path + relative_path_file ;
-
-
-  int n_c_max = 19; // number of contact point, assumed that 
-                  // 1 contact point for each phalanx 
-
-
-
-
-  std::vector<double> Quality;
   ifstream file(file_name); 
 
 
+  std::cout << "file: " << file_name.c_str() << " is " << (file.is_open() == true ? "already" : "not") << " open" << std::endl;
+  if(!file.is_open())
+  return 0;
 
 
 
@@ -136,15 +133,9 @@ int main (int argc, char **argv)
   //	TAKE DATA_BASE : load a file .csv and put the values into Eigen::MatrixXd
 
   ////////////////////////////////////////////////////////////////////////////////////
-	   /////////////////////////////////////////////////////////////////////////
+	 /////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-  std::cout << "file: " << file_name.c_str() << " is " << (file.is_open() == true ? "already" : "not") << " open" << std::endl;
-  if(!file.is_open())
-  return 0;
 
   int count_row = 0;
   int count_col = 0;
@@ -172,27 +163,7 @@ int main (int argc, char **argv)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  Eigen::MatrixXd data_set(n_rows,86);
+  Eigen::MatrixXd data_set(count_row,count_col);
 
 
 	int i = 0;
@@ -251,26 +222,14 @@ int main (int argc, char **argv)
   { ROS_ERROR("Failed to construct kdl tree"); return false;}
 
 
-
-
-  int nq_hand = hand_tree.getNrOfJoints();  // 34
-  int ns_hand = hand_tree.getNrOfSegments(); // 39
-
-
-  cout << "number_of_joint_in_hand : " << nq_hand << endl;
-  cout << "number_of_segment_in_hand : " << ns_hand << endl;
-
-
-
   KDL::Chain chains_hand_finger[5];
   KDL::Jacobian hand_jacob[5];
 
-  std::string root_name = "world";
+  
   //std::string root_name = "right_hand_softhand_base";
   //std::string root_name = "right_hand_palm_link";
+  std::string root_name = "world";
   std::string end_chain_name[5];
-
-
   end_chain_name[0] = "right_hand_thumb_distal_link";
   end_chain_name[1] = "right_hand_index_distal_link";
   end_chain_name[2] = "right_hand_middle_distal_link";
@@ -285,7 +244,13 @@ int main (int argc, char **argv)
   hand_tree.getChain(root_name, end_chain_name[4], chains_hand_finger[4]);      //little
 
 
- 
+  int nq_hand = hand_tree.getNrOfJoints();  // 34
+  int ns_hand = hand_tree.getNrOfSegments(); // 39
+
+
+  cout << "number_of_joint_in_hand : " << nq_hand << endl;
+  cout << "number_of_segment_in_hand : " << ns_hand << endl;
+
 
 
 
@@ -365,7 +330,7 @@ int main (int argc, char **argv)
   hand_jacob[4].resize(chains_hand_finger[4].getNrOfJoints());
 
 
-/*
+
 
 	for(int r = 0; r < n_rows ; r++)  // for each row calculation the grasp matrix and hand jacobian
 	{
@@ -650,7 +615,7 @@ int main (int argc, char **argv)
 */
 
         // GRASP JACOBIAN
-/*
+
 
       Eigen::MatrixXd GRASP_Jacobian(6,nq_hand-1);
       Eigen::MatrixXd Grasp_Matrix_pseudo(Grasp_Matrix_Contact.rows(),Grasp_Matrix_Contact.cols()) ;
@@ -765,7 +730,7 @@ int main (int argc, char **argv)
 	} 
   // end for each row
 
-*/
+
   
 
   cout << " YEAH ENJOY " << endl;

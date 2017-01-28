@@ -178,9 +178,8 @@ target_link_libraries (jacobian_urdf_model_ ${catkin_LIBRARIES} ${Eigen_LIBRARIE
 add_executable(grasp_quality_ src/grasp_quality_.cpp)
 target_link_libraries (grasp_quality_ ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
-
-
-
+add_executable(grasp_quality_2 src/grasp_quality_2.cpp)
+target_link_libraries (grasp_quality_2 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(stima_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

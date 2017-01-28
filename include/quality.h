@@ -1,0 +1,136 @@
+/*
+
+Software License Agreement (BSD License)
+
+Copyright (c) 2016--, Liana Bertoni (liana.bertoni@gmail.com)
+  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the copyright holder(s) nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Contact GitHub API Training Shop Blog About
+*/
+
+
+
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Geometry>
+
+using namespace Eigen;
+
+inline double quality_index(int which_quality)
+{
+
+
+
+		switch(which_quality) 
+      {
+        
+        case 0: // "minimum_singular_value_of_G"  Q = sigma_min(G)
+			{
+        	   	JacobiSVD<MatrixXd> svd0(Grasp_Matrix_Contact, ComputeThinU | ComputeThinV);  
+        		Singular = svd0.singularValues();
+
+				return Singular[Singular.size()-1];
+			} 
+        	break;
+
+
+        case 1: // "Volume of the ellipsoid in the wrench space"  Q = K sqrt(det(GG.t)) = k ( sigma_0 **** sigma_d)
+        	{
+                Eigen::MatrixXd G_G_t = Grasp_Matrix_Contact * Grasp_Matrix_Contact.transpose();
+				JacobiSVD<MatrixXd> svd1(G_G_t, ComputeThinU | ComputeThinV);  
+				Singular = svd1.singularValues();
+
+				for(int i = 0 ; i < Singular.size() ; i++)
+					quality_ *= Singular[i];
+
+				return quality;
+			}
+        	break;
+
+
+        case 2: // "Grasp isotropy index" Q = sigma_min(G) / sigma_max(G) 
+        		 {
+        			  	JacobiSVD<MatrixXd> svd2(Grasp_Matrix_Contact, ComputeThinU | ComputeThinV);  
+					    Singular = svd2.singularValues();
+                		sigma_min = Singular[Singular.size()-1];
+					    sigma_max = Singular[0];
+
+					    return sigma_min/sigma_max;
+				      }
+				      break;
+
+
+
+			case 3: // "Distance to singular configuration" Q = sigma_min(H) H = G.pseudo_inverse.transpose * J
+				    {
+					    JacobiSVD<MatrixXd> svd3(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
+					    Singular = svd3.singularValues();
+            
+              			return Singular[Singular.size()-1];
+				    }
+				    break;
+
+
+
+			case 4: // "Volume of manipulability ellipsoid" 
+				{
+					Eigen::MatrixXd H_H_t = GRASP_Jacobian * GRASP_Jacobian.transpose();
+
+					JacobiSVD<MatrixXd> svd4(H_H_t, ComputeThinU | ComputeThinV);  
+
+        		
+					Singular = svd4.singularValues();
+
+					
+					for(int i = 0 ; i < Singular.size() ; i++)
+						quality_ *= Singular[i];
+
+
+					return quality;
+				}
+				break;
+
+
+			case 5: // "Uniformity of transformations"
+				{
+					JacobiSVD<MatrixXd> svd5(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
+
+        			
+					Singular = svd5.singularValues();
+
+					sigma_min = Singular[Singular.size()-1];
+					sigma_max = Singular[0];
+
+					return sigma_min/sigma_max;
+				}
+				break;
+
+
+			default: return 9999; // incorrect
+      }//end switch
+
+}
