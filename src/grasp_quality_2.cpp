@@ -172,11 +172,17 @@ int main (int argc, char **argv)
 
 
 
+
+
+
+
+
 	///////////////////// get values from file for each line //////////////////////////////////
 
-	int first_element = 17;
+	int first_element_joint_array = 17;
 	int number_of_joints = 19;
-	int number_of_contact_point = 19;
+	int number_of_contact_point = 16;
+	int first_element_cp_array = number_of_joints + first_element_joint_array;
 
 
 
@@ -188,7 +194,7 @@ int main (int argc, char **argv)
     		values_inline.push_back(stod(value));
     		
     	
-    	KDL::Vector trasl_w_T_o(0,0, -(values_inline[2]/2));
+    	KDL::Vector trasl_w_T_o(0,0, -(values_inline[2]/2)); // i m not sure if it is corrected
     	KDL::Vector trasl_o_T_p(values_inline[3],values_inline[4],values_inline[5]);
     	KDL::Rotation R_o_T_p = Rotation::Quaternion(values_inline[6],values_inline[7],values_inline[8],values_inline[9]);
 
@@ -208,7 +214,7 @@ int main (int argc, char **argv)
     	R_w_T_h.GetRPY(roll,pitch,yaw);
 
 
-    	int k = 0;
+    	int k_ = 0;
 
     	for(int i = 0; i < n_fingers; i++) //joint values
     	{	
@@ -223,35 +229,159 @@ int main (int argc, char **argv)
 
     		if(i == 0) // thumb
     		{
-    			q_finger[i](6) = values_inline[first_element];
+    			q_finger[i](6) = values_inline[first_element_joint_array];
 
-				q_finger[i](7) = values_inline[first_element+1] / 2;
-				q_finger[i](8) = values_inline[first_element+1] / 2;
+				q_finger[i](7) = values_inline[first_element_joint_array+1] / 2;
+				q_finger[i](8) = values_inline[first_element_joint_array+1] / 2;
 
-				q_finger[i](9) = values_inline[first_element+2] / 2;
-				q_finger[i](10) = values_inline[first_element+2] / 2;
+				q_finger[i](9) = values_inline[first_element_joint_array+2] / 2;
+				q_finger[i](10) = values_inline[first_element_joint_array+2] / 2;
 
-				k+=3;
+				k_+=3;
 			}
 			else
 			{
-				q_finger[i](6) = values_inline[first_element+k];
+				q_finger[i](6) = values_inline[first_element_joint_array+k_];
 
-				q_finger[i](7) = values_inline[first_element+k+1] / 2;
-				q_finger[i](8) = values_inline[first_element+k+1] / 2;
+				q_finger[i](7) = values_inline[first_element_joint_array+k_+1] / 2;
+				q_finger[i](8) = values_inline[first_element_joint_array+k_+1] / 2;
 
-				q_finger[i](9) = values_inline[first_element+k+2] / 2;
-				q_finger[i](10) = values_inline[first_element+k+2] / 2;
+				q_finger[i](9) = values_inline[first_element_joint_array+k_+2] / 2;
+				q_finger[i](10) = values_inline[first_element_joint_array+k_+2] / 2;
 
-				q_finger[i](11) = values_inline[first_element+k+3] / 2;
-				q_finger[i](12) = values_inline[first_element+k+3] / 2;
+				q_finger[i](11) = values_inline[first_element_joint_array+k_+3] / 2;
+				q_finger[i](12) = values_inline[first_element_joint_array+k_+3] / 2;
 
-				k+=4;
-			}
+				k_+=4;
+			}			
+		}
 
-			
-		}	
-	} // for each line
+
+		Eigen::MatrixXd Contacts(number_of_contact_point,3);
+		int gap_coordinate = 0;
+
+		for(int i = 0; i < number_of_contact_point; i++)
+		{	
+			for(int j = 0; j < 3; j++ )
+				Contacts(i,j) = values_inline[first_element_cp_array + gap_coordinate + j];  // check if it is correct
+
+			gap_coordinate += 3;
+		}
+
+
+		 cout << "Contacts : " << Contacts << endl;
+
+
+
+
+
+
+		
+    	//for each contact point 
+		std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;  
+    	std::vector<Eigen::MatrixXd> Hand_Jacobian_ ;
+
+
+    	int k = 1;
+
+		for(int i = 0 ; i < number_of_contact_point ; i++) //calc the grasp_matrix and hand_jacobian for each contact point
+    	{
+
+      		if(Contacts(i,0) != 9999) //9999 similar to NaN in dataset
+      		{	
+
+        		Eigen::MatrixXd Grasp_Matrix(6,6);  
+ 				Eigen::MatrixXd Skew_Matrix(3,3);
+  				Eigen::MatrixXd Rotation(3,3);
+
+  				Rotation <<  MatrixXd::Identity(3,3); 
+
+
+  				
+        		//check if the values ​​of the skew matrix are expressed in the correct reference system
+      			Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+     			Skew_Matrix(0,1) = - Contacts(i,2); // -rz    
+     			Skew_Matrix(0,2) = Contacts(i,1);   // ry
+        		Skew_Matrix(1,0) = Contacts(i,2);   // rz
+        		Skew_Matrix(2,0) = - Contacts(i,1); // -ry
+        		Skew_Matrix(1,2) = - Contacts(i,0); // -rx
+        		Skew_Matrix(2,1) = Contacts(i,0);   // rx
+
+
+
+        		Grasp_Matrix.block<3,3>(0,0) = Rotation;
+        		Grasp_Matrix.block<3,3>(3,3) = Rotation;
+        		Grasp_Matrix.block<3,3>(0,3) = Skew_Matrix * Rotation;
+        		Grasp_Matrix.block<3,3>(3,0) = MatrixXd::Zero(3,3);
+
+
+        		cout << "Grasp_Matrix" << endl;
+        		cout << Grasp_Matrix << endl;
+
+
+       			Grasp_Matrix_.push_back(Grasp_Matrix);
+
+
+       			for(int n = 0 ; n < n_fingers ; n++)
+        			jnt_to_jac_solver[n]->JntToJac(q_finger[n], hand_jacob[n]);
+
+
+
+
+   				cout << "Hand_Jacobian_ THUMB" << endl;
+      			cout <<  hand_jacob[0].data << endl;
+      			cout << "Hand_Jacobian_ INDEX" << endl;
+    			cout <<  hand_jacob[1].data << endl;
+  				cout << "Hand_Jacobian_ MIDDLE"<< endl;
+   				cout <<  hand_jacob[2].data << endl;
+      			cout << "Hand_Jacobian_ RING"  << endl;
+    			cout <<  hand_jacob[3].data << endl;
+  				cout << "Hand_Jacobian_ LITTLE"<< endl;
+  				cout <<  hand_jacob[4].data << endl;
+
+
+
+      			int which_finger = i/3;
+      			int which_falange = 0;
+      			if(i<3)//thumb
+        		{
+        			if (i%3 == 0) which_falange = 6;
+        			if (i%3 == 1) which_falange = 8;
+        			if (i%3 == 2) which_falange = 10;
+        		}
+        		if(i>=3 && i<=14) 
+        		{
+        			if (i%3 == 0) which_falange = 8;
+        			if (i%3 == 1) which_falange = 10;
+        			if (i%3 == 2) which_falange = 12;
+        		}
+        		if(i > 14) // palm
+	            {	
+	            	which_falange = 5;
+	            	which_finger = 0;
+	            }
+	            
+
+	            jnt_to_jac_solver[which_finger]->JntToJac(q_finger[which_finger],hand_jacob[which_finger], which_falange);
+
+
+        		
+	  			cout << " Jacobian thumb " << hand_jacob[0].data << endl ;
+	  			cout << " Jacobian index " << hand_jacob[1].data << endl ;
+	  			cout << " Jacobian middle " << hand_jacob[2].data << endl ;
+				cout << " Jacobian ring " << hand_jacob[3].data << endl ;
+				cout << " Jacobian little " << hand_jacob[4].data << endl ;
+
+
+
+			  	Hand_Jacobian_.push_back(hand_jacob[0].data); // 5
+			  	Hand_Jacobian_.push_back(hand_jacob[1].data); // 7
+			 	Hand_Jacobian_.push_back(hand_jacob[2].data); // 7
+			  	Hand_Jacobian_.push_back(hand_jacob[3].data); // 7
+	  			Hand_Jacobian_.push_back(hand_jacob[4].data); // 7
+	      	}// end if  contact
+        } // end for each contact point	
+	} // end for each line
 
 
 
