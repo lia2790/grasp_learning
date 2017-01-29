@@ -97,7 +97,7 @@ string frame_name_root;
 //std::string root_name = "right_hand_softhand_base";
 //std::string root_name = "right_hand_palm_link";
 //std::string root_name = "world";
-int n_fing;
+int n_fingers;
 
 
 
@@ -120,7 +120,7 @@ int main (int argc, char **argv)
 	nh.param<std::string>("frame_name_ring", frame_name_finger[3], "right_hand_ring_distal_link");
 	nh.param<std::string>("frame_name_little", frame_name_finger[4], "right_hand_little_distal_link");
 	nh.param<std::string>("frame_name_root", frame_name_root, "world");
-	nh.param<int>("number_of_fingers", n_fing, 5);
+	nh.param<int>("number_of_fingers", n_fingers, 5);
 
 
 
@@ -145,10 +145,10 @@ int main (int argc, char **argv)
 	
 	///////////////////// laod the urdf model //////////////////////////////////
 	KDL::Tree hand_tree;
-	KDL::Chain chains_hand_finger[n_fing];
-	KDL::Jacobian hand_jacob[n_fing];
-	KDL::JntArray q_finger[n_fing];
-	boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver[n_fing];
+	KDL::Chain chains_hand_finger[n_fingers];
+	KDL::Jacobian hand_jacob[n_fingers];
+	KDL::JntArray q_finger[n_fingers];
+	boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver[n_fingers];
 
 
 
@@ -158,7 +158,7 @@ int main (int argc, char **argv)
 		{ ROS_ERROR("Failed to construct kdl tree"); return false;}
   
 
-	for(int i=0; i < n_fing; i++) // get chain for each fingers
+	for(int i=0; i < n_fingers; i++) // get chain for each fingers
 	{	
 		hand_tree.getChain(frame_name_root, frame_name_finger[i], chains_hand_finger[i]);      
 		q_finger[i] = JntArray(chains_hand_finger[i].getNrOfJoints());
@@ -174,27 +174,83 @@ int main (int argc, char **argv)
 
 	///////////////////// get values from file for each line //////////////////////////////////
 
+	int first_element = 17;
+	int number_of_joints = 19;
+	int number_of_contact_point = 19;
 
-
-
-
-
-	int i = 0;
-	int j = 0;
-	std::vector<double> values_inline;
 
 
 	for(std::string line; getline( file, line, '\n' ); ) // for each line
 	{
-
+		std::vector<double> values_inline;
     	std::istringstream iss_line(line);	
     	for(std::string value; getline(iss_line, value, ',' ); )
     		values_inline.push_back(stod(value));
     		
     	
+    	KDL::Vector trasl_w_T_o(0,0, -(values_inline[2]/2));
+    	KDL::Vector trasl_o_T_p(values_inline[3],values_inline[4],values_inline[5]);
+    	KDL::Rotation R_o_T_p = Rotation::Quaternion(values_inline[6],values_inline[7],values_inline[8],values_inline[9]);
 
-    
     	
+    	KDL::Frame w_T_o(trasl_w_T_o);
+    	KDL::Frame o_T_p(R_o_T_p,trasl_o_T_p);
+    	KDL::Frame p_T_h(chains_hand_finger[0].getSegment(5).getFrameToTip());
+
+
+    	KDL::Frame w_T_h = w_T_o * o_T_p * p_T_h ;
+
+    	KDL::Vector trasl_w_T_h = w_T_h.p;
+    	KDL::Rotation R_w_T_h = w_T_h.M;
+
+    	double roll , pitch , yaw ;
+
+    	R_w_T_h.GetRPY(roll,pitch,yaw);
+
+
+    	int k = 0;
+
+    	for(int i = 0; i < n_fingers; i++) //joint values
+    	{	
+
+    		q_finger[i](0) = trasl_w_T_h.x();
+    		q_finger[i](1) = trasl_w_T_h.y();
+    		q_finger[i](2) = trasl_w_T_h.z();
+    		q_finger[i](3) = roll;
+    		q_finger[i](4) = pitch;
+    		q_finger[i](5) = yaw;
+
+
+    		if(i == 0) // thumb
+    		{
+    			q_finger[i](6) = values_inline[first_element];
+
+				q_finger[i](7) = values_inline[first_element+1] / 2;
+				q_finger[i](8) = values_inline[first_element+1] / 2;
+
+				q_finger[i](9) = values_inline[first_element+2] / 2;
+				q_finger[i](10) = values_inline[first_element+2] / 2;
+
+				k+=3;
+			}
+			else
+			{
+				q_finger[i](6) = values_inline[first_element+k];
+
+				q_finger[i](7) = values_inline[first_element+k+1] / 2;
+				q_finger[i](8) = values_inline[first_element+k+1] / 2;
+
+				q_finger[i](9) = values_inline[first_element+k+2] / 2;
+				q_finger[i](10) = values_inline[first_element+k+2] / 2;
+
+				q_finger[i](11) = values_inline[first_element+k+3] / 2;
+				q_finger[i](12) = values_inline[first_element+k+3] / 2;
+
+				k+=4;
+			}
+
+			
+		}	
 	} // for each line
 
 
