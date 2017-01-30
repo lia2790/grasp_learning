@@ -1184,10 +1184,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_thumb_knuckle_link">
     <sensor name="soft_hand_thumb_knuckle_link_contact" type="contact">
@@ -1208,10 +1208,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_thumb_proximal_link">
     <sensor name="soft_hand_thumb_proximal_link_contact" type="contact">
@@ -1232,10 +1232,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_thumb_distal_link">
     <sensor name="soft_hand_thumb_distal_link_contact" type="contact">
@@ -1256,10 +1256,10 @@ axis momenta are :
     </sensor>
     <!-- selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_index_knuckle_link">
     <sensor name="soft_hand_index_knuckle_link_contact" type="contact">
@@ -1280,10 +1280,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_index_proximal_link">
     <sensor name="soft_hand_index_proximal_link_contact" type="contact">
@@ -1304,10 +1304,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_index_middle_link">
     <sensor name="soft_hand_index_middle_link_contact" type="contact">
@@ -1328,10 +1328,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_index_distal_link">
     <sensor name="soft_hand_index_distal_link_contact" type="contact">
@@ -1352,10 +1352,10 @@ axis momenta are :
     </sensor>
     <!-- selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_middle_knuckle_link">
     <sensor name="soft_hand_middle_knuckle_link_contact" type="contact">
@@ -1376,10 +1376,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_middle_proximal_link">
     <sensor name="soft_hand_middle_proximal_link_contact" type="contact">
@@ -1400,10 +1400,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_middle_middle_link">
     <sensor name="soft_hand_middle_middle_link_contact" type="contact">
@@ -1424,10 +1424,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_middle_distal_link">
     <sensor name="soft_hand_middle_distal_link_contact" type="contact">
@@ -1448,10 +1448,10 @@ axis momenta are :
     </sensor>
     <!-- selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_ring_knuckle_link">
     <sensor name="soft_hand_ring_knuckle_link_contact" type="contact">
@@ -1472,10 +1472,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_ring_proximal_link">
     <sensor name="soft_hand_ring_proximal_link_contact" type="contact">
@@ -1496,10 +1496,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_ring_middle_link">
     <sensor name="soft_hand_ring_middle_link_contact" type="contact">
@@ -1520,10 +1520,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_ring_distal_link">
     <sensor name="soft_hand_ring_distal_link_contact" type="contact">
@@ -1544,10 +1544,10 @@ axis momenta are :
     </sensor>
     <!-- selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_little_knuckle_link">
     <sensor name="soft_hand_little_knuckle_link_contact" type="contact">
@@ -1568,10 +1568,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_little_proximal_link">
     <sensor name="soft_hand_little_proximal_link_contact" type="contact">
@@ -1592,10 +1592,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_little_middle_link">
     <sensor name="soft_hand_little_middle_link_contact" type="contact">
@@ -1616,10 +1616,10 @@ axis momenta are :
     </sensor>
     <!--selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <gazebo reference="soft_hand_little_distal_link">
     <sensor name="soft_hand_little_distal_link_contact" type="contact">
@@ -1640,10 +1640,10 @@ axis momenta are :
     </sensor>
     <!-- selfCollide>true</selfCollide-->
     <gravity>true</gravity>
-    <mu1>500.0</mu1>
-    <mu2>500.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1.0</kd>
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>30000.0</kd>
   </gazebo>
   <!-- JOINTS -->
   <gazebo reference="soft_hand_thumb_abd_joint">
