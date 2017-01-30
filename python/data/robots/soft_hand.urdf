@@ -2015,20 +2015,20 @@ axis momenta are :
    <!--klampt package_root="." use_vis_geom="1" fixed_root_link="1"/-->
      <link name="world" physical="0" />
      <link name="soft_hand_invisible_wire_link" physical="false" servoP="3.0" servoD="0.3" servoI="0.03"/>
-     <link name="soft_hand_thumb_fake_link1" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_thumb_fake_link3" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_index_fake_link1" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_index_fake_link2" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_index_fake_link3" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_middle_fake_link1" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_middle_fake_link2" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_middle_fake_link3" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_ring_fake_link1" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_ring_fake_link2" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_ring_fake_link3" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_little_fake_link1" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_little_fake_link2" servoP="3.0" servoD="0.3" servoI="0.0"/>
-     <link name="soft_hand_little_fake_link3" servoP="3.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_thumb_fake_link1" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_thumb_fake_link3" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_index_fake_link1" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_index_fake_link2" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_index_fake_link3" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_middle_fake_link1" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_middle_fake_link2" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_middle_fake_link3" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_ring_fake_link1" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_ring_fake_link2" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_ring_fake_link3" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_little_fake_link1" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_little_fake_link2" servoP="9.0" servoD="0.3" servoI="0.0"/>
+     <link name="soft_hand_little_fake_link3" servoP="9.0" servoD="0.3" servoI="0.0"/>
    </klampt>
 </robot>
 

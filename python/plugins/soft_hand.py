@@ -45,7 +45,7 @@ class HandEmulator(CompliantHandEmulator):
         CompliantHandEmulator.__init__(self, sim, robotindex, link_offset, driver_offset, a_dofs=1, d_dofs=0)
 
         self.synergy_reduction = 3.0  # convert cable tension into motor torque
-        self.effort_scaling = -0.5
+        self.effort_scaling = -1.0
 
         print 'Mimic Joint Info:', self.mimic
         print 'Underactuated Joint Info:', self.hand
