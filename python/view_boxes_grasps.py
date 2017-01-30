@@ -135,7 +135,7 @@ class GraspVisualizer(GLNavigationProgram):
                 glBegin(GL_POINTS)
                 for i in range(len(self.pose['c_p'])/3):
                     o_c_p_i = self.pose['c_p'][3*i:3*i+3]
-                    if np.all([False if math.isinf(p) else True for p in o_c_p_i]):
+                    if np.all([False if math.isnan(p) else True for p in o_c_p_i]):
                         w_T_o = obj.getTransform()
                         w_c_p_i = se3.apply(w_T_o, o_c_p_i)
                         glVertex3f(*w_c_p_i)
