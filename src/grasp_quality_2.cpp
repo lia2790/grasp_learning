@@ -72,7 +72,7 @@ Contact GitHub API Training Shop Blog About
 
 
 #include "pseudo_inverse.h"
-//#include "quality.h"
+#include "quality.h"
 
 
 
@@ -278,8 +278,8 @@ int main (int argc, char **argv)
 
 		
     	//for each contact point 
-		std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;  
-    	std::vector<Eigen::MatrixXd> Hand_Jacobian_ ;
+		std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;  // G
+    	std::vector<Eigen::MatrixXd> Hand_Jacobian_ ; // J
 
 
     	int k = 1;
@@ -381,6 +381,71 @@ int main (int argc, char **argv)
 	  			Hand_Jacobian_.push_back(hand_jacob[4].data); // 7
 	      	}// end if  contact
         } // end for each contact point	
+
+
+
+      cout << " Dim of the vectors of the matrices grasp " << Grasp_Matrix_.size() << endl;
+      cout << " Dim of the hand jacobian " << Hand_Jacobian_.size() << endl;
+
+
+      int n_c_eff = Grasp_Matrix_.size();
+      int nq_hand = hand_tree.getNrOfJoints();
+      
+      
+
+      Eigen::MatrixXd Grasp_Matrix_Contact(6,6*n_c_eff); 		  // G 6x6n_c
+      Eigen::MatrixXd Hand_Jacobian_Contact(6*n_c_eff,nq_hand-1); // J 6n_cxn_q
+      
+
+
+      int s = 0; // dimension 
+      int s_ = 0;
+
+
+      for(int i = 0; i < n_c_eff; i++)
+      {
+
+        Grasp_Matrix_Contact.block<6,6>(0,s) = Grasp_Matrix_[i];
+        	
+        cout << "i : " << i << endl;
+
+      	Hand_Jacobian_Contact.block<6,5>(s,0) = Hand_Jacobian_[s_];
+      	Hand_Jacobian_Contact.block<6,7>(s,5) = Hand_Jacobian_[s_+1];
+      	Hand_Jacobian_Contact.block<6,7>(s,12) = Hand_Jacobian_[s_+2];
+      	Hand_Jacobian_Contact.block<6,7>(s,19) = Hand_Jacobian_[s_+3];
+      	Hand_Jacobian_Contact.block<6,7>(s,26) = Hand_Jacobian_[s_+4];
+			
+  			s_+=5;
+       	s+=6;
+      }
+
+/*
+        file_output << "Grasp_Matrix_Contact : " << endl;
+        file_output <<  Grasp_Matrix_Contact << endl;
+        file_output << "__________________________________________________" << endl;
+        file_output << "Hand_Jacobian_Contact : " << endl;
+        file_output << Hand_Jacobian_Contact << endl;
+*/
+
+        // GRASP JACOBIAN
+
+
+      Eigen::MatrixXd GRASP_Jacobian(6,nq_hand-1); // H = (G+)^t * J
+      Eigen::MatrixXd Grasp_Matrix_pseudo(Grasp_Matrix_Contact.rows(),Grasp_Matrix_Contact.cols()) ;
+      pseudo_inverse(Grasp_Matrix_Contact,Grasp_Matrix_pseudo);
+
+      GRASP_Jacobian = Grasp_Matrix_pseudo.transpose() * Hand_Jacobian_Contact; // (G+)^t * J
+
+
+      cout << "GRASP_Jacobian : " << endl;
+      cout << GRASP_Jacobian << endl;
+
+
+      double quality_i = quality(quality_index, Grasp_Matrix_Contact, GRASP_Jacobian); 
+      	
+
+
+
 	} // end for each line
 
 

@@ -578,7 +578,7 @@ int main (int argc, char **argv)
 
       int n_c_eff = Grasp_Matrix_.size();
 
-
+      
         
       Eigen::MatrixXd Hand_Jacobian_Contact(6*n_c_eff,nq_hand-1);
       Eigen::MatrixXd Grasp_Matrix_Contact(6,6*n_c_eff);

@@ -40,13 +40,17 @@ Contact GitHub API Training Shop Blog About
 
 using namespace Eigen;
 
-inline double quality_index(int which_quality)
+inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, Eigen::MatrixXd &GRASP_Jacobian)
 {
+	Eigen::VectorXd Singular ;
+	double k = 1 ;
+    double sigma_min ;
+	double sigma_max ;
+	double quality ;
 
 
-
-		switch(which_quality) 
-      {
+	switch(which_quality) 
+    {
         
         case 0: // "minimum_singular_value_of_G"  Q = sigma_min(G)
 			{
@@ -65,9 +69,9 @@ inline double quality_index(int which_quality)
 				Singular = svd1.singularValues();
 
 				for(int i = 0 ; i < Singular.size() ; i++)
-					quality_ *= Singular[i];
+					quality *= Singular[i];
 
-				return quality;
+				return ( quality * k );
 			}
         	break;
 
@@ -96,7 +100,7 @@ inline double quality_index(int which_quality)
 
 
 
-			case 4: // "Volume of manipulability ellipsoid" 
+			case 4: // "Volume of manipulability ellipsoid" Q = K sqrt(det(HH.t))
 				{
 					Eigen::MatrixXd H_H_t = GRASP_Jacobian * GRASP_Jacobian.transpose();
 
@@ -107,15 +111,15 @@ inline double quality_index(int which_quality)
 
 					
 					for(int i = 0 ; i < Singular.size() ; i++)
-						quality_ *= Singular[i];
+						quality *= Singular[i];
 
 
-					return quality;
+					return ( quality * k );
 				}
 				break;
 
 
-			case 5: // "Uniformity of transformations"
+			case 5: // "Uniformity of transformations" Q = sigma_min(H) / sigma_max(H) 
 				{
 					JacobiSVD<MatrixXd> svd5(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
 
