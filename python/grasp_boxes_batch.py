@@ -120,6 +120,24 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
             w_T_p_se3 = se3.from_homogeneous(w_T_p)
             draw_GL_frame(w_T_p_se3)
 
+            glDisable(GL_LIGHTING)
+            glDisable(GL_DEPTH_TEST)
+            glEnable(GL_POINT_SMOOTH)
+            glColor3f(1,1,0)
+            glPointSize(5.0)
+            
+            if self.sim is not None and self.obj is not None and self.robot is not None:
+                c_p, c_f = getObjectPhalanxMeanContactPoint(self.sim, self.obj, self.robot, self.links_to_check)
+                n_c_p = countContactPoints(c_p)
+                if countContactPoints(c_p) > 0:
+                    glBegin(GL_POINTS)
+                    for i in range(len(c_p)/3):
+                        o_c_p_i = c_p[3*i:3*i+3]
+                        if np.all([False if math.isnan(p) else True for p in o_c_p_i]):
+                            w_c_p_i = se3.apply(se3.from_homogeneous(w_T_o), o_c_p_i)
+                            glVertex3f(*w_c_p_i)
+                    glEnd()
+
     def idle(self):
         if not self.running:
             return
@@ -301,7 +319,7 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
             cps_avg[l_i*3:l_i*3+3] = se3.apply(o_T_w, pavg)
 
             w_F = sim.contactForce(oId, lId) # total force applied on object
-            w_M_obj = se3.sim.contactTorque(oId, lId) # total moment applied on object about it's origin
+            w_M_obj = sim.contactTorque(oId, lId) # total moment applied on object about it's origin
 
             wrench_avg[l_i*3:l_i*3+3] = se3.apply_rotation(o_T_w, w_F)
             wrench_avg[l_i*3+3:l_i*3+6] = se3.apply_rotation(o_T_w, w_M_obj)
@@ -405,9 +423,10 @@ if __name__ == '__main__':
         print "Error: file", filename, "doesn't exist"
         exit()
 
-    box_db = MVBBLoader(filename, 19, 20)
+
     # palm, index (proximal, middle, distal), little, middle, ring, thumb
     links_to_check = np.array([3, 4, 6, 8, 10, 11, 13, 15, 17, 18, 20, 22, 24, 25, 27, 29, 31, 33, 35, 37]) + 6
+    box_db = MVBBLoader(filename, 19, len(links_to_check))
     launch_test_mvbb_grasps("soft_hand", box_db, links_to_check)
 
 

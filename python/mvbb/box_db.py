@@ -57,8 +57,8 @@ class MVBBLoader(object):
                 h_T_o = np.array(se3.homogeneous((so3.from_quaternion(q), t)))
 
                 q_hand = [float(v) for i, v in enumerate(row) if i in range(17, 17 + self.n_dofs)]
-                c_p = [float(v) for i, v in enumerate(row) if i in range(17 + self.n_dofs, 17 + self.n_dofs + self.n_l)]
-                c_f = [float(v) for i, v in enumerate(row) if i in range(17 + self.n_dofs + self.n_l, 17 + self.n_dofs + 2 * self.n_l)]
+                c_p = [float(v) for i, v in enumerate(row) if i in range(17 + self.n_dofs, 17 + self.n_dofs + 3 * self.n_l)]
+                c_f = [float(v) for i, v in enumerate(row) if i in range(17 + self.n_dofs + 3 * self.n_l, 17 + self.n_dofs + 9 * self.n_l)]
 
                 if tuple(object_dims) not in self.db_simulated:
                     self.db_simulated[tuple(object_dims)] = []

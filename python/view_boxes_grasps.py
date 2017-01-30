@@ -26,7 +26,10 @@ from mvbb.draw_bbox import draw_GL_frame, draw_bbox
 from i16mc import make_moving_base_robot
 from mvbb.CollisionCheck import CheckCollision, CollisionTestInterpolate, CollisionTestPose
 from mvbb.box_db import MVBBLoader
-from grasp_boxes_batch import make_box
+from grasp_boxes_batch import make_box, countContactPoints
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
 
 robot_files = {
     'soft_hand':'data/robots/soft_hand.urdf'
@@ -104,6 +107,9 @@ class GraspVisualizer(GLNavigationProgram):
                        self.box_dims[0],
                        self.box_dims[1],
                        self.box_dims[2])
+        R, t = obj.getTransform()
+        obj.setTransform(R, [0, 0, self.box_dims[2] / 2.])
+
         self.hand.setConfiguration(self.pose['q'])
         o_T_p = self.pose['T']
         w_T_o = np.array(se3.homogeneous(obj.getTransform()))
@@ -118,6 +124,25 @@ class GraspVisualizer(GLNavigationProgram):
     def display(self):
         if self.pose is not None:
             self.world.drawGL()
+
+            glDisable(GL_LIGHTING)
+            glDisable(GL_DEPTH_TEST)
+            glEnable(GL_POINT_SMOOTH)
+            glColor3f(1,1,0)
+            glPointSize(5.0)
+            if countContactPoints(self.pose['c_p']) > 0:
+                obj = self.world.rigidObject(0)
+                glBegin(GL_POINTS)
+                for i in range(len(self.pose['c_p'])/3):
+                    o_c_p_i = self.pose['c_p'][3*i:3*i+3]
+                    if np.all([False if math.isinf(p) else True for p in o_c_p_i]):
+                        w_T_o = obj.getTransform()
+                        w_c_p_i = se3.apply(w_T_o, o_c_p_i)
+                        glVertex3f(*w_c_p_i)
+                glEnd()
+            else:
+                print '???'
+            glEnable(GL_DEPTH_TEST)
 
     def keyboardfunc(self, c, x, y):
         # Put your keyboard handler here

@@ -24,7 +24,7 @@ if __name__ == '__main__':
         n_l = int(sys.argv[3])
     except:
         n_dofs = 19
-        n_l = 16
+        n_l = 20
 
     # for SoftHand
     box_db = MVBBLoader(filename, n_dofs, n_l)
