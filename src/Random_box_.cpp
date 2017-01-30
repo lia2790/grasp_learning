@@ -62,9 +62,9 @@ using namespace Eigen;
 
 
  
-int number_box; //quante scatole voglio generare, ogni scatola è vista come un campione
-double distance_hand; // meters
-int discretize_side;         // in quante parti voglio discretizzare i lati della box
+int number_box;         // How many boxes I want to Generate
+double distance_hand;   // meters
+int discretize_side;    // sampling of boxes
 
 
 
@@ -77,14 +77,14 @@ struct box
 	double length = 0; // z
 
 };
-int offset = 1; // centimetri
-int interval_size = 100; // centimetri
-// intervallo di campionamento da 1 cm (offset) a 100 cm (interval_size)
+int offset = 1; // centimeters
+int interval_size = 100; // centimeters
+// sampling interval from 1 cm (offset) to 100 cm (interval_size)
 
 
 double quality = 0;
-//genero una indice di qualità casuale per ogni grasp di una box
-//valori casuali da 0 a 100 (da offset a interval_size)
+//I create a random quality index for each grasp a box
+//random value da 0 a 100 (from offset to interval_size)
 
 
 ofstream file_output; //output file
