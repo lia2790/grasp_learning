@@ -48,9 +48,9 @@ inline double quality_PCR_PGR(Eigen::MatrixXd &Force_Contact, Eigen::MatrixXd &G
 
 	double f_i_max = 1 ; // upper limit
 	double mu_friction = 1 ; // friction
-	double f_i ;
+	double f_i_ ;
 	double f_i_n ;
-	Eigen::Vector f_i(3);
+	Eigen::VectorXd f_i(3);
 	int n_c = Force_Contact.rows();
 
 	Eigen::MatrixXd d_f(n_c,3);
@@ -60,13 +60,13 @@ inline double quality_PCR_PGR(Eigen::MatrixXd &Force_Contact, Eigen::MatrixXd &G
 	{
 		f_i(0) = Force_Contact(i,0);
 		f_i(1) = Force_Contact(i,1);
-		f_i(2) = Force_Contact(i,2); 
+		f_i(2) = Force_Contact(i,2);
 
 		f_i_n = f_i(2);
-		f_i = f_i(0)+f_i(1)+f_i(2);
+		f_i_ = f_i(0)+f_i(1)+f_i(2);
 
 		d_f(i,0)  =  f_i_n;	// d_1_c = f_1_n = f_1_z
-		d_f(i,1)  =  mu_friction*f_i_n - (sen(arcos(f_i_n/f_i)));		
+		d_f(i,1)  =  mu_friction*f_i_n - (sin(acos(f_i_n/f_i_)));		
 		d_f(i,2)  =  f_i_max - f_i.norm();
 	}
 
@@ -92,5 +92,5 @@ inline double quality_PCR_PGR(Eigen::MatrixXd &Force_Contact, Eigen::MatrixXd &G
 
     double sigma_max = Singular[0];
 
-    return PCR = d_min / sigma_max ;
+    return d_min / sigma_max ;
 }

@@ -38,15 +38,30 @@ Contact GitHub API Training Shop Blog About
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Geometry>
 
+#include "pseudo_inverse.h"
+
 using namespace Eigen;
 
-inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, Eigen::MatrixXd &GRASP_Jacobian,)
- {
+inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, Eigen::MatrixXd &Hand_Jacobian_Contact)
+{
 	Eigen::VectorXd Singular ;
 	double k = 1 ;
     double sigma_min ;
 	double sigma_max ;
 	double quality ;
+	int nq_hand = Hand_Jacobian_Contact.cols();
+      
+
+
+	// GRASP JACOBIAN
+    Eigen::MatrixXd GRASP_Jacobian(6,nq_hand-1); // H = (G+)^t * J
+    Eigen::MatrixXd Grasp_Matrix_pseudo(Grasp_Matrix_Contact.rows(),Grasp_Matrix_Contact.cols()) ;
+    pseudo_inverse(Grasp_Matrix_Contact,Grasp_Matrix_pseudo);
+
+    GRASP_Jacobian = Grasp_Matrix_pseudo.transpose() * Hand_Jacobian_Contact; // (G+)^t * J
+
+
+
 
 
 	switch(which_quality) 
@@ -133,6 +148,10 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 			break;
 
 
-		default: return 8888; // incorrect
-    }// end switch
+		case -1: 
+				return 8888; // incorrect
+				break;
+
+      }//end switch
+
 }

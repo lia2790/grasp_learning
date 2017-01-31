@@ -74,6 +74,7 @@ Contact GitHub API Training Shop Blog About
 
 #include "pseudo_inverse.h"
 #include "quality.h"
+#include "quality_PCR_PGR.h"
 
 
 
@@ -400,11 +401,11 @@ int main (int argc, char **argv)
     		if(n_c_eff != 0 ) // i have a cp
     		{
     	
-      			Eigen::MatrixXd Grasp_Matrix_Contact(6,6*n_c_eff); 		  // G 6x6n_c
-    			Eigen::MatrixXd Hand_Jacobian_Contact(6*n_c_eff,nq_hand-1); // J 6n_cxn_q
+      			Eigen::MatrixXd Grasp_Matrix_Contact(6,6*n_c_eff); 		  // G 6x6N_c
+    			Eigen::MatrixXd Hand_Jacobian_Contact(6*n_c_eff,nq_hand-1); // J 6N_cxN_q
       
 
-				int s = 0; // dimension 
+				int s = 0; 
 				int s_ = 0;
 
 
@@ -431,20 +432,19 @@ int main (int argc, char **argv)
         		file_output << "Hand_Jacobian_Contact : " << endl;
         		file_output << Hand_Jacobian_Contact << endl;*/
 
-
-        		// GRASP JACOBIAN
-    			Eigen::MatrixXd GRASP_Jacobian(6,nq_hand-1); // H = (G+)^t * J
-    			Eigen::MatrixXd Grasp_Matrix_pseudo(Grasp_Matrix_Contact.rows(),Grasp_Matrix_Contact.cols()) ;
-    			pseudo_inverse(Grasp_Matrix_Contact,Grasp_Matrix_pseudo);
-
-    			GRASP_Jacobian = Grasp_Matrix_pseudo.transpose() * Hand_Jacobian_Contact; // (G+)^t * J
-
-
-     			cout << "GRASP_Jacobian : " << endl;
-    			cout << GRASP_Jacobian << endl;
-
-    			quality_i = quality(quality_index, Grasp_Matrix_Contact, GRASP_Jacobian); 
+    			quality_i = quality(quality_index, Grasp_Matrix_Contact, Hand_Jacobian_Contact); 
       		}
+      		else
+      		{
+      			Eigen::MatrixXd Grasp_Matrix_Contact(6,6); 		  // G 6x6n_c
+    			Eigen::MatrixXd Hand_Jacobian_Contact(6,6); 	  // J 6n_cxn_q
+
+    			Grasp_Matrix_Contact  <<  MatrixXd::Identity(6,6); 
+      			Hand_Jacobian_Contact <<  MatrixXd::Identity(6,6); 
+
+      			quality_i = quality(-1, Grasp_Matrix_Contact, Hand_Jacobian_Contact);
+      		}
+
 
 	    	file_output << quality_i ;
 
