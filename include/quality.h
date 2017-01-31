@@ -40,8 +40,8 @@ Contact GitHub API Training Shop Blog About
 
 using namespace Eigen;
 
-inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, Eigen::MatrixXd &GRASP_Jacobian)
-{
+inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, Eigen::MatrixXd &GRASP_Jacobian,)
+ {
 	Eigen::VectorXd Singular ;
 	double k = 1 ;
     double sigma_min ;
@@ -77,64 +77,62 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 
 
         case 2: // "Grasp isotropy index" Q = sigma_min(G) / sigma_max(G) 
-        		 {
-        			  	JacobiSVD<MatrixXd> svd2(Grasp_Matrix_Contact, ComputeThinU | ComputeThinV);  
-					    Singular = svd2.singularValues();
-                		sigma_min = Singular[Singular.size()-1];
-					    sigma_max = Singular[0];
+        	{
+        		JacobiSVD<MatrixXd> svd2(Grasp_Matrix_Contact, ComputeThinU | ComputeThinV);  
+				Singular = svd2.singularValues();
+                sigma_min = Singular[Singular.size()-1];
+				sigma_max = Singular[0];
 
-					    return sigma_min/sigma_max;
-				      }
-				      break;
+				return sigma_min/sigma_max;
+			}
+			break;
 
 
 
-			case 3: // "Distance to singular configuration" Q = sigma_min(H) H = G.pseudo_inverse.transpose * J
-				    {
-					    JacobiSVD<MatrixXd> svd3(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
-					    Singular = svd3.singularValues();
+		case 3: // "Distance to singular configuration" Q = sigma_min(H) H = G.pseudo_inverse.transpose * J
+			{
+				JacobiSVD<MatrixXd> svd3(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
+				Singular = svd3.singularValues();
             
-              			return Singular[Singular.size()-1];
-				    }
-				    break;
+              	return Singular[Singular.size()-1];
+			}
+			break;
 
 
 
-			case 4: // "Volume of manipulability ellipsoid" Q = K sqrt(det(HH.t))
-				{
-					Eigen::MatrixXd H_H_t = GRASP_Jacobian * GRASP_Jacobian.transpose();
-
-					JacobiSVD<MatrixXd> svd4(H_H_t, ComputeThinU | ComputeThinV);  
+		case 4: // "Volume of manipulability ellipsoid" Q = K sqrt(det(HH.t))
+			{
+				Eigen::MatrixXd H_H_t = GRASP_Jacobian * GRASP_Jacobian.transpose();
+				JacobiSVD<MatrixXd> svd4(H_H_t, ComputeThinU | ComputeThinV);  
 
         		
-					Singular = svd4.singularValues();
+				Singular = svd4.singularValues();
 
 					
-					for(int i = 0 ; i < Singular.size() ; i++)
-						quality *= Singular[i];
+				for(int i = 0 ; i < Singular.size() ; i++)
+					quality *= Singular[i];
 
 
-					return ( quality * k );
-				}
-				break;
+				return ( quality * k );
+			}
+			break;
 
 
-			case 5: // "Uniformity of transformations" Q = sigma_min(H) / sigma_max(H) 
-				{
-					JacobiSVD<MatrixXd> svd5(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
+		case 5: // "Uniformity of transformations" Q = sigma_min(H) / sigma_max(H) 
+			{
+				JacobiSVD<MatrixXd> svd5(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
 
         			
-					Singular = svd5.singularValues();
+				Singular = svd5.singularValues();
 
-					sigma_min = Singular[Singular.size()-1];
-					sigma_max = Singular[0];
+				sigma_min = Singular[Singular.size()-1];
+				sigma_max = Singular[0];
 
-					return sigma_min/sigma_max;
-				}
-				break;
+				return sigma_min/sigma_max;
+			}
+			break;
 
 
-			default: return 9999; // incorrect
-      }//end switch
-
+		default: return 8888; // incorrect
+    }// end switch
 }
