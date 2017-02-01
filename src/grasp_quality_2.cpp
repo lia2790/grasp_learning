@@ -72,7 +72,7 @@ Contact GitHub API Training Shop Blog About
 #include <time.h>
 
 
-#include "pseudo_inverse.h"
+
 #include "quality.h"
 #include "quality_PCR_PGR.h"
 
@@ -100,8 +100,11 @@ string frame_name_root;
 //std::string root_name = "right_hand_palm_link";
 //std::string root_name = "world";
 int n_fingers;
-double quality_i = 9999;
+double joint_stiffness = 0;
+double contact_stiffness = 0;
+int type_of_contact = 0;
 
+double quality_i = 9999;
 
 
 
@@ -124,6 +127,9 @@ int main (int argc, char **argv)
 	nh.param<std::string>("frame_name_little", frame_name_finger[4], "right_hand_little_distal_link");
 	nh.param<std::string>("frame_name_root", frame_name_root, "world");
 	nh.param<int>("number_of_fingers", n_fingers, 5);
+	nh.param<double>("joint_stiffness",joint_stiffness,0);
+	nh.param<double>("contact_stiffness",contact_stiffness,0);
+	nh.param<int>("type_of_contact", type_of_contact, 0);
 
 
 
@@ -187,6 +193,8 @@ int main (int argc, char **argv)
 	int number_of_contact_point = 16;
 	int first_element_cp_array = number_of_joints + first_element_joint_array;
 
+	int count = 0; 
+	int count_contact = 0;
 
 	while( !file.eof() )
 	{
@@ -402,7 +410,7 @@ int main (int argc, char **argv)
     		{
     	
       			Eigen::MatrixXd Grasp_Matrix_Contact(6,6*n_c_eff); 		  // G 6x6N_c
-    			Eigen::MatrixXd Hand_Jacobian_Contact(6*n_c_eff,nq_hand-1); // J 6N_cxN_q
+    			Eigen::MatrixXd Hand_Jacobian_Contact(6*n_c_eff,nq_hand); // J 6N_cxN_q
       
 
 				int s = 0; 
@@ -432,7 +440,50 @@ int main (int argc, char **argv)
         		file_output << "Hand_Jacobian_Contact : " << endl;
         		file_output << Hand_Jacobian_Contact << endl;*/
 
-    			quality_i = quality(quality_index, Grasp_Matrix_Contact, Hand_Jacobian_Contact); 
+    			if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_Contact, Hand_Jacobian_Contact); 
+    			if(quality_index == 6) 
+    			{
+    				int first_element_contact_force = first_element_cp_array + (number_of_contact_point*3);
+    				int number_force_contact = (values_inline.size() - first_element_contact_force ) ;
+
+    				std::vector<double> contact_force;
+
+    				for(int i = 0 ; i < number_force_contact ; i++)
+    					if(!std::isnan(values_inline[first_element_contact_force + i]))
+    						contact_force.push_back(values_inline[first_element_contact_force + i]);
+    				
+
+
+    				Eigen::MatrixXd Contact_forces(contact_force.size(),6);
+    				int gap_coordinate_6 = 0;
+    				for(int i = 0 ; i < Contact_forces.rows() ; i++)
+    				{	for(int j = 0 ; j < Contact_forces.cols() ; j++)
+    						Contact_forces(i,j) = contact_force[i + j + gap_coordinate_6];
+    					gap_coordinate_6 += 6;
+    				}
+
+    				int N_c = Contact_forces.size();
+    				int N_q = nq_hand;
+
+    				Eigen::MatrixXd Contact_Stiffness_Matrix(6*N_c, 6*N_c);
+    				Eigen::MatrixXd Joint_Stiffness_Matrix(N_q,N_q);
+    				
+
+    				for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++)
+    					Contact_Stiffness_Matrix(i,i) = contact_stiffness;
+
+    				for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++)
+    					Joint_Stiffness_Matrix(j,j) = joint_stiffness;
+
+
+    				if(Contact_forces.size() == Grasp_Matrix_Contact.size())
+    					quality_i = quality_PCR_PGR(Contact_forces, Grasp_Matrix_Contact, Hand_Jacobian_Contact, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix);
+    				else
+    					cout << "ERROR COUNT !!!!!!!! CONTROL CONTACT FORCE AND RELATIVE GRASP MATRIX " << endl;
+
+    			}	
+
+    			count_contact++;
       		}
       		else
       		{
@@ -453,8 +504,8 @@ int main (int argc, char **argv)
 
 	      	file_output << ' ' << endl;
 
-    	  	
-		} // end for each line
+    	count++;	
+		} // end for each line	
 	}// end of file
 
 
@@ -466,7 +517,8 @@ int main (int argc, char **argv)
 	file_output.close();
 
 
-
+	cout << endl;
+	cout << "Count rows : " << count << endl;
 
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;

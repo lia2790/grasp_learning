@@ -9,3 +9,6 @@ frame_name_ring: "right_hand_ring_distal_link"
 frame_name_little: "right_hand_little_distal_link"
 frame_name_root: "world"
 number_of_fingers: 5
+joint_stiffness: 0.03
+contact_stiffness: 0.05
+type_of_contact : 0

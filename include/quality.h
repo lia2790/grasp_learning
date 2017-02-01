@@ -149,7 +149,7 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 
 
 		case -1: 
-				return 8888; // incorrect
+				return 8888; // no contact
 				break;
 
       }//end switch
