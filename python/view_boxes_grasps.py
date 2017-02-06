@@ -31,6 +31,8 @@ from grasp_boxes_batch import make_box, countContactPoints
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+from plugins import soft_hand
+
 robot_files = {
     'soft_hand':'data/robots/soft_hand.urdf'
 }
@@ -110,7 +112,13 @@ class GraspVisualizer(GLNavigationProgram):
         R, t = obj.getTransform()
         obj.setTransform(R, [0, 0, self.box_dims[2] / 2.])
 
-        self.hand.setConfiguration(self.pose['q'])
+        if self.box_db.n_dofs == self.hand.d_dofs + self.hand.u_dofs:
+            self.hand.setConfiguration(self.pose['q'])
+        elif self.box_db.n_dofs == self.hand.d_dofs + self.hand.u_dofs + self.hand.m_dofs:
+            self.hand.setFullConfiguration(self.pose['q'])
+        else:
+            raise Exception('Error: unexcpeted number of joints for hand')
+
         o_T_p = self.pose['T']
         w_T_o = np.array(se3.homogeneous(obj.getTransform()))
         w_T_h_des = w_T_o.dot(o_T_p).dot(self.p_T_h)
@@ -194,7 +202,7 @@ if __name__ == '__main__':
     except:
         filename = 'box_db'
 
-    box_db = MVBBLoader(filename, 19, 20)
+    box_db = MVBBLoader(filename, soft_hand.numJoints, len(soft_hand.links_to_check))
 
     poses = box_db.db_simulated
     suc_pose_count = 0

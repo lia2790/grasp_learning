@@ -4,6 +4,8 @@ import multiprocessing, subprocess
 from multiprocessing import Pool
 import sys
 
+from plugins import soft_hand
+
 def grasp_boxes(filename):
     subprocess.call(['python', './grasp_boxes_batch.py', filename])
 
@@ -23,8 +25,8 @@ if __name__ == '__main__':
         n_dofs = int(sys.argv[2])
         n_l = int(sys.argv[3])
     except:
-        n_dofs = 19
-        n_l = 20
+        n_dofs = soft_hand.numJoints
+        n_l = len(soft_hand.links_to_check)
 
     # for SoftHand
     box_db = MVBBLoader(filename, n_dofs, n_l)

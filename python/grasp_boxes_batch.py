@@ -27,6 +27,8 @@ from i16mc import make_moving_base_robot
 from mvbb.CollisionCheck import CheckCollision, CollisionTestInterpolate, CollisionTestPose
 from mvbb.box_db import MVBBLoader
 
+from plugins import soft_hand
+
 
 objects = {}
 robots = ['reflex_col', 'soft_hand', 'reflex']
@@ -236,7 +238,12 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                     w_T_h_curr = np.array(se3.homogeneous(w_T_h_curr_se3))
                     w_T_o_curr = np.array(se3.homogeneous(self.obj.getTransform()))
                     h_T_o = np.linalg.inv(w_T_h_curr).dot(w_T_o_curr)
-                    q_grasp = [float('nan')]*self.db.n_dofs if self.object_fell else self.hand.getConfiguration()
+                    if self.db.n_dofs == self.hand.d_dofs + self.hand.u_dofs:
+                        q_grasp = [float('nan')]*self.db.n_dofs if self.object_fell else self.hand.getConfiguration()
+                    elif self.db.n_dofs == self.hand.d_dofs + self.hand.u_dofs + self.hand.m_dofs:
+                        q_grasp = [float('nan')] * self.db.n_dofs if self.object_fell else self.hand.getFullConfiguration()
+                    else:
+                        raise Exception('Error: unexcpeted number of joints for hand')
 
                     c_p, c_f = getObjectPhalanxMeanContactPoint(self.sim, self.obj,
                                                                 self.robot, self.links_to_check)
@@ -375,6 +382,7 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
         obj.setTransform(R, [0, 0, box_dims[2]/2.])
         w_T_o = np.array(se3.homogeneous(obj.getTransform()))
         p_T_h = np.array(se3.homogeneous(xform))
+        p_T_h[2][3] += 0.02
 
         for pose in poses:
             w_T_p = w_T_o.dot(pose)
@@ -425,8 +433,8 @@ if __name__ == '__main__':
 
 
     # palm, index (proximal, middle, distal), little, middle, ring, thumb
-    links_to_check = np.array([3, 4, 6, 8, 10, 11, 13, 15, 17, 18, 20, 22, 24, 25, 27, 29, 31, 33, 35, 37]) + 6
-    box_db = MVBBLoader(filename, 19, len(links_to_check))
+    links_to_check = np.array(soft_hand.links_to_check) + 6
+    box_db = MVBBLoader(filename, soft_hand.numJoints, len(links_to_check))
     launch_test_mvbb_grasps("soft_hand", box_db, links_to_check)
 
 

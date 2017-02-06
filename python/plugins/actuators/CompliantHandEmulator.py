@@ -1,6 +1,7 @@
 from klampt.math import vectorops, se3
 from klampt.sim.simulation import ActuatorEmulator
 import numpy as np
+from IPython import embed
 
 class CompliantHandEmulator(ActuatorEmulator):
     """An simulation model for the SoftHand for use with SimpleSimulation"""
@@ -40,8 +41,9 @@ class CompliantHandEmulator(ActuatorEmulator):
         self.n_to_d = np.array(self.n_dofs * [-1])
 
         self.q_to_t = []  # maps active drivers to joint ids
-        # (basically removes weld joints, counts affine joints only once, takes into account
-        #  floating base and regular joints properly)
+        # (basically removes weld joints and counts affine joints only once)
+        # it includes the synergistic joints, the mimic joints, the regular joints, the underactuted joints,
+        # and the floating base joints (if present)
 
         # used to apply virtual forces to fingers - used for debugging purposes
         self.virtual_contacts = dict()
@@ -293,6 +295,13 @@ class CompliantHandEmulator(ActuatorEmulator):
         q_d = q[self.d_to_n]
         return np.hstack((q_u,q_d))
 
+    def getFullConfiguration(self):
+        q = np.array(self.sim.getActualConfig(self.robotindex))
+        q = q[self.q_to_t]
+        # extracts the values relative to hand DoFs
+        q_out = [q_i for i, q_i in enumerate(q) if i in self.d_to_n or i in self.u_to_n or i in self.m_to_n]
+        return np.array(q_out)
+
     def setConfiguration(self, q):
         qdes = np.array(self.sim.getActualConfig(self.robotindex))
         q_u_ref = q[0:self.u_dofs]
@@ -300,6 +309,19 @@ class CompliantHandEmulator(ActuatorEmulator):
         qdes[[self.q_to_t[u_id] for u_id in self.u_to_n]] = q_u_ref
         qdes[[self.q_to_t[m_id] for m_id in self.m_to_n]] = q_u_ref
         qdes[[self.q_to_t[d_id] for d_id in self.d_to_n]] = q_d_ref
+        self.robot.setConfig(qdes)
+
+    def setFullConfiguration(self, q):
+        qdes = np.array(self.sim.getActualConfig(self.robotindex))
+        qdes_drivers = qdes[self.q_to_t]
+        q = np.array(q)
+        #embed()
+        # from all drivers to normal, underactuated and mimic (no floating base, no synergistic actuators)
+        # 33 elements, from 0 to 40
+        t_to_qfull = [i for i, q_i in enumerate(qdes_drivers) if i in self.d_to_n or i in self.u_to_n or i in self.m_to_n]
+        q_to_t = np.array(self.q_to_t)
+
+        qdes[q_to_t[t_to_qfull]] = q
         self.robot.setConfig(qdes)
 
     def process(self, commands, dt):
