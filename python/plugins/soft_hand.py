@@ -168,19 +168,6 @@ class HandEmulator(CompliantHandEmulator):
 
         self.R = self.R*(1/np.linalg.norm(self.R[0,:]))
 
-    def getConfiguration(self):
-        q = np.array(self.sim.getActualConfig(self.robotindex))
-        q = q[self.q_to_t]
-        q_u = q[self.u_to_n]
-        q_m = q[self.m_to_n]
-        q_rollarticular = q_u
-        # the indices in q_u to which a mimic is paired
-        r_a = [i for i, v in enumerate(self.u_to_n) if v in (np.array(self.m_to_n)+1)]
-        q_rollarticular[r_a] += q_m
-        q_rollarticular *= 0.5
-        q_d = q[self.d_to_n]
-        return np.hstack((q_u,q_d))
-
 class HandSimGLViewer(GLSimulationProgram):
     def __init__(self,world,base_link=0,base_driver=0):
         GLSimulationProgram.__init__(self,world,"Reflex simulation program")

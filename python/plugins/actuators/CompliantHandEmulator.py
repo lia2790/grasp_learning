@@ -292,7 +292,14 @@ class CompliantHandEmulator(ActuatorEmulator):
         q = np.array(self.sim.getActualConfig(self.robotindex))
         q = q[self.q_to_t]
         q_u = q[self.u_to_n]
+        q_m = q[self.m_to_n]
         q_d = q[self.d_to_n]
+
+        q_rollarticular = q_u
+        if self.m_dofs > 0:
+            q_rollarticular[self.m_to_u] += q_m
+            q_rollarticular[self.m_to_u] *= 0.5
+
         return np.hstack((q_u,q_d))
 
     def getFullConfiguration(self):
