@@ -243,21 +243,21 @@ int main (int argc, char **argv)
 		n_box[i].height = (double)((rand() % interval_size) + offset ) / 100; // y
 		n_box[i].length = (double)((rand() % interval_size) + offset ) / 100; // z
 	
-	Eigen::Vector3d axis_dimensions_box(3);
+	   Eigen::Vector3d axis_dimensions_box(3);
 
-	axis_dimensions_box << n_box[i].width , n_box[i].height , n_box[i].length; // dimensioni della box   
+	   axis_dimensions_box << n_box[i].width , n_box[i].height , n_box[i].length; // dimensioni della box   
 
-	Eigen::Matrix4d T_fixed_frame(4,4);
-	T_fixed_frame << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1; // nessuna rotazione nessuna traslazione 
-                                                                     // corrisponde al centro della box
+	   Eigen::Matrix4d T_fixed_frame(4,4);
+	   T_fixed_frame << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1; // nessuna rotazione nessuna traslazione 
+                                                                            // corrisponde al centro della box
 
 
 
 
   
-	std::vector<Eigen::MatrixXd> grasp_point = populate_face(axis_dimensions_box, discretize_side, distance_hand, T_fixed_frame );
-    //discretizzo le facce della i-esima box
-    //ad ogni punto discretizzato corrisponde una trasformazione 
+	   std::vector<Eigen::MatrixXd> grasp_point = populate_face(axis_dimensions_box, discretize_side, distance_hand, T_fixed_frame );
+        //discretizzo le facce della i-esima box
+        //ad ogni punto discretizzato corrisponde una trasformazione 
 
     
 
@@ -335,8 +335,7 @@ int main (int argc, char **argv)
     file_output.close();
 
 
-	cout << " STAMPATO " << endl;
-    cout << "   fine   " << endl;
+	cout << " END " << endl;
 
 
 	ros::spin();

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_learning)/param/grasp_quality_parameters_PCR_PGR.yaml" command="load"/>
+
+	<node name="grasp_quality_measure_PCR_PGR" pkg="grasp_learning" type="grasp_quality_measure_PCR_PGR" respawn="false" output="screen"/>
+
+</launch>

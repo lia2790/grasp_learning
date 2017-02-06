@@ -152,7 +152,7 @@ int main (int argc, char **argv)
     { 
 
       for(std::string value; getline(iss_line, value, ',' ); )
-        count_col++;
+          count_col++;
       
       count_cols_only_one = false;
     } 
