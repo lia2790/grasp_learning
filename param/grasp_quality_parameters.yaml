@@ -1,5 +1,3 @@
-n_rows_file: 40
-n_cols_file: 189
 file_name: "/db/box_db_1_2_simulated.csv"
 frame_name_thumb: "right_hand_thumb_distal_link"
 frame_name_index: "right_hand_index_distal_link"

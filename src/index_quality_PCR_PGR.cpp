@@ -161,8 +161,8 @@ int main (int argc, char **argv)
 	// evaluation the constraint N(K(Cj)*Gt) = 0 
 	// it must be satisfied to immobilize the object
 	Eigen::MatrixXd Kcj_Gt = K * G_H_t.transpose();
-	FullPivLU<MatrixXd> lu(Kcj_Gt);
-	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel();
+	FullPivLU<MatrixXd> lu_(Kcj_Gt);
+	Eigen::MatrixXd Null_Kcj_Gt = lu_.kernel();
 
 
 	bool Matrix_is_Zero = true;
