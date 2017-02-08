@@ -284,7 +284,7 @@ int main (int argc, char **argv)
             <<q.x()<<','<<q.y()<<','<<q.z()<<','<<q.w()<<endl;                               // qx qy qz qw
             */
  
-
+            /* OUTput KLAMPT */
 
 
             file_output 
