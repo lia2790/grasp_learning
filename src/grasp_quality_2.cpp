@@ -74,7 +74,7 @@ Contact GitHub API Training Shop Blog About
 
 
 #include "quality.h"
-#include "quality_PCR_PGR.h"
+#include "quality_PCR_PGR_2.h"
 
 
 
@@ -103,8 +103,18 @@ int n_fingers;
 double joint_stiffness = 0;
 double contact_stiffness = 0;
 int type_of_contact = 0;
+int n_q = 39;
+int n_c_max = 20;
 
-double quality_i = 9999;
+double quality_i = 0;
+
+
+double mu = 0.03;
+double f_i_max = 1;
+int set_c = 0;
+
+
+std::vector<double> synergie;
 
 
 
@@ -115,28 +125,37 @@ int main (int argc, char **argv)
 	ros::NodeHandle nh;
 
 
- 	
+
+ 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	nh.param<int>("n_rows_file",n_rows,108);
 	nh.param<int>("n_cols_file",n_cols,86);
 	nh.param<int>("quality_index",quality_index,0);
-	nh.param<std::string>("file_name", relative_path_file, "/db/box_db_2.csv" );
-	nh.param<std::string>("frame_name_thumb", frame_name_finger[0], "right_hand_thumb_distal_link");
-	nh.param<std::string>("frame_name_index", frame_name_finger[1], "right_hand_index_distal_link");
+	nh.param<int>("number_of_fingers", n_fingers, 5);
+	nh.param<std::string>("frame_name_root", frame_name_root, "world");
+	nh.param<std::string>("frame_name_thumb", frame_name_finger[0], "right_hand_index_distal_link" );
+	nh.param<std::string>("frame_name_index", frame_name_finger[1], "right_hand_little_distal_link" );
 	nh.param<std::string>("frame_name_middle", frame_name_finger[2], "right_hand_middle_distal_link");
 	nh.param<std::string>("frame_name_ring", frame_name_finger[3], "right_hand_ring_distal_link");
-	nh.param<std::string>("frame_name_little", frame_name_finger[4], "right_hand_little_distal_link");
-	nh.param<std::string>("frame_name_root", frame_name_root, "world");
-	nh.param<int>("number_of_fingers", n_fingers, 5);
+	nh.param<std::string>("frame_name_little", frame_name_finger[4], "right_hand_thumb_distal_link");
+	nh.param<std::string>("file_name", relative_path_file, "/db/box_db_2.csv" );
+	nh.param<int>("type_of_contact", type_of_contact, 0);
 	nh.param<double>("joint_stiffness",joint_stiffness,0);
 	nh.param<double>("contact_stiffness",contact_stiffness,0);
-	nh.param<int>("type_of_contact", type_of_contact, 0);
-
+	nh.param<std::vector<double>>("synergie", synergie, std::vector<double>{1});
+	nh.param<double>("mu", mu, 0.03);
+	nh.param<double>("f_i_max", f_i_max, 1);
+	nh.param<int>("set_c", set_c, 0);
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	
 
 	ofstream file_output; //output file
     file_output.open("box_db_quality.txt", ofstream::app);
+
+
+
+
 
 
 
@@ -149,6 +168,15 @@ int main (int argc, char **argv)
 	std::cout << "file: " << file_name.c_str() << " is " << (file.is_open() == true ? "already" : "not") << " open" << std::endl;
 	if(!file.is_open())
 	return 0;
+
+
+
+
+
+
+
+
+
 
 
 	
@@ -188,181 +216,162 @@ int main (int argc, char **argv)
 
 
 
-	///////////////////// get values from file for each line //////////////////////////////////
+///////////////////////////////// get values from file for each line //////////////////////////////////
 
 	int first_element_joint_array = 17;
-	int number_of_joints = 19;
-	int number_of_contact_point = 16;
-	int first_element_cp_array = number_of_joints + first_element_joint_array;
+	int number_of_joints = 33;
+	int first_element_cp_array = first_element_joint_array + number_of_joints;
 
 	int count = 0; 
 	int count_contact = 0;
+	int count_line = 0;
 
-	while( !file.eof() )
+	
+	for(std::string line; getline( file, line, '\n' ); ) // for each line
 	{
-		for(std::string line; getline( file, line, '\n' ); ) // for each line
-		{
-			std::vector<double> values_inline;
-    		std::istringstream iss_line(line);	
-    		for(std::string value; getline(iss_line, value, ',' ); )
-    			values_inline.push_back(stod(value));
+		std::vector<double> values_inline;
+    	std::istringstream iss_line(line);	
+    	for(std::string value; getline(iss_line, value, ',' ); )
+    		values_inline.push_back(stod(value));
 
-    		for (int i = 0 ; i < values_inline.size(); i++)
-    			cout << " line " << i << " : " << values_inline[i] << endl;
+    	int quante_colonne = 0;
+
+ /*   	for(int i = 0 ; i < values_inline.size(); i++)
+    	{	cout << " line " << count_line << " : colonna : " << quante_colonne << " = " << values_inline[i] << endl; quante_colonne++;}
     		
-    	
-    		KDL::Vector trasl_w_T_o(0,0, -(values_inline[2]/2)); // i m not sure if it is corrected
-   		 	KDL::Vector trasl_o_T_p(values_inline[3],values_inline[4],values_inline[5]);
-    		KDL::Rotation R_o_T_p = Rotation::Quaternion(values_inline[6],values_inline[7],values_inline[8],values_inline[9]);
+    	cout << " numero di colonne : " << quante_colonne << endl;
+ */   	
+    	KDL::Vector trasl_w_T_o(0,0, (values_inline[2]/2)); // i m not sure if it is corrected
+   		KDL::Vector trasl_o_T_p(values_inline[3],values_inline[4],values_inline[5]);
+    	KDL::Rotation R_o_T_p = Rotation::Quaternion(values_inline[6],values_inline[7],values_inline[8],values_inline[9]);
+   	
+    	KDL::Frame w_T_o(trasl_w_T_o);
+    	KDL::Frame o_T_p(R_o_T_p,trasl_o_T_p);
+    	KDL::Frame p_T_h(chains_hand_finger[0].getSegment(5).getFrameToTip());
 
-    	
-    		KDL::Frame w_T_o(trasl_w_T_o);
-    		KDL::Frame o_T_p(R_o_T_p,trasl_o_T_p);
-    		KDL::Frame p_T_h(chains_hand_finger[0].getSegment(5).getFrameToTip());
+		KDL::Frame w_T_h = w_T_o * o_T_p * p_T_h ;
+    	KDL::Vector trasl_w_T_h = w_T_h.p;
+    	KDL::Rotation R_w_T_h = w_T_h.M;
 
+    	double roll , pitch , yaw ;
 
-	    	KDL::Frame w_T_h = w_T_o * o_T_p * p_T_h ;
-
-    		KDL::Vector trasl_w_T_h = w_T_h.p;
-    		KDL::Rotation R_w_T_h = w_T_h.M;
-
-    		double roll , pitch , yaw ;
-
-    		R_w_T_h.GetRPY(roll,pitch,yaw);
+    	R_w_T_h.GetRPY(roll,pitch,yaw);
 
 
-    		int k_ = 0;
+    	int k_ = 0;
 
-    		for(int i = 0; i < n_fingers; i++) //joint values
-    		{	
-
-    			q_finger[i](0) = trasl_w_T_h.x();
-    			q_finger[i](1) = trasl_w_T_h.y();
-    			q_finger[i](2) = trasl_w_T_h.z();
-    			q_finger[i](3) = roll;
-    			q_finger[i](4) = pitch;
-    			q_finger[i](5) = yaw;
-
-
-    			if(i == 0) // thumb
-    			{
-    				q_finger[i](6) = values_inline[first_element_joint_array];
-
-					q_finger[i](7) = values_inline[first_element_joint_array+1] / 2;
-					q_finger[i](8) = values_inline[first_element_joint_array+1] / 2;
-
-					q_finger[i](9) = values_inline[first_element_joint_array+2] / 2;
-					q_finger[i](10) = values_inline[first_element_joint_array+2] / 2;
-
-					k_+=3;
-				}
-				else
-				{
-					q_finger[i](6) = values_inline[first_element_joint_array+k_];
-
-					q_finger[i](7) = values_inline[first_element_joint_array+k_+1] / 2;
-					q_finger[i](8) = values_inline[first_element_joint_array+k_+1] / 2;
-
-					q_finger[i](9) = values_inline[first_element_joint_array+k_+2] / 2;
-					q_finger[i](10) = values_inline[first_element_joint_array+k_+2] / 2;
-
-					q_finger[i](11) = values_inline[first_element_joint_array+k_+3] / 2;
-					q_finger[i](12) = values_inline[first_element_joint_array+k_+3] / 2;
-
-					k_+=4;
-				}			
-			}
+    	for(int i = 0; i < n_fingers; i++) //joint values
+    	{	
+    		q_finger[i](0) = trasl_w_T_h.x();
+    		q_finger[i](1) = trasl_w_T_h.y();
+    		q_finger[i](2) = trasl_w_T_h.z();
+    		q_finger[i](3) = roll;
+    		q_finger[i](4) = pitch;
+    		q_finger[i](5) = yaw;
 
 
-			Eigen::MatrixXd Contacts(number_of_contact_point,3);
-			int gap_coordinate = 0;
-
-			for(int i = 0; i < number_of_contact_point; i++)
-			{	
-				for(int j = 0; j < 3; j++ )
-					Contacts(i,j) = values_inline[first_element_cp_array + gap_coordinate + j];  // check if it is correct
-
-				gap_coordinate += 3;
-			}
-
-
-			cout << "Contacts : " << Contacts << endl;
-
-
-
-
-			string not_a_n = "nan";
-
-		
-    		//for each contact point 
-			std::vector<Eigen::MatrixXd> Grasp_Matrix_ ;  // G
-    		std::vector<Eigen::MatrixXd> Hand_Jacobian_ ; // J
-
-
-    		int k = 1;
-
-			for(int i = 0 ; i < number_of_contact_point ; i++) //calc the grasp_matrix and hand_jacobian for each contact point
+    		if(i == 4) // thumb
     		{
+    			q_finger[i](6) = values_inline[first_element_joint_array]; // joint around z-axis knuckle
 
-      			if( !std::isnan(Contacts(i,0)) ) // NaN in dataset
-      			{	
+				q_finger[i](7) = values_inline[first_element_joint_array+1] ; // joint around y-axis knuckle
+				q_finger[i](8) = values_inline[first_element_joint_array+2] ; // joint around y-axis proximal
 
+				q_finger[i](9) = values_inline[first_element_joint_array+3] ; // joint around y-axis proximal
+				q_finger[i](10) = values_inline[first_element_joint_array+4] ; // joint around y-axis distal
+
+				k_+=5;
+			}
+			else
+			{
+				q_finger[i](6) = values_inline[first_element_joint_array+k_]; // joint around z-axis knuckle
+
+				q_finger[i](7) = values_inline[first_element_joint_array+k_+1] ; // joint around y-axis knuckle
+				q_finger[i](8) = values_inline[first_element_joint_array+k_+2] ; // joint around y-axis proximal
+
+				q_finger[i](9) = values_inline[first_element_joint_array+k_+3] ; // joint around y-axis proximal
+				q_finger[i](10) = values_inline[first_element_joint_array+k_+4] ;  // joint around y-axis middle
+
+				q_finger[i](11) = values_inline[first_element_joint_array+k_+5] ;  // joint around y-axis middle
+				q_finger[i](12) = values_inline[first_element_joint_array+k_+6] ;  // joint around y-axis distal
+
+				k_+=7;
+				}			
+		}
+/*		for ( int i = 0 ; i < n_fingers ; i++)
+		{	cout << " finger " << i << endl;
+			cout << q_finger[i].data << endl; }
+*/
+		string n_a_n = "nan";
+
+		Eigen::MatrixXd Contacts(n_c_max,3);
+		int gap_coordinate = 0;
+
+		int n_c = 0;
+
+		for(int i = 0; i < n_c_max; i++)
+		{						
+			for(int j = 0; j < 3; j++ )
+				Contacts(i,j) = values_inline[first_element_cp_array + gap_coordinate + j];  // check if it is correct
+			gap_coordinate += 3;
+		}
+
+		cout << "Contacts : " << endl;
+		cout << Contacts << endl;
+
+
+		for(int i = 0; i < n_c_max; i++)
+			if(!std::isnan(Contacts(i,0)))	
+				n_c++;
+		
+		if(n_c > 0)
+		{
+    			//for each contact point 
+			Eigen::MatrixXd Grasp_Matrix_  = MatrixXd::Zero(6,6*n_c) ;  // G
+    		Eigen::MatrixXd Hand_Jacobian_ = MatrixXd::Zero(6*n_c, n_q) ; // J
+
+   			int k = 1;
+   			int step = 0;		
+			for(int i = 0 ; i < n_c_max ; i++) //calc the grasp_matrix and hand_jacobian for each contact point
+    		{
+    			if(!std::isnan(Contacts(i,0)))	
+    			{
         			Eigen::MatrixXd Grasp_Matrix(6,6);  
  					Eigen::MatrixXd Skew_Matrix(3,3);
   					Eigen::MatrixXd Rotation(3,3);
 
   					Rotation <<  MatrixXd::Identity(3,3); 
 
-
-  				
-        			//check if the values ​​of the skew matrix are expressed in the correct reference system
-      				Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+	 				//check if the values ​​of the skew matrix are expressed in the correct reference system
+    	  			Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
      				Skew_Matrix(0,1) = - Contacts(i,2); // -rz    
      				Skew_Matrix(0,2) = Contacts(i,1);   // ry
         			Skew_Matrix(1,0) = Contacts(i,2);   // rz
         			Skew_Matrix(2,0) = - Contacts(i,1); // -ry
         			Skew_Matrix(1,2) = - Contacts(i,0); // -rx
-        			Skew_Matrix(2,1) = Contacts(i,0);   // rx
-
-
+       		 		Skew_Matrix(2,1) = Contacts(i,0);   // rx
 
         			Grasp_Matrix.block<3,3>(0,0) = Rotation;
-        			Grasp_Matrix.block<3,3>(3,3) = Rotation;
-        			Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * Rotation;
+     		   		Grasp_Matrix.block<3,3>(3,3) = Rotation;
+     		   		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * Rotation;
         			Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
 
 
-        			cout << "Grasp_Matrix" << endl;
-        			cout << Grasp_Matrix << endl;
 
-
-       				Grasp_Matrix_.push_back(Grasp_Matrix);
+	      			Grasp_Matrix_.block<6,6>(0,step) = Grasp_Matrix;
+       			
 
 
        				for(int n = 0 ; n < n_fingers ; n++)//calc jacobian for each finger
-        				jnt_to_jac_solver[n]->JntToJac(q_finger[n], hand_jacob[n], -1);
+       					jnt_to_jac_solver[n]->JntToJac(q_finger[n], hand_jacob[n], -1);
 
 
 
-
-   					cout << "Hand_Jacobian_ THUMB" << endl;
-      				cout <<  hand_jacob[0].data << endl;
-      				cout << "Hand_Jacobian_ INDEX" << endl;
-  		  			cout <<  hand_jacob[1].data << endl;
-  					cout << "Hand_Jacobian_ MIDDLE"<< endl;
-   					cout <<  hand_jacob[2].data << endl;
-      				cout << "Hand_Jacobian_ RING"  << endl;
-    				cout <<  hand_jacob[3].data << endl;
-  					cout << "Hand_Jacobian_ LITTLE"<< endl;
-  					cout <<  hand_jacob[4].data << endl;
-
-
-
-      				int which_finger = i/3;
+    				int which_finger = i/3;
       				int which_falange = 0;
       				if(i<3)//thumb
         			{
-        				if (i%3 == 0) which_falange = 6;
+       		 			if (i%3 == 0) which_falange = 6;
         				if (i%3 == 1) which_falange = 8;
         				if (i%3 == 2) which_falange = 10;
         			}
@@ -373,178 +382,115 @@ int main (int argc, char **argv)
         				if (i%3 == 2) which_falange = 12;
         			}
         			if(i > 14) // palm
-	        	    {	
-	        	    	which_falange = 5;
-	        	    	which_finger = 0;
-	            	}
-	            
-	            	cout << "which_finger : " << which_finger << endl;
-	            	cout << "which_falange : " << which_falange << endl;
-
-	            	jnt_to_jac_solver[which_finger]->JntToJac(q_finger[which_finger],hand_jacob[which_finger], which_falange);
-
-
+	       			{	
+	       	   			which_falange = 5;
+	       			   	which_finger = 0;
+	           		}
+	           
+/*	           		cout << "which_finger : " << which_finger << endl;
+	        		cout << "which_falange : " << which_falange << endl;
+*/
+	           		jnt_to_jac_solver[which_finger]->JntToJac(q_finger[which_finger],hand_jacob[which_finger], which_falange);
         		
-	  				cout << " Jacobian thumb " << endl;
-	  				cout << hand_jacob[0].data << endl;
-	  				cout << " Jacobian index " << endl;
-	  				cout << hand_jacob[1].data << endl;
-	  				cout << " Jacobian middle " << endl;
-	  				cout << hand_jacob[2].data << endl;
-					cout << " Jacobian ring " << endl;
-					cout << hand_jacob[3].data << endl;
+/*	  				cout << " Jacobian thumb "  << endl;
+					cout << hand_jacob[0].data  << endl;
+  					cout << " Jacobian index "  << endl;
+	  				cout << hand_jacob[1].data  << endl;
+			  		cout << " Jacobian middle " << endl;
+	  				cout << hand_jacob[2].data  << endl;
+					cout << " Jacobian ring "   << endl;
+					cout << hand_jacob[3].data  << endl;
 					cout << " Jacobian little " << endl;
-					cout << hand_jacob[4].data << endl;
+					cout << hand_jacob[4].data  << endl;
+					cout << " _______________ " << endl;
+*/
+					Hand_Jacobian_.block<6,6>(step,0) = hand_jacob[0].data.topLeftCorner(6,6);	// 6 
+					Hand_Jacobian_.block<6,7>(step,6) = hand_jacob[0].data.topRightCorner(6,7); // 7
+					Hand_Jacobian_.block<6,7>(step,13)= hand_jacob[1].data.topRightCorner(6,7); // 7
+					Hand_Jacobian_.block<6,7>(step,20)= hand_jacob[2].data.topRightCorner(6,7); // 7
+					Hand_Jacobian_.block<6,7>(step,27)= hand_jacob[3].data.topRightCorner(6,7); // 7
+	  				Hand_Jacobian_.block<6,5>(step,34)= hand_jacob[4].data.topRightCorner(6,5); // 5
 
+	  				step += 6;
+	  			} // if i have contact
+        	} // end for(n_max) each possible contact point	
+        	cout << "................................................................." << endl;
+        	cout << "FINAL GRASP MATRIX  " << endl;
+        	cout << Grasp_Matrix_ << endl;
+        	cout << "................................................................." << endl;
+    
+//////////////////////////	  now i have a 
+/////////////////////////////   G          grasp matrix and 
+/////////////////////////////   J          hand jacobian for 6D
+/////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	        if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_, Hand_Jacobian_); 		
 
-				  	Hand_Jacobian_.push_back(hand_jacob[0].data); // 5
-				  	Hand_Jacobian_.push_back(hand_jacob[1].data); // 7
-				 	Hand_Jacobian_.push_back(hand_jacob[2].data); // 7
-			  		Hand_Jacobian_.push_back(hand_jacob[3].data); // 7
-	  				Hand_Jacobian_.push_back(hand_jacob[4].data); // 7
-	      		}// end if  contact
-        	} // end for each contact point	
-
-
-
-      		cout << " Dim of the vectors of the matrices grasp " << Grasp_Matrix_.size() << endl;
-    		cout << " Dim of the hand jacobian " << Hand_Jacobian_.size() << endl;
-
-
-    		int n_c_eff = Grasp_Matrix_.size();
-    		int nq_hand = 63;
-
-
-    		cout << "n_c_eff : " << n_c_eff << endl;
-    		cout << "nq_hand : " << nq_hand << endl;
-      
-    		if(n_c_eff != 0 && nq_hand !=0) // i have a cp
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    		if(quality_index == 6 ) // PCR PGR 
     		{
-    	
-      			Eigen::MatrixXd Grasp_Matrix_Contact(6,6*n_c_eff); 		  // G 6x6N_c
-    			Eigen::MatrixXd Hand_Jacobian_Contact(6*n_c_eff,nq_hand); // J 6N_cxN_q
-      
+	    		int first_element_contact_force = 110;
+	    		int number_force_contact = 120;
 
-				int s = 0; 
-				int s_ = 0;
+   				Eigen::VectorXd contact_force_ = VectorXd::Zero(6*n_c_max);
+   				Eigen::VectorXd contact_force  = VectorXd::Zero(6*n_c);
+   				int  j= 0;
+    			for(int i = 0 ; i < number_force_contact ; i++)
+    				if(!std::isnan(values_inline[first_element_contact_force + i]))
+    				{	contact_force_(j) = (values_inline[first_element_contact_force + i]); j++; }
 
-
-      			for(int i = 0; i < n_c_eff; i++)
-      			{
-
-        			Grasp_Matrix_Contact.block<6,6>(0,s) = Grasp_Matrix_[i];
-        	
-        			cout << "i : " << i << endl;
-
-      				Hand_Jacobian_Contact.block<6,11>(s,0) = Hand_Jacobian_[s_];
-      				Hand_Jacobian_Contact.block<6,13>(s,11) = Hand_Jacobian_[s_+1];
-      				Hand_Jacobian_Contact.block<6,13>(s,24) = Hand_Jacobian_[s_+2];
-      				Hand_Jacobian_Contact.block<6,13>(s,37) = Hand_Jacobian_[s_+3];
-      				Hand_Jacobian_Contact.block<6,13>(s,50) = Hand_Jacobian_[s_+4];
-			
-  					s_+=5;
-       				s+=6;
-      			}
-
-				file_output << "Grasp_Matrix_Contact : " << endl;
-       		 	file_output <<  Grasp_Matrix_Contact << endl;
-        		file_output << "__________________________________________________" << endl;
-        		file_output << "Hand_Jacobian_Contact : " << endl;
-        		file_output << Hand_Jacobian_Contact << endl;
-
-    			if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_Contact, Hand_Jacobian_Contact); 
-    			if(quality_index == 6) 
-    			{
-    				int first_element_contact_force = first_element_cp_array + (number_of_contact_point*3);
-    				int number_force_contact = (values_inline.size() - first_element_contact_force ) ;
-
-    				std::vector<double> contact_force;
-
-    				for(int i = 0 ; i < number_force_contact ; i++)
-    					if(!std::isnan(values_inline[first_element_contact_force + i]))
-    						contact_force.push_back(values_inline[first_element_contact_force + i]);
+    			for(int i = 0 ; i < (6*n_c) ; i++)
+    				contact_force(i) = contact_force_(i);
     				
+				cout << "Contact_forces : " << endl;
+    			cout << contact_force_ << endl;
+    			cout << "______________" << endl;
+    			cout << contact_force << endl;
 
+    			Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
+    			Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
+    			for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++) //Kis
+    				Contact_Stiffness_Matrix(i,i) = contact_stiffness;
 
-    				Eigen::MatrixXd Contact_forces((contact_force.size()/6),6);
-    				int gap_coordinate_6 = 0;
-    				for(int i = 0 ; i < Contact_forces.rows() ; i++)
-    				{	for(int j = 0 ; j < Contact_forces.cols() ; j++)
-    						Contact_forces(i,j) = contact_force[i + j + gap_coordinate_6];
-    					gap_coordinate_6 += 6;
-    				}
+    			for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++) //Kp
+    				Joint_Stiffness_Matrix(j,j) = joint_stiffness;
 
+    			int n_z = synergie.size();
+    			Eigen::MatrixXd S(n_q, n_z);
+    			for(int i = 0 ; i < n_q ; i++)
+    				for(int j = 0 ; j < n_z ; j++)
+    					S(i,j) = 1;
 
-    				cout << "Contact_forces : " << endl;
-    				cout << Contact_forces << endl;
+    			Eigen::VectorXd synergie_(synergie.size()) ;
+    			for(int i = 0 ; i < synergie.size() ; i++)
+    				synergie_(i) = synergie[i];
 
+    			quality_i = quality_measures_PCR_PGR(contact_force, Grasp_Matrix_, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, set_c);
+    		}
+    		else
+    			quality_i = -33;
+    	}// end if ( n_c > 0)
 
+	    cout << " THEFINALCOUNTDOWN:::: " << quality_i << endl;
 
-    				int N_c = Contact_forces.size();
-    				int N_q = nq_hand;
+	    file_output << quality_i ;
+		for(int i = 0 ; i < 10 ; i++)
+	    	file_output << ' ' << i+1 << ":" << values_inline[i] ;
+      	file_output << ' ' << endl;
 
-    				Eigen::MatrixXd Contact_Stiffness_Matrix(6*N_c, 6*N_c);
-    				Eigen::MatrixXd Joint_Stiffness_Matrix(N_q,N_q);
-    				
-
-    				for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++)
-    					Contact_Stiffness_Matrix(i,i) = contact_stiffness;
-
-    				for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++)
-    					Joint_Stiffness_Matrix(j,j) = joint_stiffness;
-
-
-    				if(Contact_forces.rows() == (Grasp_Matrix_Contact.cols()/6))
-    					quality_i = quality_PCR_PGR(Contact_forces, Grasp_Matrix_Contact, Hand_Jacobian_Contact, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix);
-    				else
-    				{	cout << "ERROR COUNT !!!!!!!! CONTROL CONTACT FORCE AND RELATIVE GRASP MATRIX " << endl;
-    					cout <<  Contact_forces.rows() << " --- " << Grasp_Matrix_Contact.rows()/6 << endl;
-    				}
-
-    			}	
-
-    			count_contact++;
-      		}
-      		else
-      		{
-      			Eigen::MatrixXd Grasp_Matrix_Contact(6,6); 		  // G 6x6n_c
-    			Eigen::MatrixXd Hand_Jacobian_Contact(6,6); 	  // J 6n_cxn_q
-
-    			Grasp_Matrix_Contact  <<  MatrixXd::Identity(6,6); 
-      			Hand_Jacobian_Contact <<  MatrixXd::Identity(6,6); 
-
-      			quality_i = quality(-1, Grasp_Matrix_Contact, Hand_Jacobian_Contact);
-      		}
-
-
-	    	file_output << quality_i ;
-
-			for(int i = 0 ; i < 10 ; i++)
-	      		file_output << ' ' << i+1 << ":" << values_inline[i] ;
-
-	      	file_output << ' ' << endl;
-
-    	count++;	
-		} // end for each line	
-	}// end of file
-
-
-
-
-
-
+    	count_line++;
+    	quality_i = 0;	
+	} // end for each line	
 
 	file_output.close();
 
-
 	cout << endl;
-	cout << "Count rows : " << count << endl;
+	cout << "Count rows : " << count_line << endl;
 	cout << "quality_index : " << quality_index << endl;
 
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;
-
 
 	ros::spin();
 	return 0;

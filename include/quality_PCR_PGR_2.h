@@ -58,17 +58,47 @@ using namespace KDL;
 
 
 
-inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::MatrixXd &J , Eigen::MatrixXd &Kis_ , Eigen::MatrixXd &Kp , Eigen::MatrixXd &S ,Eigen::VectorXd &synergy , double &mu_friction , double f_i_max, int setting)
+inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::MatrixXd &J , Eigen::MatrixXd &Kis_ , Eigen::MatrixXd &Kp , Eigen::MatrixXd &S ,Eigen::VectorXd &synergy , double mu_friction , double f_i_max, int setting)
 {
 	// G ---> grasp matrix 6x6nc
 	// J ---> hand_jacobian 6nc,nq
 
 
+	cout << "f ::::::" << endl;
+	cout << f << endl;
+	cout << ":::::::::::::::::" << endl;
+
+	cout << "G ::::" << endl;
+	cout << G << endl;
+	cout << ":::::::::::::::::::::" << endl;
+
+	cout << "Kis_ :::::::::" << endl;
+	cout << Kis_ << endl;
+	cout << "::::::::::::::::::::" << endl;
+
+	cout << "Kp ::::::::::::::::" << endl;
+	cout << Kp << endl;
+	cout << "::::::::::::::::::::::::" << endl;
+
+	cout << "S :::::::::." << endl;
+	cout << S << endl;
+	cout << ":::::::::::::::::." << endl;
+
+	cout << "synergy ::::::::" << endl;
+	cout << synergy << endl;
+	cout << ":::::::::::::::::::" << endl;
 
 	int n_c = f.size()/6;  // number of contacts
 	int n_q = J.cols(); // number of joints
 	int n_z = synergy.size();  // number of synergie
 	// double synergy = 1;
+
+
+	cout << " N_C : " << n_c <<endl;
+	cout << " N_Q : " << n_q <<endl;
+	cout << " N_Z : " << n_z <<endl;
+
+	cout << "Inside 2" << endl;
 
 
 	double Kx = Kis_(0,0);
@@ -108,7 +138,6 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	//Eigen::MatrixXd Kp(n_q,n_q); // joint stiffness matrix
 
 	//Eigen::MatrixXd S(n_q,n_z); // Synergie matriz for underactuacted hand
-	Eigen::VectorXd f_(3*n_c) ;
 	Eigen::MatrixXd G_r_k(3*n_c,6); // weighted right pseudoinverse of G	
 	Eigen::VectorXd d_f(3*n_c);
 
@@ -142,6 +171,13 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	H_f = H * f ;
 
 
+	cout << " G_H_t :::::::::::::" << endl;
+	cout << G_H_t << endl;
+	cout << "::::::::::::::::::::" << endl;
+
+	cout << " H_f ::::::::::::" << endl;
+	cout << H_f << endl;
+	cout << "::::::::::::::::::::::" << endl;
 
 
 
@@ -154,39 +190,48 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 		return -1;
 
 
-
+	cout << "Inside 5" << endl;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
+	Eigen::MatrixXd G_r_k_ = MatrixXd::Zero(3*n_c,6);
+	Eigen::VectorXd f_ = VectorXd::Zero(3*n_c);
 
 	switch(setting)
 	{
-
 		case 0 :  // direct calc PCR very simple
 			{
-				f_ = H_f ;
-
 				int s = 0;
 				for(int i = 0 ; i < n_c ; i++)
-				{	Ks.block<3,3>(s,s) = Kis_; s+=6;  }
-
+				{	Ks.block<3,3>(s,s) = Kis_; s+=3;  }
 
 
 				K_ = Ks.inverse() + H_J * Kp.inverse() * H_J.transpose() ;
+
 				K  = K_.inverse();
 				G_ = G_H_t * K * G_H_t.transpose();
+
 				G_inv = G_.inverse();
-				G_r_k = K * G.transpose() * G_inv; 
+				Eigen::MatrixXd M = K * G_H_t.transpose();
+				G_r_k = M * G_inv; 
+
+
+				////////////////////////////
+				G_r_k_ = G_r_k;
+				f_ = H_f ;
+				///////////////////////////
+
+				cout << " G_r_k 1 ::::::: " << endl;
+				cout << G_r_k << endl;
+				cout << " :::::::::::::: " << endl;
 
 				break;
 			}
 		case 1 :  // PGR with Cj fixed we have just a Cj from the dataset
-			{
+			{	cout << " Inside 6  " << endl;
 				// calculation Ks(Cj)
 				int s_ = 0; // step for component
 				for( int i = 0 ; i < n_c ; i++ )
@@ -194,26 +239,27 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 					Kis(0,0) = 0;
 					Kis(1,1) = 0;
 					Kis(2,2) = 0;
-
-					if( H_f(i+s_+3) >= 0 )
-						if(  sqrt( H_f(i+s_+0)*H_f(i+s_+0) + H_f(i+s_+1)*H_f(i+s_+1)) <= mu_friction * H_f(i+s_+2) )
-						{
+					cout << "Inside 7" <<endl;
+					if( H_f(s_+2) >= 0 )
+					{   cout << "7.5" << endl;
+						if( ( ( H_f(s_+0)*H_f(s_+0) + H_f(s_+1)*H_f(s_+1) ) / mu_friction ) <=  (H_f(s_+2)* H_f(s_+2)) )
+						{	cout << "Inside 8.1" << endl;
 							Kis(0,0) =  Kx;
 							Kis(1,1) =  Ky;
 							Kis(2,2) =  Kz;
 						}
 						else
-							Ks(2,2) = Kz;
-
-					Ks.block<3,3>(s_,s_) = Kis;
+						{	Ks(2,2) = Kz; cout << "8.2" << endl;} }
+					cout << "Inside 9" <<endl;
+					Ks.block<3,3>(s_,s_) = Kis; cout << "Inside 10" <<endl;
 					s_ += 3;
 				}	
-
+				cout << "Inside 11" << endl;
 				
 				K_ = Ks.inverse() + H_J * Kp.inverse() * H_J.transpose() ;
 				K  = K_.inverse();
 
-
+				cout << "Inside 12" <<endl;
 
 				// evaluation the constraint N(K(Cj)*Gt) = 0 
 				// it must be satisfied to immobilize the object
@@ -221,17 +267,16 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				FullPivLU<MatrixXd> lu(Kcj_Gt);
 				Eigen::MatrixXd Null_Kcj_Gt = lu.kernel();
 
-
+				
 				bool Matrix_is_Zero = true;
-
+				
 				for ( int i = 0 ; i < Null_Kcj_Gt.rows() ; i++ )
 					for ( int j = 0 ; j < Null_Kcj_Gt.cols() ; j++)
 						if( Null_Kcj_Gt(i,j) != 0 )
 						{	Matrix_is_Zero = false; break; }
-
-
-				if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) = 0 
-					return 0;
+				
+			//	if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) = 0 
+			//		return 0;
 
 				//calculation of a basis for the subspace of the controllable internal force
 				// with synergy
@@ -239,31 +284,38 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				Eigen::MatrixXd F(3*n_c,n_q);
 				Eigen::MatrixXd E;
 
-
-
-
 				G_ = G_H_t * K * G_H_t.transpose();
 				G_inv = G_.inverse();
-				G_r_k = K * G.transpose() * G_inv; 
 
+				cout << "Inside 17 " << endl;
 
-				F = ( I - G_r_k * G ) * K * H_J ; // and maps independently controlled joint reference displacements δqr’s into active internal forces
-												  // if we assume that we have a perfect rigid joint δqr = δq
+				G_r_k = K * G_H_t.transpose() * G_inv; 
+
+				cout << "Inside 18 " <<endl;
+
+				F = ( I - G_r_k * G_H_t ) * K * H_J ; // and maps independently controlled joint reference displacements δqr’s into active internal forces
+					cout << "Inside 19"<< endl;							  // if we assume that we have a perfect rigid joint δqr = δq
 				E = F * S ;
 				w = - G_H_t * H_f ; // calculatin of external wrench
 				f_y = - G_r_k * w + E * synergy ; // calculation of the controllable contact forces
 
+				cout << "OHI" << endl;
 
+				/////////////////////////
 				f_ = f_y ;
+				G_r_k_ = G_r_k ;
+				/////////////////////////
 
+
+				cout << " G_r_k 2::::::: " << endl;
+				cout << G_r_k << endl;
+				cout << " :::::::::::::: " << endl;
 
 				break;
 			}
 			default : return  -2;
 	}
 
-
-	
 
 	// now we are ready to search the minimum value of d(f_y) vector
 	Eigen::VectorXd f_i(3);
@@ -274,8 +326,6 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	double f_i_ ;
 
 	Eigen::MatrixXd Rotation(3,3);
-
-
 
 	for(int i = 0 ; i < (f_.size()/3)  ; i++)
 	{
@@ -291,8 +341,8 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 		n_i(2) = Rotation(2,2);
 		
 		f_i_ = f_i(0)+f_i(1)+f_i(2);
-		f_i_n = f_i * n_i.transpose();
 
+		f_i_n = f_i.transpose() * n_i;
 
 		d_f(step+0)  =  f_i_n(0);	
 		d_f(step+1)  =  mu_friction*f_i_n(0) - (sin(acos(f_i_n(0)/f_i_)));		
@@ -303,21 +353,34 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	}
 
 
-
 	double d_min = d_f(0);	
 	for(int i = 0 ; i < d_f.size() ; i++)
 		if( d_min > d_f(i) ) 
 			d_min = d_f(i);
 
 
-
 	Eigen::VectorXd Singular ;
-	JacobiSVD<MatrixXd> svd(G_r_k, ComputeThinU | ComputeThinV);  
+	JacobiSVD<MatrixXd> svd(G_r_k_, ComputeThinU | ComputeThinV);  
     Singular = svd.singularValues();
 
     double sigma_max = Singular[0];
 
     PCR_PGR = d_min / sigma_max;
+
+
+    cout << "f_ :" << endl;
+    cout << f_ << endl;
+    cout << "G_r_k_ : " << endl;
+    cout << G_r_k_ << endl;
+    cout << " d(f) : " << endl;
+    cout << d_f << endl;
+    cout << "-------------------------------" << endl;
+    cout << " d_min : " << d_min << endl;
+    cout << " singularValues : " << endl;
+    cout << Singular << endl;
+    cout << " sigma_max : " << sigma_max << endl;
+    cout << " PCR_PGR : " << PCR_PGR << endl;
+    cout << "-------------------------------" << endl;
 	
 	return PCR_PGR;
 }

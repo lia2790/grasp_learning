@@ -10,3 +10,7 @@ joint_stiffness: 0.03
 contact_stiffness: 0.05
 type_of_contact : 0
 quality_index: 6
+synergie: [1]
+mu: 0.05
+f_i_max: 1
+set: 0
