@@ -239,9 +239,9 @@ int main (int argc, char **argv)
 
 	for(int i = 0; i < number_box ; i++)  //per ogni box individuata dall'indice i-esimo vado a discretizzare la superficie
 	{
-        n_box[i].width  = (double)((rand() % interval_size) + offset ) / 100; // x
-		n_box[i].height = (double)((rand() % interval_size) + offset ) / 100; // y
-		n_box[i].length = (double)((rand() % interval_size) + offset ) / 100; // z
+        n_box[i].width  = (double)((rand() % interval_size) + offset ) / 1000; // x
+		n_box[i].height = (double)((rand() % interval_size) + offset ) / 1000; // y
+		n_box[i].length = (double)((rand() % interval_size) + offset ) / 1000; // z
 	
 	   Eigen::Vector3d axis_dimensions_box(3);
 
@@ -283,20 +283,7 @@ int main (int argc, char **argv)
             <<grasp_point[j](0,3)<<','<<grasp_point[j](1,3)<<','<<grasp_point[j](2,3)<<','   // x y z
             <<q.x()<<','<<q.y()<<','<<q.z()<<','<<q.w()<<endl;                               // qx qy qz qw
             */
-
-
-
-
-            Eigen::VectorXd Joints(19);
-
-            for(int i = 0 ; i < 19 ; i++)
-                Joints(i) = (double) (rand() % 2); 
-
-
-            Eigen::VectorXd Contacts(57);
-
-            for(int i = 0 ; i < 57 ; i++)
-                Contacts(i) = (double) (rand() % 2); 
+ 
 
 
 
@@ -304,10 +291,6 @@ int main (int argc, char **argv)
             <<n_box[i].width<<','<<n_box[i].height<<','<<n_box[i].length<<','                // box h l d
             <<grasp_point[j](0,3)<<','<<grasp_point[j](1,3)<<','<<grasp_point[j](2,3)<<','   // x y z
             <<q.x()<<','<<q.y()<<','<<q.z()<<','<<q.w();  
-            for(int i = 0 ; i < 19 ; i++)
-                file_output << ',' << Joints(i); 
-            for(int i = 0 ; i < 57 ; i++)
-                file_output << ',' << Contacts(i);
             file_output << endl; 
 
 
