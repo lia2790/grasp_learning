@@ -117,29 +117,29 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 
 	Eigen::VectorXd w(6);
 
-	Eigen::MatrixXd H(3*n_c,6*n_c);
-	Eigen::MatrixXd H_(3,6);
+	Eigen::MatrixXd H = MatrixXd::Zero(3*n_c,6*n_c);
+	Eigen::MatrixXd H_ = MatrixXd::Zero(3,6);
 
 
 	//Eigen::MatrixXd G(6, 6*n_c);
 	//Eigen::MatrixXd J(6*n_c, n_q);
-	Eigen::MatrixXd G_H_t(6,3*n_c); // Grasp Matrix 
-	Eigen::MatrixXd H_J(3*n_c,n_q); // Hand Jacobian 
+	Eigen::MatrixXd G_H_t = MatrixXd::Zero(6,3*n_c); // Grasp Matrix 
+	Eigen::MatrixXd H_J = MatrixXd::Zero(3*n_c,n_q); // Hand Jacobian 
 	//calculation weighted right pseudoinverse
 	Eigen::MatrixXd G_inv;
 	Eigen::MatrixXd G_;
 	// calculation the grasp stiffness matrix K(Cj)
-	Eigen::MatrixXd K_(3*n_c,3*n_c);
+	Eigen::MatrixXd K_ = MatrixXd::Zero(3*n_c,3*n_c);
 	
 
-	Eigen::MatrixXd K(3*n_c,3*n_c); // grasp stiffness matrix
-	Eigen::MatrixXd Kis(3,3);
-	Eigen::MatrixXd Ks(3*n_c,3*n_c); // contact stiffness matrix
+	Eigen::MatrixXd K = MatrixXd::Zero(3*n_c,3*n_c); // grasp stiffness matrix
+	Eigen::MatrixXd Kis = MatrixXd::Zero(3,3);
+	Eigen::MatrixXd Ks = MatrixXd::Zero(3*n_c,3*n_c); // contact stiffness matrix
 	//Eigen::MatrixXd Kp(n_q,n_q); // joint stiffness matrix
 
 	//Eigen::MatrixXd S(n_q,n_z); // Synergie matriz for underactuacted hand
-	Eigen::MatrixXd G_r_k(3*n_c,6); // weighted right pseudoinverse of G	
-	Eigen::VectorXd d_f(3*n_c);
+	Eigen::MatrixXd G_r_k = MatrixXd::Zero(3*n_c,6); // weighted right pseudoinverse of G	
+	Eigen::VectorXd d_f = VectorXd::Zero(3*n_c);
 
 
 
@@ -164,6 +164,10 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 		j += 6;
 	}
 
+
+	cout << "H ::::::::" << endl;
+	cout << H << endl;
+	cout << ":::::::::" << endl;
 
 	// apply the type of contact and i obtain the grasp matrix and hand jacobian 
 	G_H_t = G * H.transpose();
@@ -254,26 +258,71 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 					Ks.block<3,3>(s_,s_) = Kis; cout << "Inside 10" <<endl;
 					s_ += 3;
 				}	
-				cout << "Inside 11" << endl;
 				
-				K_ = Ks.inverse() + H_J * Kp.inverse() * H_J.transpose() ;
+				cout << "Ks ::::::::::::::." << endl;
+				cout << Ks << endl;
+				cout << ":::::::::::::::" << endl;
+
+				cout << "H_J ::::::::::::::" << endl;
+				cout << H_J << endl;
+				cout << "::::::::::::::::::" << endl;
+
+				cout << "Kp :::::::::::::." << endl;
+				cout << Kp << endl;
+				cout << ":::::::::::::." << endl;
+
+				Eigen::MatrixXd Kp_inv =  Kp.inverse();
+				
+				cout << "Kp_inv :::::::::::::." << endl;
+				cout << Kp_inv << endl;
+				cout << ":::::::::::::." << endl;
+
+
+
+				Eigen::MatrixXd M = H_J * Kp_inv * H_J.transpose() ;
+
+
+				cout << "M::::::::::::::.." << endl;
+				cout << M << endl;
+				cout << "Ks_inv():::::::::::::::::.." << endl;
+				cout << Ks.inverse() << endl;
+				cout << "::::::::::::::::.." << endl;
+
+
+				Eigen::MatrixXd Ks_inv = Ks.inverse();
+
+				cout << "Ks_inv:::::::::::::::::.." << endl;
+				cout << Ks_inv << endl;
+				cout << "::::::::::::::::.." << endl;
+
+
+				K_ =  Ks_inv + M ;
+
+
+				cout << "K_ :::::::::::" << endl;
+				cout << K_ << endl;
+				cout << ":::::::::::::." << endl;
+
 				K  = K_.inverse();
 
-				cout << "Inside 12" <<endl;
+
+				cout << "K::::::::::" << endl;
+				cout << K << endl;
+				cout << "::::::::::::::::" << endl;
 
 				// evaluation the constraint N(K(Cj)*Gt) = 0 
 				// it must be satisfied to immobilize the object
-				Eigen::MatrixXd Kcj_Gt = K * G_H_t.transpose();
+/*				Eigen::MatrixXd Kcj_Gt = K * G_H_t.transpose(); 
 				FullPivLU<MatrixXd> lu(Kcj_Gt);
 				Eigen::MatrixXd Null_Kcj_Gt = lu.kernel();
-
+cout << "INside 13" << endl;
 				
 				bool Matrix_is_Zero = true;
 				
 				for ( int i = 0 ; i < Null_Kcj_Gt.rows() ; i++ )
 					for ( int j = 0 ; j < Null_Kcj_Gt.cols() ; j++)
 						if( Null_Kcj_Gt(i,j) != 0 )
-						{	Matrix_is_Zero = false; break; }
+						{	Matrix_is_Zero = false; break; } */
 				
 			//	if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) = 0 
 			//		return 0;
