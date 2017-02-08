@@ -239,9 +239,9 @@ int main (int argc, char **argv)
 
 	for(int i = 0; i < number_box ; i++)  //per ogni box individuata dall'indice i-esimo vado a discretizzare la superficie
 	{
-        n_box[i].width  = (double)((rand() % interval_size) + offset ) / 1000; // x
-		n_box[i].height = (double)((rand() % interval_size) + offset ) / 1000; // y
-		n_box[i].length = (double)((rand() % interval_size) + offset ) / 1000; // z
+        n_box[i].width  = (double)((rand() % interval_size) + offset ) / 100; // x
+		n_box[i].height = (double)((rand() % interval_size) + offset ) / 100; // y
+		n_box[i].length = (double)((rand() % interval_size) + offset ) / 100; // z
 	
 	   Eigen::Vector3d axis_dimensions_box(3);
 
