@@ -111,7 +111,7 @@ double quality_i = 0;
 
 double mu = 0.03;
 double f_i_max = 1;
-int set_c = 0;
+int set_PCR_PGR = 0;
 
 
 std::vector<double> synergie;
@@ -144,7 +144,7 @@ int main (int argc, char **argv)
 	nh.param<std::vector<double>>("synergie", synergie, std::vector<double>{1});
 	nh.param<double>("mu", mu, 0.03);
 	nh.param<double>("f_i_max", f_i_max, 1);
-	nh.param<int>("set_c", set_c, 0);
+	nh.param<int>("set_PCR_PGR", set_PCR_PGR, 0);
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -418,6 +418,13 @@ int main (int argc, char **argv)
         	cout << "FINAL GRASP MATRIX  " << endl;
         	cout << Grasp_Matrix_ << endl;
         	cout << "................................................................." << endl;
+
+
+
+
+
+
+        	
     
 //////////////////////////	  now i have a 
 /////////////////////////////   G          grasp matrix and 
@@ -466,7 +473,7 @@ int main (int argc, char **argv)
     			for(int i = 0 ; i < synergie.size() ; i++)
     				synergie_(i) = synergie[i];
 
-    			quality_i = quality_measures_PCR_PGR(contact_force, Grasp_Matrix_, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, set_c);
+    			quality_i = quality_measures_PCR_PGR(contact_force, Grasp_Matrix_, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, set_PCR_PGR);
     		}
     		else
     			quality_i = -33;

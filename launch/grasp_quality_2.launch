@@ -2,7 +2,7 @@
 
 <launch>
 
-	<rosparam file="$(find grasp_learning)/param/grasp_quality_parameters.yaml" command="load"/>
+	<rosparam file="$(find grasp_learning)/param/grasp_quality_parameters_PCR_PGR.yaml" command="load"/>
 
 	<node name="grasp_quality_2" pkg="grasp_learning" type="grasp_quality_2" respawn="false" output="screen"/>
 
