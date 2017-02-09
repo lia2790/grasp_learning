@@ -367,41 +367,36 @@ int main (int argc, char **argv)
 
 
 
-    				int which_finger = i/3;
-      				int which_falange = 0;
-      				if(i<3)//thumb
-        			{
-       		 			if (i%3 == 0) which_falange = 6;
-        				if (i%3 == 1) which_falange = 8;
-        				if (i%3 == 2) which_falange = 10;
-        			}
-        			if(i>=3 && i<=14) 
-        			{
-        				if (i%3 == 0) which_falange = 8;
-        				if (i%3 == 1) which_falange = 10;
-        				if (i%3 == 2) which_falange = 12;
-        			}
-        			if(i > 14) // palm
-	       			{	
-	       	   			which_falange = 5;
-	       			   	which_finger = 0;
-	           		}
+    				int which_finger = 0;
+      				int which_phalanx = 0;
+
+	           		if( i==0 ) which_phalanx = 5;
+	           		if( i==1 || i==5 || i==9 || i==13 || i==17 )  which_phalanx = 7;
+	           		if( i==2 || i==6 || i==10 || i==14 || i==18)  which_phalanx = 9;
+	           		if( i==3 || i==7 || i==11 || i==15 || i==19)  which_phalanx = 11;
+	           		if( i==4 || i==8 || i==12 || i==16 ) which_phalanx = 13;
+
+	           		if( i >= 0 && i <= 4 ) which_finger = 0;
+	           		if( i >= 5 && i <= 8 ) which_finger = 1;
+	           		if( i >= 9 && i <= 12 ) which_finger = 2;
+	           		if( i >= 13 && i <= 16 ) which_finger = 3;
+	           		if( i >= 17 && i <= 19 ) which_finger = 4;
 	           
 /*	           		cout << "which_finger : " << which_finger << endl;
-	        		cout << "which_falange : " << which_falange << endl;
+	        		cout << "which_phalanx : " << which_phalanx << endl;
 */
-	           		jnt_to_jac_solver[which_finger]->JntToJac(q_finger[which_finger],hand_jacob[which_finger], which_falange);
+	           		jnt_to_jac_solver[which_finger]->JntToJac(q_finger[which_finger],hand_jacob[which_finger], which_phalanx);
         		
 /*	  				cout << " Jacobian thumb "  << endl;
-					cout << hand_jacob[0].data  << endl;
+					cout << hand_jacob[4].data  << endl;
   					cout << " Jacobian index "  << endl;
-	  				cout << hand_jacob[1].data  << endl;
+	  				cout << hand_jacob[0].data  << endl;
 			  		cout << " Jacobian middle " << endl;
 	  				cout << hand_jacob[2].data  << endl;
 					cout << " Jacobian ring "   << endl;
 					cout << hand_jacob[3].data  << endl;
 					cout << " Jacobian little " << endl;
-					cout << hand_jacob[4].data  << endl;
+					cout << hand_jacob[1].data  << endl;
 					cout << " _______________ " << endl;
 */
 					Hand_Jacobian_.block<6,6>(step,0) = hand_jacob[0].data.topLeftCorner(6,6);	// 6 
@@ -424,7 +419,7 @@ int main (int argc, char **argv)
 
 
 
-        	
+
     
 //////////////////////////	  now i have a 
 /////////////////////////////   G          grasp matrix and 

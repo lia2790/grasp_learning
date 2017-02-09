@@ -249,7 +249,7 @@ int main (int argc, char **argv)
 
 	   Eigen::Matrix4d T_fixed_frame(4,4);
 	   T_fixed_frame << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1; // nessuna rotazione nessuna traslazione 
-                                                                            // corrisponde al centro della box
+                                                                        // corrisponde al centro della box
 
 
 
@@ -294,12 +294,8 @@ int main (int argc, char **argv)
             file_output << endl; 
 
 
-
-
-
             
             /*  OUTPUT for LIBSVM
-
 
 
             <<quality
@@ -309,8 +305,6 @@ int main (int argc, char **argv)
             <<' '<<"12:"<<grasp_point[j](2,0)<<' '<<"13:"<<grasp_point[j](2,1)<<' '<<"14:"<<grasp_point[j](2,2)<<' '<<"15:"<<grasp_point[j](2,3)
             <<' '<<"16:"<<grasp_point[j](3,0)<<' '<<"17:"<<grasp_point[j](3,1)<<' '<<"18:"<<grasp_point[j](3,2)<<' '<<"19:"<<grasp_point[j](3,3)
             <<' '<<'\n'; */
-           
-
         }
 	}// end for
 
