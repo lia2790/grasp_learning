@@ -38,13 +38,6 @@ Contact GitHub API Training Shop Blog About
 #include <eigen3/Eigen/Geometry>
 
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-#include <string>
-
-
 #include <math.h>
 #include <stdio.h>
 #include <ctime>
@@ -98,9 +91,6 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	cout << " N_Q : " << n_q <<endl;
 	cout << " N_Z : " << n_z <<endl;
 
-	cout << "Inside 2" << endl;
-
-
 	double Kx = Kis_(0,0);
 	double Ky = Kis_(1,1);
 	double Kz = Kis_(2,2);
@@ -129,10 +119,10 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	Eigen::MatrixXd G_inv;
 	Eigen::MatrixXd G_;
 	// calculation the grasp stiffness matrix K(Cj)
-	Eigen::MatrixXd K_ = MatrixXd::Zero(3*n_c,3*n_c);
 	
 
 	Eigen::MatrixXd K = MatrixXd::Zero(3*n_c,3*n_c); // grasp stiffness matrix
+	Eigen::MatrixXd K_ = MatrixXd::Zero(3*n_c,3*n_c); // grasp stiffness matrix
 	Eigen::MatrixXd Kis = MatrixXd::Zero(3,3);
 	Eigen::MatrixXd Ks = MatrixXd::Zero(3*n_c,3*n_c); // contact stiffness matrix
 	//Eigen::MatrixXd Kp(n_q,n_q); // joint stiffness matrix
@@ -146,8 +136,6 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////          apply the type of contact : HARD FINGER CONTACTS             //////////////////////////////////////////////
-
- 
 
 
 	// calculation the selection matrix for n_contact points
@@ -185,18 +173,6 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 
 
 
-	int count = 1;
-	for ( int i = 0 ; i < H_f.size() ; i++)
-		if( H_f(i) == 0 )
-			count ++ ;
-
-	if(count == H_f.size()) // I don't have any contact point 
-		return -1;
-
-
-	cout << "Inside 5" << endl;
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -208,6 +184,27 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	{
 		case 0 :  // direct calc PCR very simple
 			{
+				Eigen::MatrixXd Gt = G_H_t.transpose();
+
+				FullPivLU<MatrixXd> lu_(Gt);
+				Eigen::MatrixXd Null_Gt = lu_.kernel();
+
+				cout << "Null_Gt :::::::::::" << endl;
+				cout << Null_Gt << endl;
+				cout << ":::::::::::::." << endl;
+
+				
+				bool Matrix_is_Zero = true;
+				
+				for ( int i = 0 ; i < Null_Gt.rows() ; i++ )
+					for ( int j = 0 ; j < Null_Gt.cols() ; j++)
+						if( Null_Gt(i,j) != 0 )
+						{	Matrix_is_Zero = false; break; } 
+				
+				if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) = 0 
+					return -271;
+
+
 				int s = 0;
 				for(int i = 0 ; i < n_c ; i++)
 				{	Ks.block<3,3>(s,s) = Kis_; s+=3;  }
@@ -220,6 +217,7 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 
 				G_inv = G_.inverse();
 				Eigen::MatrixXd M = K * G_H_t.transpose();
+
 				G_r_k = M * G_inv; 
 
 
@@ -228,6 +226,27 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				f_ = H_f ;
 				///////////////////////////
 
+
+				cout << "M :::::::::::::::::::::." << endl;
+				cout << M << endl;
+				cout << "::::::::::::::." << endl;
+
+				cout << "G_inv :::::::::::::::::::::::." << endl;
+				cout << G_inv << endl;
+				cout << ":::::::::::::::::::" << endl;
+
+				cout << "Ks ::::::::::::::." << endl;
+				cout << Ks << endl;
+				cout << ":::::::::::::::" << endl;
+
+				cout << "H_J ::::::::::::::" << endl;
+				cout << H_J << endl;
+				cout << "::::::::::::::::::" << endl;
+
+				cout << "K :::::::::::" << endl;
+				cout << K << endl;
+				cout << ":::::::::::::." << endl;
+
 				cout << " G_r_k 1 ::::::: " << endl;
 				cout << G_r_k << endl;
 				cout << " :::::::::::::: " << endl;
@@ -235,30 +254,50 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				break;
 			}
 		case 1 :  // PGR with Cj fixed we have just a Cj from the dataset
-			{	cout << " Inside 6  " << endl;
+			{	
+
+				Eigen::VectorXd f_or(3);
+				Eigen::VectorXd f_app(3);
+				Eigen::MatrixXd Rotation(3,3);
+
 				// calculation Ks(Cj)
 				int s_ = 0; // step for component
+				int st_ = 0;
 				for( int i = 0 ; i < n_c ; i++ )
 				{
 					Kis(0,0) = 0;
 					Kis(1,1) = 0;
 					Kis(2,2) = 0;
-					cout << "Inside 7" <<endl;
-					if( H_f(s_+2) >= 0 )
-					{   cout << "7.5" << endl;
-						if( ( ( H_f(s_+0)*H_f(s_+0) + H_f(s_+1)*H_f(s_+1) ) / mu_friction ) <=  (H_f(s_+2)* H_f(s_+2)) )
-						{	cout << "Inside 8.1" << endl;
-							Kis(0,0) =  Kx;
-							Kis(1,1) =  Ky;
-							Kis(2,2) =  Kz;
+
+					Rotation = G.block<3,3>(0, st_);
+
+					f_app(0) = H_f(st_+0);
+					f_app(1) = H_f(st_+1);
+					f_app(2) = H_f(st_+2);
+
+					f_or = Rotation * f_app;
+					
+					if( f_or(2) >= 0 )   
+						if( ( ( f_or(0)*f_or(0) + f_or(1)*f_or(1) ) / mu_friction ) <=  ( f_or(2)* f_or(2)) )
+						{	
+							Kis(0,0) =  1/Kx;
+							Kis(1,1) =  1/Ky;
+							Kis(2,2) =  1/Kz;
 						}
 						else
-						{	Ks(2,2) = Kz; cout << "8.2" << endl;} }
-					cout << "Inside 9" <<endl;
-					Ks.block<3,3>(s_,s_) = Kis; cout << "Inside 10" <<endl;
+							Kis(2,2) = 1/Kz;
+
+				
+					Ks.block<3,3>(s_,s_) = Kis; 
+
 					s_ += 3;
+					st_ += 6;
 				}	
 				
+
+				K =  Ks + H_J * Kp.inverse() * H_J.transpose() ;  // dipende dalla configurazione Cj
+
+
 				cout << "Ks ::::::::::::::." << endl;
 				cout << Ks << endl;
 				cout << ":::::::::::::::" << endl;
@@ -271,61 +310,39 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				cout << Kp << endl;
 				cout << ":::::::::::::." << endl;
 
-				Eigen::MatrixXd Kp_inv =  Kp.inverse();
-				
-				cout << "Kp_inv :::::::::::::." << endl;
-				cout << Kp_inv << endl;
-				cout << ":::::::::::::." << endl;
-
-
-
-				Eigen::MatrixXd M = H_J * Kp_inv * H_J.transpose() ;
-
-
-				cout << "M::::::::::::::.." << endl;
-				cout << M << endl;
-				cout << "Ks_inv():::::::::::::::::.." << endl;
-				cout << Ks.inverse() << endl;
-				cout << "::::::::::::::::.." << endl;
-
-
-				Eigen::MatrixXd Ks_inv = Ks.inverse();
-
-				cout << "Ks_inv:::::::::::::::::.." << endl;
-				cout << Ks_inv << endl;
-				cout << "::::::::::::::::.." << endl;
-
-
-				K_ =  Ks_inv + M ;
-
-
 				cout << "K_ :::::::::::" << endl;
-				cout << K_ << endl;
+				cout << K << endl;
 				cout << ":::::::::::::." << endl;
 
-				K  = K_.inverse();
 
 
-				cout << "K::::::::::" << endl;
-				cout << K << endl;
-				cout << "::::::::::::::::" << endl;
+
 
 				// evaluation the constraint N(K(Cj)*Gt) = 0 
 				// it must be satisfied to immobilize the object
-/*				Eigen::MatrixXd Kcj_Gt = K * G_H_t.transpose(); 
+				Eigen::MatrixXd Kcj_Gt = K * G_H_t.transpose(); 
 				FullPivLU<MatrixXd> lu(Kcj_Gt);
 				Eigen::MatrixXd Null_Kcj_Gt = lu.kernel();
-cout << "INside 13" << endl;
+
+				cout << "Null_Kcj_Gt :::::::::::" << endl;
+				cout << Null_Kcj_Gt << endl;
+				cout << ":::::::::::::." << endl;
+
+
+
+
 				
 				bool Matrix_is_Zero = true;
 				
 				for ( int i = 0 ; i < Null_Kcj_Gt.rows() ; i++ )
 					for ( int j = 0 ; j < Null_Kcj_Gt.cols() ; j++)
 						if( Null_Kcj_Gt(i,j) != 0 )
-						{	Matrix_is_Zero = false; break; } */
+						{	Matrix_is_Zero = false; break; } 
 				
-			//	if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) = 0 
-			//		return 0;
+				if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) = 0 
+					return -27;
+
+
 
 				//calculation of a basis for the subspace of the controllable internal force
 				// with synergy
@@ -336,19 +353,13 @@ cout << "INside 13" << endl;
 				G_ = G_H_t * K * G_H_t.transpose();
 				G_inv = G_.inverse();
 
-				cout << "Inside 17 " << endl;
-
 				G_r_k = K * G_H_t.transpose() * G_inv; 
 
-				cout << "Inside 18 " <<endl;
-
 				F = ( I - G_r_k * G_H_t ) * K * H_J ; // and maps independently controlled joint reference displacements δqr’s into active internal forces
-					cout << "Inside 19"<< endl;							  // if we assume that we have a perfect rigid joint δqr = δq
+													  // if we assume that we have a perfect rigid joint δqr = δq
 				E = F * S ;
 				w = - G_H_t * H_f ; // calculatin of external wrench
 				f_y = - G_r_k * w + E * synergy ; // calculation of the controllable contact forces
-
-				cout << "OHI" << endl;
 
 				/////////////////////////
 				f_ = f_y ;
@@ -362,7 +373,7 @@ cout << "INside 13" << endl;
 
 				break;
 			}
-			default : return  -2;
+		default : return  5555;
 	}
 
 
@@ -387,7 +398,7 @@ cout << "INside 13" << endl;
 		// the normal of the surface is alligned with the z-axis {o,t,n}
 		n_i(0) = Rotation(0,2);
 		n_i(1) = Rotation(1,2);
-		n_i(2) = Rotation(2,2);
+		n_i(2) = -Rotation(2,2);
 		
 		f_i_ = f_i(0)+f_i(1)+f_i(2);
 

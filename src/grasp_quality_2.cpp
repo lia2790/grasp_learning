@@ -39,11 +39,9 @@ Contact GitHub API Training Shop Blog About
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
 
-
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Geometry>
-
 
 #include <kdl/chain.hpp>
 #include <kdl/chainfksolver.hpp>
@@ -57,35 +55,25 @@ Contact GitHub API Training Shop Blog About
 #include <kdl_parser/kdl_parser.hpp>
 #include <urdf/model.h>
 
-
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
 #include <string>
 
-
 #include <math.h>
 #include <stdio.h>
 #include <ctime>
 #include <time.h>
 
-
-
 #include "quality.h"
 #include "quality_PCR_PGR_2.h"
-
-
+#include "normal_component_box_surface.h"
 
 
 using namespace std;
 using namespace Eigen;
 using namespace KDL;
-
-
-
-
 
 
 // take it from yaml file
@@ -138,7 +126,7 @@ int main (int argc, char **argv)
 	nh.param<std::string>("frame_name_ring", frame_name_finger[3], "right_hand_ring_distal_link");
 	nh.param<std::string>("frame_name_little", frame_name_finger[4], "right_hand_thumb_distal_link");
 	nh.param<std::string>("file_name", relative_path_file, "/db/box_db_2.csv" );
-	nh.param<int>("type_of_contact", type_of_contact, 0);
+	nh.param<int>("type_of_contact", type_of_contact, 0); 
 	nh.param<double>("joint_stiffness",joint_stiffness,0);
 	nh.param<double>("contact_stiffness",contact_stiffness,0);
 	nh.param<std::vector<double>>("synergie", synergie, std::vector<double>{1});
@@ -340,7 +328,9 @@ int main (int argc, char **argv)
  					Eigen::MatrixXd Skew_Matrix(3,3);
   					Eigen::MatrixXd Rotation(3,3);
 
-  					Rotation <<  MatrixXd::Identity(3,3); 
+  					normal_component(Rotation, values_inline[0]/2, values_inline[1]/2, values_inline[2]/2,Contacts(i,0),Contacts(i,1),Contacts(i,2));
+
+  					Rotation = MatrixXd::Identity(3,3);
 
 	 				//check if the values ​​of the skew matrix are expressed in the correct reference system
     	  			Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
@@ -445,10 +435,10 @@ int main (int argc, char **argv)
     			for(int i = 0 ; i < (6*n_c) ; i++)
     				contact_force(i) = contact_force_(i);
     				
-				cout << "Contact_forces : " << endl;
-    			cout << contact_force_ << endl;
-    			cout << "______________" << endl;
-    			cout << contact_force << endl;
+				// cout << "Contact_forces : " << endl;
+    // 			cout << contact_force_ << endl;
+    // 			cout << "______________" << endl;
+    // 			cout << contact_force << endl;
 
     			Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
     			Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
@@ -471,8 +461,12 @@ int main (int argc, char **argv)
     			quality_i = quality_measures_PCR_PGR(contact_force, Grasp_Matrix_, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, set_PCR_PGR);
     		}
     		else
-    			quality_i = -33;
+    			quality_i = 9999;
     	}// end if ( n_c > 0)
+
+
+
+
 
 	    cout << " THEFINALCOUNTDOWN:::: " << quality_i << endl;
 
@@ -496,4 +490,5 @@ int main (int argc, char **argv)
 
 	ros::spin();
 	return 0;
+
 }
