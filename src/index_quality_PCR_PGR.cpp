@@ -1,5 +1,4 @@
 /*
-
 Software License Agreement (BSD License)
 
 Copyright (c) 2016--, Liana Bertoni (liana.bertoni@gmail.com)

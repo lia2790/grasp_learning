@@ -188,6 +188,9 @@ add_executable(index_quality_PCR_PGR src/index_quality_PCR_PGR.cpp)
 target_link_libraries (index_quality_PCR_PGR ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
+add_executable(test_file src/test_file.cpp)
+target_link_libraries(test_file ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

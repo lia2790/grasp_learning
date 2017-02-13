@@ -315,6 +315,6 @@ int main (int argc, char **argv)
 	cout << " END " << endl;
 
 
-	ros::spin();
+	ros::spinOnce();
 	return 0;
 }

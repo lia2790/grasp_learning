@@ -105,6 +105,16 @@ int main (int argc, char **argv)
 
 
 
+  double input_joint_thumb[] = { 0.2, 0.2, 0, 0, 0 };
+  double input_joint_index[] = { 0.2, 0.2, 0, 0, 0, 0, 0 };
+  double input_joint_middle[] = { 0.2, 0.2, 0, 0, 0, 0, 0 };
+  double input_joint_ring[] = { 0.2, 0.2, 0, 0, 0, 0, 0 };
+  double input_joint_little[] = { 0.2, 0.2, 0, 0, 0, 0, 0 };
+
+
+
+
+
 
 
 
@@ -115,6 +125,20 @@ int main (int argc, char **argv)
   KDL::Chain chain2_middle;
   KDL::Chain chain3_ring;
   KDL::Chain chain4_little;
+
+
+  KDL::Jacobian jacobian0_thumb;
+  KDL::Jacobian jacobian1_index;
+  KDL::Jacobian jacobian2_middle;
+  KDL::Jacobian jacobian3_ring;
+  KDL::Jacobian jacobian4_little;
+
+
+  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_0;
+  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_1;
+  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_2;
+  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_3;
+  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_4;
 
 
   
@@ -163,14 +187,6 @@ int main (int argc, char **argv)
   KDL::JntArray jointpositions_4 = JntArray(nj_4);    // littlefinger
 
 
-  double input_joint_thumb[] = { 0.2, 0.2, 0, 0, 0 };
-  double input_joint_index[] = { 0.2, 0.2, 0, 0, 0, 0, 0 };
-  double input_joint_middle[] = { 0.2, 0.2, 0, 0, 0, 0, 0 };
-  double input_joint_ring[] = { 0.2, 0.2, 0, 0, 0, 0, 0 };
-  double input_joint_little[] = { 0.2, 0.2, 0, 0, 0, 0, 0 };
-
-
-
 
   for ( int i = 0 ; i < nj_0 ; i++)
       jointpositions_0(i) = input_joint_thumb[i];
@@ -191,22 +207,6 @@ int main (int argc, char **argv)
   for ( int i = 0 ; i < nj_4 ; i++)
       jointpositions_4(i) = input_joint_little[i];
 
-
-
-
-
-  KDL::Jacobian jacobian0_thumb;
-  KDL::Jacobian jacobian1_index;
-  KDL::Jacobian jacobian2_middle;
-  KDL::Jacobian jacobian3_ring;
-  KDL::Jacobian jacobian4_little;
-
-
-  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_0;
-  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_1;
-  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_2;
-  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_3;
-  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_4;
 
 
 
@@ -272,19 +272,6 @@ int main (int argc, char **argv)
     cout <<  Jacobian_finger[n] << endl;
     cout << " --------------------------- " << endl;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	cout << " STAMPATO " << endl;

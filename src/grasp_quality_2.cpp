@@ -160,15 +160,8 @@ int main (int argc, char **argv)
 
 
 
-
-
-
-
-
-
-
 	
-	///////////////////// laod the urdf model //////////////////////////////////
+	//////////////////////////////// laod the urdf model //////////////////////////////////
 	KDL::Tree hand_tree;
 	KDL::Chain chains_hand_finger[n_fingers];
 	KDL::Jacobian hand_jacob[n_fingers];
@@ -488,7 +481,7 @@ int main (int argc, char **argv)
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;
 
-	ros::spin();
+	ros::spinOnce();
 	return 0;
 
 }

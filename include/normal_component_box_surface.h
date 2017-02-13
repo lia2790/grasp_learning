@@ -48,19 +48,37 @@ using namespace Eigen;
 
 inline void normal_component(Eigen::MatrixXd &R, double x_r, double y_r, double z_r, double x_i, double y_i, double z_i)
 {
-	// In R 
+	// In R viene restituita la rotazione che porta
+	// dal sistema di riferimento posto sulla faccia della box
+	// 			con l'asse z positivo orientato verso l'interno dell'oggetto, 
+	// al sistema di riferimento posto al centro della box con l'asse zeta 
+	// 			rivolto verso l'alto e l'asse y con direzione positiva verso destra
 
+
+
+	//  x_r y_r z_r sono le dimensioni della box dimezzate , 
+	// esempio:
+	//   se una scatola ha dimensione : { x, y, z } = { 4 , 6, 8 } 
+	//   allora questa funzione deve 
+	//     essere chiamata con          { x_r  = x / 2 = 2
+	//									  y_r  = y / 2 = 3
+	//									  z_r  = z / 2 = 4 
+	// 
+	//  mentre i parametri x_i y_i_ z_i sono le componenti del punto di contatto posto sullo superficie
+	//  espresso rispetto al sistema di riferimento posto al centro dell'oggetto
+	//
 
 	double x_e = x_r - abs(x_i) ;
 	double y_e = y_r - abs(y_i) ;
 	double z_e = z_r - abs(z_i) ;
 
-
+	// determino in che faccia della box si trova il punto di contatto passato alla funzine
+	//
 	if( x_e < y_e)
 	{
 		if(x_e < z_e)
 		{
-			if(x_i > 0)
+			if(x_i > 0)  
 			{
 				R << cos(90*PI/180),  0, sin(90*PI/180),
 						       0   ,  1,    0 ,
@@ -81,7 +99,7 @@ inline void normal_component(Eigen::MatrixXd &R, double x_r, double y_r, double 
 					            	0   ,  1,    0 ,
 					-sin(180*(PI/180)), 0, cos(180*(PI/180));
 			}
-			else
+			else    
 			{
 				R << 1, 0, 0,
 					 0, 1, 0,
