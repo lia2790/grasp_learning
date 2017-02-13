@@ -7,7 +7,7 @@ frame_name_little: "right_hand_little_distal_link"
 frame_name_root: "world"
 number_of_fingers: 5
 joint_stiffness: 100
-contact_stiffness: 1
+contact_stiffness: 5
 quality_index: 6
 synergie: [1]
 mu: 0.8

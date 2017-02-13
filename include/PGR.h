@@ -56,14 +56,17 @@ inline double quality_pcr_pgr(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::M
 	// the vector of force are espressed in contact point --- frame in contact point {C}  --- > f_c
 	// the grasp matrix so are b_G_c 
 
+
+	cout << "Sto calcolando l'indice" << endl;
+
 	int n_c = f.size()/3;
 	double Kx = Kis(0,0);
 	double Ky = Kis(1,1);
 	double Kz = Kis(2,2);
 
-	Eigen::MatrixXd K(3*n_c,3*n_c);
-	Eigen::MatrixXd Ks(3*n_c,3*n_c);
-	Eigen::MatrixXd Kis_(3,3);
+	Eigen::MatrixXd K = MatrixXd::Zero(3*n_c,3*n_c);
+	Eigen::MatrixXd Ks = MatrixXd::Zero(3*n_c,3*n_c);
+	Eigen::MatrixXd Kis_ = MatrixXd::Zero(3,3);
 
 	int s_ = 0;
 	for( int i = 0 ; i < n_c ; i++ )
@@ -71,34 +74,37 @@ inline double quality_pcr_pgr(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::M
 		Kis_(0,0) = 0;
 		Kis_(1,1) = 0;
 		Kis_(2,2) = 0;
-
 			
 		if( f(s_+2) >= 0 )   
-			if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) / mu ) <=  ( f(2)* f(2)) )
+			if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) / mu ) <=  ( f(s_+2)* f(s_+2)) )
 			{	
-				Kis_(0,0) =  Kx;
-				Kis_(1,1) =  Ky;
-				Kis_(2,2) =  Kz;
+				Kis_(0,0) =  1/Kx;
+				Kis_(1,1) =  1/Ky;
+				Kis_(2,2) =  1/Kz; 
 			}
 			else
-				Kis_(2,2) = Kz;
+				Kis_(2,2) = 1/Kz; 
 
+		cout << "Kis : " << endl << Kis_ << endl;
 				
-		Ks.block<3,3>(s_,s_) = Kis; 
+		Ks.block<3,3>(s_,s_) = Kis_; 
 
 		s_ += 3;
 	}	
+	
+	cout << "Ks : " << endl << Ks << endl;
+
+	Eigen::MatrixXd K_ = MatrixXd::Zero(3*n_c, 3*n_c);
+
+	K_ = Ks + J * Kp.inverse() * J.transpose();
+	K = K_.inverse(); 
+
+	
+	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	cout << "Kcj_Gt : " << endl; cout << Kcj_Gt << endl;
+	FullPivLU<MatrixXd> lu(Kcj_Gt);		cout << " lu.kernel : " << endl; cout << lu.kernel() << endl;
+	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel(); cout << " qui " << endl;
 
 
-	Eigen::MatrixXd K_(3*n_c, 3*n_c);
-
-	K_ = Ks.inverse() + J*Kp.inverse()*J.transpose();
-	K = K_.inverse();
-
-
-	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	
-	FullPivLU<MatrixXd> lu(Kcj_Gt);
-	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel();
 
 	bool Matrix_is_Zero = true;				
 	for ( int i = 0 ; i < Null_Kcj_Gt.rows() ; i++ )
@@ -110,14 +116,17 @@ inline double quality_pcr_pgr(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::M
 		return -27;
 
 
-	Eigen::VectorXd d_f(3*n_c);
+
+
+
+	Eigen::VectorXd d_f = VectorXd::Zero(3*n_c);
 	Eigen::VectorXd f_i(3);
 	Eigen::VectorXd f_i_n(1);
 
 	int step = 0;
 	double f_i_ ;
 
-	// la componente normale è la zeta
+	// normal component is a z-axis of each contact force
 	for(int i = 0; i < n_c ; i++)
 	{
 		f_i(0) = f(step+0);
@@ -138,6 +147,7 @@ inline double quality_pcr_pgr(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::M
 		if( d_min > d_f(i) ) 
 			d_min = d_f(i);
 
+	cout << " df : " << endl << d_f << endl;
 
 
 	Eigen::MatrixXd GKGt = G*K*G.transpose();

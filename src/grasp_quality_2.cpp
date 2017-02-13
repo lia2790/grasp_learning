@@ -310,6 +310,7 @@ int main (int argc, char **argv)
 		{
     			//for each contact point 
 			Eigen::MatrixXd Grasp_Matrix_  = MatrixXd::Zero(6,6*n_c) ;  // G
+			Eigen::MatrixXd Grasp_Matrix_c  = MatrixXd::Zero(6,6*n_c) ;  // G
     		Eigen::MatrixXd Hand_Jacobian_ = MatrixXd::Zero(6*n_c, n_q) ; // J
 
    			int k = 1;
@@ -321,8 +322,7 @@ int main (int argc, char **argv)
         			Eigen::MatrixXd Grasp_Matrix(6,6);  
  					Eigen::MatrixXd Skew_Matrix(3,3);
   					Eigen::MatrixXd Rotation(3,3);
-
-  					normal_component(Rotation, values_inline[0]/2, values_inline[1]/2, values_inline[2]/2,Contacts(i,0),Contacts(i,1),Contacts(i,2));
+  					Eigen::MatrixXd b_Rotation_c(3,3);
 
   					Rotation = MatrixXd::Identity(3,3);
 
@@ -340,16 +340,34 @@ int main (int argc, char **argv)
      		   		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * Rotation;
         			Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
 
-
-
 	      			Grasp_Matrix_.block<6,6>(0,step) = Grasp_Matrix;
-       			
+
+
+
+
+  					normal_component(b_Rotation_c, values_inline[0]/2, values_inline[1]/2, values_inline[2]/2,Contacts(i,0),Contacts(i,1),Contacts(i,2));
+	      			//check if the values ​​of the skew matrix are expressed in the correct reference system
+    	  			Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+     				Skew_Matrix(0,1) = - Contacts(i,2); // -rz    
+     				Skew_Matrix(0,2) = Contacts(i,1);   // ry
+        			Skew_Matrix(1,0) = Contacts(i,2);   // rz
+        			Skew_Matrix(2,0) = - Contacts(i,1); // -ry
+        			Skew_Matrix(1,2) = - Contacts(i,0); // -rx
+       		 		Skew_Matrix(2,1) = Contacts(i,0);   // rx
+
+        			Grasp_Matrix.block<3,3>(0,0) = b_Rotation_c;
+     		   		Grasp_Matrix.block<3,3>(3,3) = b_Rotation_c;
+     		   		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * b_Rotation_c;
+        			Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
+
+        			Grasp_Matrix_c.block<6,6>(0,step) = Grasp_Matrix;
+
+
+
 
 
        				for(int n = 0 ; n < n_fingers ; n++)//calc jacobian for each finger
        					jnt_to_jac_solver[n]->JntToJac(q_finger[n], hand_jacob[n], -1);
-
-
 
     				int which_finger = 0;
       				int which_phalanx = 0;
@@ -393,16 +411,10 @@ int main (int argc, char **argv)
 	  				step += 6;
 	  			} // if i have contact
         	} // end for(n_max) each possible contact point	
-        	cout << "................................................................." << endl;
-        	cout << "FINAL GRASP MATRIX  " << endl;
-        	cout << Grasp_Matrix_ << endl;
-        	cout << "................................................................." << endl;
-
-
-
-
-
-
+        	// cout << "................................................................." << endl;
+        	// cout << "FINAL GRASP MATRIX  " << endl;
+        	// cout << Grasp_Matrix_ << endl;
+        	// cout << "................................................................." << endl;
 
     
 //////////////////////////	  now i have a 
@@ -414,6 +426,8 @@ int main (int argc, char **argv)
 	        if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_, Hand_Jacobian_); 		
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     		if(quality_index == 6 ) // PCR PGR 
     		{
 	    		int first_element_contact_force = 110;
@@ -421,6 +435,8 @@ int main (int argc, char **argv)
 
    				Eigen::VectorXd contact_force_ = VectorXd::Zero(6*n_c_max);
    				Eigen::VectorXd contact_force  = VectorXd::Zero(6*n_c);
+   				Eigen::VectorXd contact_force_c_h = VectorXd::Zero(3*n_c);
+
    				int  j= 0;
     			for(int i = 0 ; i < number_force_contact ; i++)
     				if(!std::isnan(values_inline[first_element_contact_force + i]))
@@ -428,19 +444,63 @@ int main (int argc, char **argv)
 
     			for(int i = 0 ; i < (6*n_c) ; i++)
     				contact_force(i) = contact_force_(i);
+
+
+    			// apply the contact model
+    			Eigen::MatrixXd H_(3,6);
+    			Eigen::MatrixXd H = MatrixXd::Zero(3*n_c, 6*n_c);
+    			// calculation the selection matrix for n_contact points
+				H_ << 1, 0, 0, 0, 0, 0,
+		  				0, 1, 0, 0, 0, 0,
+		  				0, 0, 1, 0, 0, 0;
+
+				int i = 0;
+				int k = 0;
+				for(int n = 0 ;  n < n_c ; n++)
+				{
+					H.block<3,6>(i,k) = H_;
+					i += 3;
+					k += 6;
+				}
+
+				// apply the type of contact and i obtain the grasp matrix and hand jacobian 
+				Eigen::MatrixXd Grasp_Matrix_c_h = Grasp_Matrix_c * H.transpose();
+				Eigen::MatrixXd H_J = H * Hand_Jacobian_ ;
+				Eigen::MatrixXd H_f_b = H * contact_force ;
+
+
+				Eigen::MatrixXd c_R_b = MatrixXd::Zero(3*n_c, 3*n_c);
+
+				int step = 0;
+				int step_ = 0;
+				for(int i = 0 ; i < n_c ; i++)
+				{
+					Eigen::MatrixXd b_Rotation_c  = Grasp_Matrix_c.block<3,3>(0,step_);
+					c_R_b.block<3,3>(step, step) = b_Rotation_c.transpose();
+
+					step += 3;
+					step_ += 6;
+				}
+
+
+				contact_force_c_h = c_R_b * H_f_b;
+
+
     				
-				// cout << "Contact_forces : " << endl;
+	//		  cout << "Contact_forces : " << endl;
     // 			cout << contact_force_ << endl;
     // 			cout << "______________" << endl;
     // 			cout << contact_force << endl;
 
     			Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
-    			Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
     			for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++) //Kis
     				Contact_Stiffness_Matrix(i,i) = contact_stiffness;
 
+
+    			Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
     			for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++) //Kp
     				Joint_Stiffness_Matrix(j,j) = joint_stiffness;
+
 
     			int n_z = synergie.size();
     			Eigen::MatrixXd S(n_q, n_z);
@@ -448,11 +508,20 @@ int main (int argc, char **argv)
     				for(int j = 0 ; j < n_z ; j++)
     					S(i,j) = 1;
 
+
     			Eigen::VectorXd synergie_(synergie.size()) ;
     			for(int i = 0 ; i < synergie.size() ; i++)
     				synergie_(i) = synergie[i];
 
-    			quality_i = quality_measures_PCR_PGR(contact_force, Grasp_Matrix_, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, set_PCR_PGR);
+
+
+
+
+
+
+
+    			quality_i = quality_pcr_pgr(contact_force_c_h, Grasp_Matrix_c_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
+    			//quality_i = quality_measures_PCR_PGR(contact_force, Grasp_Matrix_, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, set_PCR_PGR);
     		}
     		else
     			quality_i = 9999;

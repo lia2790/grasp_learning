@@ -153,15 +153,19 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	}
 
 
-	cout << "H ::::::::" << endl;
-	cout << H << endl;
-	cout << ":::::::::" << endl;
-
 	// apply the type of contact and i obtain the grasp matrix and hand jacobian 
 	G_H_t = G * H.transpose();
 	H_J = H * J ;
 	H_f = H * f ;
 
+
+
+
+
+
+	cout << "H ::::::::" << endl;
+	cout << H << endl;
+	cout << ":::::::::" << endl;
 
 	cout << " G_H_t :::::::::::::" << endl;
 	cout << G_H_t << endl;
