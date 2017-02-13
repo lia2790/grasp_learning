@@ -405,7 +405,7 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 		f_i_n = f_i.transpose() * n_i;
 
 		d_f(step+0)  =  f_i_n(0);	
-		d_f(step+1)  =  mu_friction*f_i_n(0) - (sin(acos(f_i_n(0)/f_i_)));		
+		d_f(step+1)  =  mu_friction*f_i_n(0) - f_i_*(sin(acos(f_i_n(0)/f_i_)));		
 		d_f(step+2)  =  f_i_max - f_i.norm();
 
 		step  += 3;

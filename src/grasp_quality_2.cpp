@@ -69,6 +69,7 @@ Contact GitHub API Training Shop Blog About
 #include "quality.h"
 #include "quality_PCR_PGR_2.h"
 #include "normal_component_box_surface.h"
+#include "PGR.h"
 
 
 using namespace std;

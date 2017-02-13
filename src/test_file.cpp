@@ -218,7 +218,6 @@ int main (int argc, char **argv)
 	if(n_c <= 0) 
 		return 0;
 
-
 	createStructureKDL();
 	setJoints();
 	initJacobian();
@@ -226,10 +225,8 @@ int main (int argc, char **argv)
 	
 	Eigen::MatrixXd G_i = MatrixXd::Identity(6,6*n_c);
   	Eigen::MatrixXd G_r = MatrixXd::Identity(6,6*n_c); 
-
   	Eigen::MatrixXd Jacobian(6*n_c, n_q);
   	
-
   	int step  = 0;
   	int step_ = 0;
   	for ( int i=0; i < n_c ; i++)
@@ -249,11 +246,7 @@ int main (int argc, char **argv)
 
   		Eigen::VectorXd f_b = b_Rotation_c * f_c;
 
-  		cout << " f_b " << endl;
-  		cout << f_b << endl;
-  		cout << endl;
-
-
+  		cout << " f_b " << endl;  cout << f_b << endl;  cout << endl;
 
   		Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
      	Skew_Matrix(0,1) = - contact_points[step+2]; // -rz    
@@ -262,7 +255,6 @@ int main (int argc, char **argv)
         Skew_Matrix(2,0) = - contact_points[step+1]; // -ry
         Skew_Matrix(1,2) = - contact_points[step+0]; // -rx
        	Skew_Matrix(2,1) = contact_points[step+0];   // rx
-
 
 		Grasp.block<3,3>(0,0) = Rotation;
   		Grasp.block<3,3>(3,3) = Rotation;
@@ -278,12 +270,8 @@ int main (int argc, char **argv)
 
    		G_r.block<6,6>(0,step_) = Grasp;
    		
-
    		jnt_to_jac_right->JntToJac(jointpositions_right, jacobian_right, -1);
-  		jnt_to_jac_left->JntToJac(jointpositions_left, jacobian_left, -1);
-
-
-   		
+  		jnt_to_jac_left->JntToJac(jointpositions_left, jacobian_left, -1);		
    		if( !std::isnan(contact_points[0]))
    		{
    			if( !std::isnan(contact_points[3]))
@@ -298,8 +286,6 @@ int main (int argc, char **argv)
   			if( !std::isnan(contact_points[3])) 
   				jnt_to_jac_right->JntToJac(jointpositions_right, jacobian_right);
 
-
-
 		Jacobian.block<6,8>(step_,0) = jacobian_right.data;
   		Jacobian.block<6,2>(step_,8) = jacobian_left.data.block<6,2>(0,6);
 
@@ -307,13 +293,10 @@ int main (int argc, char **argv)
   		step_ += 6;
   	}
 
-
+  	
   	Eigen::VectorXd w_r(6);
   	Eigen::VectorXd w_i(6);
   	Eigen::VectorXd f(3*n_c);
-
-
-
   	Eigen::MatrixXd H(3*n_c,6*n_c);
   	Eigen::MatrixXd H_(3,6);
 
@@ -341,22 +324,11 @@ int main (int argc, char **argv)
   	w_i = - G_ht_i * f;
   	w_r = - G_ht_r * f;
 
-
-  	cout << "f : " << endl;
-  	cout << f << endl;
-  	cout << endl;
-
-
-
-
-  	cout << " w_i : " << endl;
-  	cout << w_i << endl;
-  	cout << endl;
-  	cout << " w_r : " << endl;
-  	cout << w_r << endl;
-  	cout << endl;
-
-
+  	cout << "f : " << endl;	cout << f << endl;  cout << endl;
+  	//cout << " G_i : " << endl; cout << G_i << endl; cout << endl;
+  	//cout << " G_f : " << endl; cout << G_r << endl; cout << endl;
+  	cout << " w_i : " << endl; cout << w_i << endl; cout << endl;
+  	cout << " w_r : " << endl; cout << w_r << endl; cout << endl;
 
 	ros::spinOnce();
 	return 0;

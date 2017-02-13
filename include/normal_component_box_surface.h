@@ -111,7 +111,7 @@ inline void normal_component(Eigen::MatrixXd &R, double x_r, double y_r, double 
 	{
 		if(y_e < z_e)
 		{
-			if(y_i > 0)
+			if(y_i > 0)  // faccia 1
 			{	
 				R << 1, 0, 0,
 					0, cos(-90*PI/180), -sin(-90*PI/180),
