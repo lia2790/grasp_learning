@@ -117,7 +117,7 @@ inline double quality_pcr_pgr(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::M
 	int step = 0;
 	double f_i_ ;
 
-	// la compinenente normale è la zeta
+	// la componente normale è la zeta
 	for(int i = 0; i < n_c ; i++)
 	{
 		f_i(0) = f(step+0);
@@ -133,5 +133,37 @@ inline double quality_pcr_pgr(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::M
 		step += 3;
 	}
 
+	double d_min = d_f(0);	
+	for(int i = 0 ; i < d_f.size() ; i++)
+		if( d_min > d_f(i) ) 
+			d_min = d_f(i);
 
+
+
+	Eigen::MatrixXd GKGt = G*K*G.transpose();
+	Eigen::MatrixXd G_r_k = K*G*GKGt.inverse();
+
+	Eigen::VectorXd Singular ;
+	JacobiSVD<MatrixXd> svd(G_r_k, ComputeThinU | ComputeThinV);  
+    Singular = svd.singularValues();
+
+    double sigma_max = Singular[0];
+	double PCR_PGR = d_min / sigma_max;
+
+
+    cout << "f :" << endl;
+    cout << f << endl;
+    cout << "G_r_k_ : " << endl;
+    cout << G_r_k << endl;
+    cout << " d(f) : " << endl;
+    cout << d_f << endl;
+    cout << "-------------------------------" << endl;
+    cout << " d_min : " << d_min << endl;
+    cout << " singularValues : " << endl;
+    cout << Singular << endl;
+    cout << " sigma_max : " << sigma_max << endl;
+    cout << " PCR_PGR : " << PCR_PGR << endl;
+    cout << "-------------------------------" << endl;
+	
+	return PCR_PGR;
 }
