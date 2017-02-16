@@ -50,52 +50,105 @@ using namespace KDL;
 
 
 
-inline double quality_pcr_pgr(Eigen::VectorXd &f , Eigen::MatrixXd &G , Eigen::MatrixXd &J , Eigen::MatrixXd &Kis , Eigen::MatrixXd &Kp , double mu , double f_i_max)
+inline double quality_pcr_pgr(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen::MatrixXd &J_ , Eigen::MatrixXd &Kis , Eigen::MatrixXd &Kp , double mu , double f_i_max)
 {
 	// assumed that the argument it is already modelled with contact model : HARD CONTACT FINGER
 	// the vector of force are espressed in contact point --- frame in contact point {C}  --- > f_c
 	// the grasp matrix so are b_G_c 
+
 
 	int n_c = f.size()/3;
 	double Kx = Kis(0,0);
 	double Ky = Kis(1,1);
 	double Kz = Kis(2,2);
 
-	Eigen::MatrixXd K = MatrixXd::Zero(3*n_c,3*n_c);
-	Eigen::MatrixXd K_ = MatrixXd::Zero(3*n_c, 3*n_c);
-	Eigen::MatrixXd Ks = MatrixXd::Zero(3*n_c,3*n_c);
-	Eigen::MatrixXd Kis_c = MatrixXd::Zero(3,3);
-	Eigen::MatrixXd Kis_ = MatrixXd::Zero(3,3); 
-	Eigen::MatrixXd R = MatrixXd::Zero(3,3);
+	
 
-
-
-	int s_ = 0;
+	int n_g = 0;
 	for( int i = 0 ; i < n_c ; i++ )
-	{
-
-		R = G.block<3,3>(0,s_); 
-
-		Kis_c(0,0) = 0;
-		Kis_c(1,1) = 0;
-		Kis_c(2,2) = 0;
-			
+	{		
 		if( f(s_+2) >= 0 )   
-			if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) / mu ) <=  ( f(s_+2)* f(s_+2)) )
+		{	if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) / mu ) <=  ( f(s_+2)* f(s_+2)) )
 			{	
-				Kis_c(0,0) =  Kx;
-				Kis_c(1,1) =  Ky;
-				Kis_c(2,2) =  Kz; 
+				n_g += 3;
 			}
 			else
-				Kis_c(2,2) = Kz;
-
-		Kis_ = R.transpose() * Kis_c * R ;
-
-		Ks.block<3,3>(s_,s_) = Kis_; 
-
-		s_ += 3;
+			{	
+				n_g +=1;
+			}
+		}
 	}	
+	
+
+	Eigen::MatrixXd Ks = MatrixXd::Zero(n_g, n_g);
+	Eigen::MatrixXd H = MatrixXd::Zero(n_g, 6*n_c);
+
+	Eigen::MatrixXd H_3(3, 6);
+	Eigen::MatrixXd H_1(1, 6);
+
+
+	H_3 << 1,0,0,0,0,0,
+		   0,1,0,0,0,0,
+		   0,0,1,0,0,0;
+
+	H_1 << 0,0,1,0,0,0;
+
+
+	int now = 0;
+	int r_now = 0;
+	int c_now = 0;
+
+	Eigen::MatrixXd K = MatrixXd::Zero(3*n_c,3*n_c);
+	Eigen::MatrixXd K_ = MatrixXd::Zero(3*n_c,3*n_c);
+	Eigen::MatrixXd Kis_ = MatrixXd::Zero(3,3);
+
+///////////////////////////////////////////////// build H matrix and Ks depending in which state the contact force are
+	
+	for( int i = 0 ; i < n_c ; i++ )
+	{
+		Kis_(0,0) = 0;
+		Kis_(1,1) = 0;
+		Kis_(2,2) = 0;
+			
+		if( f(s_+2) >= 0 )   
+		{
+			if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) / mu ) <=  ( f(s_+2)* f(s_+2)) )
+			{	
+				Kis_(0,0) =  1/Kx;
+				Kis_(1,1) =  1/Ky;
+				Kis_(2,2) =  1/Kz; 
+
+				Ks.block<3,3>(now,now) = Kis_; 
+				H.block<3,6>(r_now, c_now) = H_3;
+
+				now += 3;
+				r_now += 3;
+				c_now += 6;
+			}
+			else
+			{	_
+				Ks.block<1,1>(now,now) = 1/Kz; 
+				H.block<1,6>(r_now, c_now) = H_1;
+
+				now += 1;
+				r_now += 1;
+				c_now += 6;
+			}
+		}
+		else
+			return -50;
+	}	
+
+
+//////////////////////////////////////////////////////////////// Filter the G and J matrix
+
+
+	Eigen::MatrixXd G = G_ * H.transpose();
+	Eigen::MatrixXd J = H * J_;
+
+
+	// Ks is already inverse matrix because i assumed that it is a diagonal matrix
+
 	
 
 	K_ = Ks + J * Kp.inverse() * J.transpose();

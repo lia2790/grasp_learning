@@ -96,8 +96,6 @@ int n_q = 39;
 int n_c_max = 20;
 
 double quality_i = 0;
-double quality_i_A = 0;
-double quality_i_B = 0;
 
 
 double mu = 0.03;
@@ -187,12 +185,18 @@ int main (int argc, char **argv)
 		q_finger[i].resize(chains_hand_finger[i].getNrOfJoints());
 		hand_jacob[i].resize(chains_hand_finger[i].getNrOfJoints());
 
-		// cout << "JntArray " << i << " : " << chains_hand_finger[i].getNrOfJoints() << endl;
+		cout << "JntArray " << i << " : " << chains_hand_finger[i].getNrOfJoints() << endl;
 	}
 
 
 
-	
+
+
+
+
+
+
+
 
 ///////////////////////////////// get values from file for each line //////////////////////////////////
 
@@ -274,14 +278,18 @@ int main (int argc, char **argv)
 				q_finger[i](12) = values_inline[first_element_joint_array+k_+6] ;  // joint around y-axis distal
 
 				k_+=7;
-			}			
+				}			
 		}
 /*		for ( int i = 0 ; i < n_fingers ; i++)
 		{	cout << " finger " << i << endl;
 			cout << q_finger[i].data << endl; }
 */
+		string n_a_n = "nan";
+
 		Eigen::MatrixXd Contacts(n_c_max,3);
 		int gap_coordinate = 0;
+
+		int n_c = 0;
 
 		for(int i = 0; i < n_c_max; i++)
 		{						
@@ -294,7 +302,6 @@ int main (int argc, char **argv)
 		cout << Contacts << endl;
 
 
-		int n_c = 0;
 		for(int i = 0; i < n_c_max; i++)
 			if(!std::isnan(Contacts(i,0)))	
 				n_c++;
@@ -302,7 +309,7 @@ int main (int argc, char **argv)
 		if(n_c > 0)
 		{
     			//for each contact point 
-			Eigen::MatrixXd Grasp_Matrix_b  = MatrixXd::Zero(6,6*n_c) ;  // G
+			Eigen::MatrixXd Grasp_Matrix_  = MatrixXd::Zero(6,6*n_c) ;  // G
 			Eigen::MatrixXd Grasp_Matrix_c  = MatrixXd::Zero(6,6*n_c) ;  // G
     		Eigen::MatrixXd Hand_Jacobian_ = MatrixXd::Zero(6*n_c, n_q) ; // J
 
@@ -333,16 +340,12 @@ int main (int argc, char **argv)
      		   		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * Rotation;
         			Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
 
-	      			Grasp_Matrix_b.block<6,6>(0,step) = Grasp_Matrix;
+	      			Grasp_Matrix_.block<6,6>(0,step) = Grasp_Matrix;
 
 
 
 
   					normal_component(b_Rotation_c, values_inline[0]/2, values_inline[1]/2, values_inline[2]/2,Contacts(i,0),Contacts(i,1),Contacts(i,2));
-
-
-  					
-
 	      			//check if the values ​​of the skew matrix are expressed in the correct reference system
     	  			Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
      				Skew_Matrix(0,1) = - Contacts(i,2); // -rz    
@@ -380,234 +383,12 @@ int main (int argc, char **argv)
 	           		if( i >= 9 && i <= 12 ) which_finger = 2;
 	           		if( i >= 13 && i <= 16 ) which_finger = 3;
 	           		if( i >= 17 && i <= 19 ) which_finger = 4;
-
-
-
-
-
-	    //        		Eigen::MatrixXd c_T_b = MatrixXd::Identity(4,4);
-					// Eigen::MatrixXd b_T_h = MatrixXd::Identity(4,4);
-					// Eigen::MatrixXd h_T_e = MatrixXd::Identity(4,4);
-					// Eigen::MatrixXd c_T_e = MatrixXd::Identity(4,4);
-
-
-
-
-
-
-					Eigen::MatrixXd h_T_o = MatrixXd::Identity(4,4);
-
-					Eigen::MatrixXd R_k(3,3);
-					double qx = values_inline[13];
-  					double qy = values_inline[14];
-  					double qz = values_inline[15];
-  					double qw = values_inline[16];
-					double q_k[] = {qw, qx, qy, qz};
-		
-					R_k(0,0)	= q_k[0]*q_k[0] + q_k[1]*q_k[1] - q_k[2]*q_k[2] - q_k[3]*q_k[3];
-					R_k(0,1)	= 2*q_k[1]*q_k[2] - 2*q_k[0]*q_k[3];
-					R_k(0,2)	= 2*q_k[1]*q_k[3] + 2*q_k[0]*q_k[2];
-					R_k(1,0)	= 2*q_k[1]*q_k[2] + 2*q_k[0]*q_k[3];
-					R_k(1,1)	= q_k[0]*q_k[0] + q_k[2]*q_k[2] - q_k[1]*q_k[1] - q_k[3]*q_k[3];
-					R_k(1,2)	= 2*q_k[2]*q_k[3] - 2*q_k[0]*q_k[1];
-					R_k(2,0)	= 2*q_k[1]*q_k[3] - 2*q_k[0]*q_k[2];
-					R_k(2,1)	= 2*q_k[2]*q_k[3] + 2*q_k[0]*q_k[1];
-					R_k(2,2)	= q_k[0]*q_k[0] + q_k[3]*q_k[3] - q_k[2]*q_k[2] - q_k[1]*q_k[1];
-
-					h_T_o.block<3,3>(0,0) = R_k;
-					h_T_o(0,3) = values_inline[10];
-					h_T_o(1,3) = values_inline[11];
-					h_T_o(2,3) = values_inline[12];
-
-
-
-
-					Eigen::MatrixXd o_T_c = MatrixXd::Identity(4,4);
-
-         			o_T_c.block<3,3>(0,0) = b_Rotation_c;
-  					o_T_c(0,3) = Contacts(i,0);
-  					o_T_c(1,3) = Contacts(i,1);
-  					o_T_c(2,3) = Contacts(i,2);
-
-
-
-
-  					Eigen::MatrixXd h_T_c = h_T_o * o_T_c ;
-
-  					Eigen::MatrixXd h_T_e = MatrixXd::Identity(4,4);
-  					
-
-
-  					KDL::Frame h_T_e_step ;
-  					for ( int i = 0 ; i < which_phalanx ; i++)
-  						h_T_e_step = h_T_e_step * chains_hand_finger[which_finger].getSegment(i).getFrameToTip();
-
-  					h_T_e(0,0) = h_T_e_step.M.data[0];
-	           		h_T_e(0,1) = h_T_e_step.M.data[1];
-	           		h_T_e(0,2) = h_T_e_step.M.data[2];
-	           		h_T_e(1,0) = h_T_e_step.M.data[3];
-	           		h_T_e(1,1) = h_T_e_step.M.data[4];
-	           		h_T_e(1,2) = h_T_e_step.M.data[5];
-	           		h_T_e(2,0) = h_T_e_step.M.data[6];
-	           		h_T_e(2,1) = h_T_e_step.M.data[7];
-	           		h_T_e(2,2) = h_T_e_step.M.data[8];
-	           		h_T_e(0,3) = h_T_e_step.p.x();
-	           		h_T_e(1,3) = h_T_e_step.p.y();
-	           		h_T_e(2,3) = h_T_e_step.p.z();
-
-
-
-
-	           		Eigen::MatrixXd c_T_h = h_T_c.inverse();
-
-	           		Eigen::MatrixXd c_T_e = c_T_h * h_T_e;
-
-
-
-//////////////////////// Test 
-
-
-	           		Eigen::MatrixXd h_T_c_mano = h_T_e * c_T_e.inverse();
-
-
-	           		cout << " Mano contact : " << endl << h_T_c_mano << endl;
-	           		cout << " Object contact : " << endl << h_T_c << endl;
-
-	           		Eigen::MatrixXd R_hand_contact(3,3);
-	           		R_hand_contact = h_T_c_mano.block<3,3>(0,0);
-
-
-	           		Eigen::MatrixXd R_object_contact(3,3);
-	           		R_object_contact = h_T_c.block<3,3>(0,0);
-
-
-	           		Eigen::MatrixXd R_contact_hand_object = R_hand_contact.transpose() * R_object_contact;
-
-	           		cout << " contact_ hand_object " << endl << R_contact_hand_object << endl; // it is identity 
-
-			// Eigen::MatrixXd h_T_b = MatrixXd::Identity(4,4);
-  					
-  			// 		double qx = values_inline[13];
-  			// 		double qy = values_inline[14];
-  			// 		double qz = values_inline[15];
-  			// 		double qw = values_inline[16];
-					// double q_k[] = {qw, qx, qy, qz};
-		
-					// Eigen::MatrixXd R_k(3,3);
-
-
-					// R_k(0,0)	= q_k[0]*q_k[0] + q_k[1]*q_k[1] - q_k[2]*q_k[2] - q_k[3]*q_k[3];
-					// R_k(0,1)	= 2*q_k[1]*q_k[2] - 2*q_k[0]*q_k[3];
-					// R_k(0,2)	= 2*q_k[1]*q_k[3] + 2*q_k[0]*q_k[2];
-					// R_k(1,0)	= 2*q_k[1]*q_k[2] + 2*q_k[0]*q_k[3];
-					// R_k(1,1)	= q_k[0]*q_k[0] + q_k[2]*q_k[2] - q_k[1]*q_k[1] - q_k[3]*q_k[3];
-					// R_k(1,2)	= 2*q_k[2]*q_k[3] - 2*q_k[0]*q_k[1];
-					// R_k(2,0)	= 2*q_k[1]*q_k[3] - 2*q_k[0]*q_k[2];
-					// R_k(2,1)	= 2*q_k[2]*q_k[3] + 2*q_k[0]*q_k[1];
-					// R_k(2,2)	= q_k[0]*q_k[0] + q_k[3]*q_k[3] - q_k[2]*q_k[2] - q_k[1]*q_k[1];
-
-					// h_T_b.block<3,3>(0,0) = R_k;
-
-					// h_T_b(0,3) = values_inline[10];
-  			// 		h_T_b(1,3) = values_inline[11];
-  			// 		h_T_b(2,3) = values_inline[12];
-
-					// b_T_h = h_T_b.inverse();
-	           		
-	           		
-
-	           		
-	           		
-
-	           		// Eigen::MatrixXd e_T_h = MatrixXd::Identity(4,4);
-
-	           		// e_T_h(0,0) = e_T_h_.M.data[0];
-	           		// e_T_h(0,1) = e_T_h_.M.data[1];
-	           		// e_T_h(0,2) = e_T_h_.M.data[2];
-	           		// e_T_h(1,0) = e_T_h_.M.data[3];
-	           		// e_T_h(1,1) = e_T_h_.M.data[4];
-	           		// e_T_h(1,2) = e_T_h_.M.data[5];
-	           		// e_T_h(2,0) = e_T_h_.M.data[6];
-	           		// e_T_h(2,1) = e_T_h_.M.data[7];
-	           		// e_T_h(2,2) = e_T_h_.M.data[8];
-	           		// e_T_h(0,3) = e_T_h_.p.x();
-	           		// e_T_h(1,3) = e_T_h_.p.y();
-	           		// e_T_h(2,3) = e_T_h_.p.z();
-
-	           		// h_T_e = e_T_h.inverse();
-	           		// c_T_e = c_T_b * b_T_h * h_T_e;
-
-
-
-	           		KDL::Chain chain_contact;	           		
-	           		KDL::Frame frame_relative_contact;
-	           		string name_which_phalanx = chains_hand_finger[which_finger].getSegment(which_phalanx).getName();
-
-
-	           		KDL::Rotation c_R_e(c_T_e(0,0),c_T_e(0,1),c_T_e(0,2),c_T_e(1,0),c_T_e(1,1),c_T_e(1,2),c_T_e(2,0),c_T_e(2,1),c_T_e(2,2));
-	           		KDL::Vector p_(c_T_e(0,3), c_T_e(1,3), c_T_e(2,3));
-
-	           		cout << "c_T_e" << endl << c_T_e << endl;
-
-	           		frame_relative_contact.M = c_R_e;
-					frame_relative_contact.p = p_;
-
-
-	           		hand_tree.getChain(frame_name_root, name_which_phalanx, chain_contact);      
-           		
-					chain_contact.addSegment(Segment(Joint(Joint::None), frame_relative_contact));
-
-
-
-
-
-					////////////////////////////////////// TEST  ///////////////////////////////
-
-
-					// Eigen::MatrixXd b_T_c = c_T_b.inverse();
-
-					// Eigen::MatrixXd h_T_c_Oggetto = h_T_b * b_T_c; // passing on object
-					// KDL::Frame h_T_c_Mano_ = chain_contact.getSegment(which_phalanx+1).getFrameToTip();
- 
-					// Eigen::MatrixXd h_T_c_Mano = MatrixXd::Identity(4,4);
-
-					
-	    //        		h_T_c_Mano(0,0) = h_T_c_Mano_.M.data[0];
-	    //        		h_T_c_Mano(0,1) = h_T_c_Mano_.M.data[1];
-	    //        		h_T_c_Mano(0,2) = h_T_c_Mano_.M.data[2];
-	    //        		h_T_c_Mano(1,0) = h_T_c_Mano_.M.data[3];
-	    //        		h_T_c_Mano(1,1) = h_T_c_Mano_.M.data[4];
-	    //        		h_T_c_Mano(1,2) = h_T_c_Mano_.M.data[5];
-	    //        		h_T_c_Mano(2,0) = h_T_c_Mano_.M.data[6];
-	    //        		h_T_c_Mano(2,1) = h_T_c_Mano_.M.data[7];
-	    //        		h_T_c_Mano(2,2) = h_T_c_Mano_.M.data[8];
-	    //        		h_T_c_Mano(0,3) = h_T_c_Mano_.p.x();
-	    //        		h_T_c_Mano(1,3) = h_T_c_Mano_.p.y();
-	    //        		h_T_c_Mano(2,3) = h_T_c_Mano_.p.z();
-
-
-
-
-					// cout << " h_T_c_Mano " << endl << h_T_c_Mano << endl;
-					// cout << " h_T_c_Oggetto " << endl << h_T_c_Oggetto << endl;
-
-
-
-
-
-
-
-
-
-	           		boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_relative_contact;
-					jnt_to_jac_solver_relative_contact.reset(new KDL::ChainJntToJacSolver(chain_contact));
-
-
 	           
 /*	           		cout << "which_finger : " << which_finger << endl;
 	        		cout << "which_phalanx : " << which_phalanx << endl;
 */
-	           		jnt_to_jac_solver_relative_contact->JntToJac(q_finger[which_finger],hand_jacob[which_finger]);
+	           		jnt_to_jac_solver[which_finger]->JntToJac(q_finger[which_finger],hand_jacob[which_finger], which_phalanx);
+        		
 /*	  				cout << " Jacobian thumb "  << endl;
 					cout << hand_jacob[4].data  << endl;
   					cout << " Jacobian index "  << endl;
@@ -642,7 +423,7 @@ int main (int argc, char **argv)
 /////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	        if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_b, Hand_Jacobian_); 		
+	        if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_, Hand_Jacobian_); 		
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -653,10 +434,8 @@ int main (int argc, char **argv)
 	    		int number_force_contact = 120;
 
    				Eigen::VectorXd contact_force_ = VectorXd::Zero(6*n_c_max);
-   				Eigen::VectorXd contact_force_b  = VectorXd::Zero(6*n_c);
+   				Eigen::VectorXd contact_force  = VectorXd::Zero(6*n_c);
    				Eigen::VectorXd contact_force_c_h = VectorXd::Zero(3*n_c);
-   				Eigen::VectorXd contact_force_c = VectorXd::Zero(3*n_c);
-
 
    				int  j= 0;
     			for(int i = 0 ; i < number_force_contact ; i++)
@@ -664,7 +443,7 @@ int main (int argc, char **argv)
     				{	contact_force_(j) = (values_inline[first_element_contact_force + i]); j++; }
 
     			for(int i = 0 ; i < (6*n_c) ; i++)
-    				contact_force_b(i) = contact_force_(i);
+    				contact_force(i) = contact_force_(i);
 
 
     			// apply the contact model
@@ -686,13 +465,11 @@ int main (int argc, char **argv)
 
 				// apply the type of contact and i obtain the grasp matrix and hand jacobian 
 				Eigen::MatrixXd Grasp_Matrix_c_h = Grasp_Matrix_c * H.transpose();
-				Eigen::MatrixXd Grasp_Matrix_b_h = Grasp_Matrix_b * H.transpose();
 				Eigen::MatrixXd H_J = H * Hand_Jacobian_ ;
-				Eigen::MatrixXd H_f_b = H * contact_force_b ;
+				Eigen::MatrixXd H_f_b = H * contact_force ;
 
 
 				Eigen::MatrixXd c_R_b = MatrixXd::Zero(3*n_c, 3*n_c);
-				Eigen::MatrixXd c_R_b_6 = MatrixXd::Zero(6*n_c, 6*n_c);
 
 				int step = 0;
 				int step_ = 0;
@@ -701,20 +478,12 @@ int main (int argc, char **argv)
 					Eigen::MatrixXd b_Rotation_c  = Grasp_Matrix_c.block<3,3>(0,step_);
 					c_R_b.block<3,3>(step, step) = b_Rotation_c.transpose();
 
-					c_R_b_6.block<3,3>(step, step) = b_Rotation_c.transpose();
-					c_R_b_6.block<3,3>(step+3, step+3) = MatrixXd::Identity(3,3);
-					
-
 					step += 3;
 					step_ += 6;
 				}
 
 
 				contact_force_c_h = c_R_b * H_f_b;
-				contact_force_c = c_R_b_6 * contact_force_b;
-
-				Eigen::VectorXd contact_force_b_h = H_f_b;
-
 
 
     				
@@ -749,40 +518,10 @@ int main (int argc, char **argv)
 
 
 
-    			double quality_i_PGR_fc_Gc = quality_pcr_pgr(contact_force_c_h, Grasp_Matrix_c_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-				double quality_i_PGR_fc_Gb = quality_pcr_pgr(contact_force_c_h, Grasp_Matrix_b_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-    			    			
-				// double quality_i_PGR_fb_Gc = quality_pcr_pgr(contact_force_b_h, Grasp_Matrix_c_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-				// double quality_i_PGR_fb_Gb = quality_pcr_pgr(contact_force_b_h, Grasp_Matrix_b_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-    			 // WRONG
 
 
-    			double quality_measures_PCR_PGR_fc_Gb_0 = quality_measures_PCR_PGR(contact_force_c, Grasp_Matrix_b, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, 0);
-    			double quality_measures_PCR_PGR_fc_Gc_0 = quality_measures_PCR_PGR(contact_force_c, Grasp_Matrix_c, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, 0);
-
-
-
-    			double quality_measures_PCR_PGR_fc_Gb_1 = quality_measures_PCR_PGR(contact_force_c, Grasp_Matrix_b, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, 1);
-    			double quality_measures_PCR_PGR_fc_Gc_1 = quality_measures_PCR_PGR(contact_force_c, Grasp_Matrix_c, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, 1);
-
-
-
-    			cout << " quality_measures_PCR_PGR_fc_Gb_0 " << endl << quality_measures_PCR_PGR_fc_Gb_0 << endl;
-    			cout << " quality_measures_PCR_PGR_fc_Gc_0 " << endl << quality_measures_PCR_PGR_fc_Gc_0 << endl;
-
-    			cout << " quality_measures_PCR_PGR_fc_Gb_1 " << endl << quality_measures_PCR_PGR_fc_Gb_1 << endl;
-    			cout << " quality_measures_PCR_PGR_fc_Gc_1 " << endl << quality_measures_PCR_PGR_fc_Gc_1 << endl;    			
-
-    			cout << " quality_i_PGR_fc_Gb : " << endl << quality_i_PGR_fc_Gc << endl;
-    			cout << " quality_i_PGR_fc_Gc : " << endl << quality_i_PGR_fc_Gc << endl;
-
-    			// cout << " quality_i_PGR_fb_Gc : " << endl << quality_i_PGR_fb_Gc << endl;
-    			// cout << " quality_i_PGR_fb_Gb : " << endl << quality_i_PGR_fb_Gb << endl;     wrong
-
-
-    			
-
-    			quality_i = quality_i_A;
+    			quality_i = quality_pcr_pgr(contact_force_c_h, Grasp_Matrix_c_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
+    			//quality_i = quality_measures_PCR_PGR(contact_force, Grasp_Matrix_, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, set_PCR_PGR);
     		}
     		else
     			quality_i = 9999;
@@ -792,7 +531,7 @@ int main (int argc, char **argv)
 
 
 
-	    cout << " THEFINALCOUNTDOWN:::: " << quality_i << endl;
+	    cout << " quality:::: " << quality_i << endl;
 
 	    file_output << quality_i ;
 		for(int i = 0 ; i < 10 ; i++)
@@ -801,6 +540,7 @@ int main (int argc, char **argv)
 
     	count_line++;
     	quality_i = 0;	
+    	
 	} // end for each line	
 
 	file_output.close();
@@ -808,7 +548,6 @@ int main (int argc, char **argv)
 	cout << endl;
 	cout << "Count rows : " << count_line << endl;
 	cout << "quality_index : " << quality_index << endl;
-	cout << "setting 0:PCR - 1:PGR  :" << set_PCR_PGR << endl;
 
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;

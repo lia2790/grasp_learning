@@ -188,23 +188,23 @@ int main (int argc, char **argv)
 
 
 
-  for ( int i = 0 ; i < nj_0 ; i++)
+  for ( int i = 0 ; i < nj_0 ; i++ )
       jointpositions_0(i) = input_joint_thumb[i];
 
 
-  for ( int i = 0 ; i < nj_1 ; i++)
+  for ( int i = 0 ; i < nj_1 ; i++ )
       jointpositions_1(i) = input_joint_index[i];
 
   
-  for ( int i = 0 ; i < nj_2 ; i++)
+  for ( int i = 0 ; i < nj_2 ; i++ )
       jointpositions_2(i) = input_joint_middle[i];
 
 
-  for ( int i = 0 ; i < nj_3 ; i++)
+  for ( int i = 0 ; i < nj_3 ; i++ )
       jointpositions_3(i) = input_joint_ring[i];
 
 
-  for ( int i = 0 ; i < nj_4 ; i++)
+  for ( int i = 0 ; i < nj_4 ; i++ )
       jointpositions_4(i) = input_joint_little[i];
 
 

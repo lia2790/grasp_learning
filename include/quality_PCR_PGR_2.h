@@ -57,29 +57,29 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	// J ---> hand_jacobian 6nc,nq
 
 
-	cout << "f ::::::" << endl;
-	cout << f << endl;
-	cout << ":::::::::::::::::" << endl;
+	// cout << "f ::::::" << endl;
+	// cout << f << endl;
+	// cout << ":::::::::::::::::" << endl;
 
-	cout << "G ::::" << endl;
-	cout << G << endl;
-	cout << ":::::::::::::::::::::" << endl;
+	// cout << "G ::::" << endl;
+	// cout << G << endl;
+	// cout << ":::::::::::::::::::::" << endl;
 
-	cout << "Kis_ :::::::::" << endl;
-	cout << Kis_ << endl;
-	cout << "::::::::::::::::::::" << endl;
+	// cout << "Kis_ :::::::::" << endl;
+	// cout << Kis_ << endl;
+	// cout << "::::::::::::::::::::" << endl;
 
-	cout << "Kp ::::::::::::::::" << endl;
-	cout << Kp << endl;
-	cout << "::::::::::::::::::::::::" << endl;
+	// cout << "Kp ::::::::::::::::" << endl;
+	// cout << Kp << endl;
+	// cout << "::::::::::::::::::::::::" << endl;
 
-	cout << "S :::::::::." << endl;
-	cout << S << endl;
-	cout << ":::::::::::::::::." << endl;
+	// cout << "S :::::::::." << endl;
+	// cout << S << endl;
+	// cout << ":::::::::::::::::." << endl;
 
-	cout << "synergy ::::::::" << endl;
-	cout << synergy << endl;
-	cout << ":::::::::::::::::::" << endl;
+	// cout << "synergy ::::::::" << endl;
+	// cout << synergy << endl;
+	// cout << ":::::::::::::::::::" << endl;
 
 	int n_c = f.size()/6;  // number of contacts
 	int n_q = J.cols(); // number of joints
@@ -87,9 +87,9 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	// double synergy = 1;
 
 
-	cout << " N_C : " << n_c <<endl;
-	cout << " N_Q : " << n_q <<endl;
-	cout << " N_Z : " << n_z <<endl;
+	// cout << " N_C : " << n_c <<endl;
+	// cout << " N_Q : " << n_q <<endl;
+	// cout << " N_Z : " << n_z <<endl;
 
 	double Kx = Kis_(0,0);
 	double Ky = Kis_(1,1);
@@ -163,17 +163,17 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 
 
 
-	cout << "H ::::::::" << endl;
-	cout << H << endl;
-	cout << ":::::::::" << endl;
+	// cout << "H ::::::::" << endl;
+	// cout << H << endl;
+	// cout << ":::::::::" << endl;
 
-	cout << " G_H_t :::::::::::::" << endl;
-	cout << G_H_t << endl;
-	cout << "::::::::::::::::::::" << endl;
+	// cout << " G_H_t :::::::::::::" << endl;
+	// cout << G_H_t << endl;
+	// cout << "::::::::::::::::::::" << endl;
 
-	cout << " H_f ::::::::::::" << endl;
-	cout << H_f << endl;
-	cout << "::::::::::::::::::::::" << endl;
+	// cout << " H_f ::::::::::::" << endl;
+	// cout << H_f << endl;
+	// cout << "::::::::::::::::::::::" << endl;
 
 
 
@@ -193,9 +193,9 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				FullPivLU<MatrixXd> lu_(Gt);
 				Eigen::MatrixXd Null_Gt = lu_.kernel();
 
-				cout << "Null_Gt :::::::::::" << endl;
-				cout << Null_Gt << endl;
-				cout << ":::::::::::::." << endl;
+				// cout << "Null_Gt :::::::::::" << endl;
+				// cout << Null_Gt << endl;
+				// cout << ":::::::::::::." << endl;
 
 				
 				bool Matrix_is_Zero = true;
@@ -206,7 +206,7 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 						{	Matrix_is_Zero = false; break; } 
 				
 				if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) = 0 
-					return -271;
+					return -277777777777;
 
 
 				int s = 0;
@@ -231,58 +231,52 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				///////////////////////////
 
 
-				cout << "M :::::::::::::::::::::." << endl;
-				cout << M << endl;
-				cout << "::::::::::::::." << endl;
+				// cout << "M :::::::::::::::::::::." << endl;
+				// cout << M << endl;
+				// cout << "::::::::::::::." << endl;
 
-				cout << "G_inv :::::::::::::::::::::::." << endl;
-				cout << G_inv << endl;
-				cout << ":::::::::::::::::::" << endl;
+				// cout << "G_inv :::::::::::::::::::::::." << endl;
+				// cout << G_inv << endl;
+				// cout << ":::::::::::::::::::" << endl;
 
-				cout << "Ks ::::::::::::::." << endl;
-				cout << Ks << endl;
-				cout << ":::::::::::::::" << endl;
+				// cout << "Ks ::::::::::::::." << endl;
+				// cout << Ks << endl;
+				// cout << ":::::::::::::::" << endl;
 
-				cout << "H_J ::::::::::::::" << endl;
-				cout << H_J << endl;
-				cout << "::::::::::::::::::" << endl;
+				// cout << "H_J ::::::::::::::" << endl;
+				// cout << H_J << endl;
+				// cout << "::::::::::::::::::" << endl;
 
-				cout << "K :::::::::::" << endl;
-				cout << K << endl;
-				cout << ":::::::::::::." << endl;
+				// cout << "K :::::::::::" << endl;
+				// cout << K << endl;
+				// cout << ":::::::::::::." << endl;
 
-				cout << " G_r_k 1 ::::::: " << endl;
-				cout << G_r_k << endl;
-				cout << " :::::::::::::: " << endl;
+				// cout << " G_r_k 1 ::::::: " << endl;
+				// cout << G_r_k << endl;
+				// cout << " :::::::::::::: " << endl;
 
 				break;
 			}
-		case 1 :  // PGR with Cj fixed we have just a Cj from the dataset
+		case 1 :  // PGR with Cj fixed because we have just a Cj from dataset
 			{	
 
-				Eigen::VectorXd f_or(3);
 				Eigen::VectorXd f_app(3);
-				Eigen::MatrixXd Rotation(3,3);
 
 				// calculation Ks(Cj)
 				int s_ = 0; // step for component
 				int st_ = 0;
 				for( int i = 0 ; i < n_c ; i++ )
 				{
-					Kis(0,0) = 0;
+					Kis(0,0) = 0;	
 					Kis(1,1) = 0;
 					Kis(2,2) = 0;
-
-					Rotation = G.block<3,3>(0, st_);
 
 					f_app(0) = H_f(st_+0);
 					f_app(1) = H_f(st_+1);
 					f_app(2) = H_f(st_+2);
-
-					f_or = Rotation * f_app;
 					
-					if( f_or(2) >= 0 )   
-						if( ( ( f_or(0)*f_or(0) + f_or(1)*f_or(1) ) / mu_friction ) <=  ( f_or(2)* f_or(2)) )
+					if( f_app(2) >= 0 )   
+						if( ( ( f_app(0)*f_app(0) + f_app(1)*f_app(1) ) / mu_friction ) <=  ( f_app(2)* f_app(2)) )
 						{	
 							Kis(0,0) =  1/Kx;
 							Kis(1,1) =  1/Ky;
@@ -291,32 +285,31 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 						else
 							Kis(2,2) = 1/Kz;
 
-				
 					Ks.block<3,3>(s_,s_) = Kis; 
 
 					s_ += 3;
-					st_ += 6;
 				}	
 				
 
 				K =  Ks + H_J * Kp.inverse() * H_J.transpose() ;  // dipende dalla configurazione Cj
+				
 
 
-				cout << "Ks ::::::::::::::." << endl;
-				cout << Ks << endl;
-				cout << ":::::::::::::::" << endl;
+				// cout << "Ks ::::::::::::::." << endl;
+				// cout << Ks << endl;
+				// cout << ":::::::::::::::" << endl;
 
-				cout << "H_J ::::::::::::::" << endl;
-				cout << H_J << endl;
-				cout << "::::::::::::::::::" << endl;
+				// cout << "H_J ::::::::::::::" << endl;
+				// cout << H_J << endl;
+				// cout << "::::::::::::::::::" << endl;
 
-				cout << "Kp :::::::::::::." << endl;
-				cout << Kp << endl;
-				cout << ":::::::::::::." << endl;
+				// cout << "Kp :::::::::::::." << endl;
+				// cout << Kp << endl;
+				// cout << ":::::::::::::." << endl;
 
-				cout << "K_ :::::::::::" << endl;
-				cout << K << endl;
-				cout << ":::::::::::::." << endl;
+				// cout << "K_ :::::::::::" << endl;
+				// cout << K << endl;
+				// cout << ":::::::::::::." << endl;
 
 
 
@@ -328,9 +321,9 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				FullPivLU<MatrixXd> lu(Kcj_Gt);
 				Eigen::MatrixXd Null_Kcj_Gt = lu.kernel();
 
-				cout << "Null_Kcj_Gt :::::::::::" << endl;
-				cout << Null_Kcj_Gt << endl;
-				cout << ":::::::::::::." << endl;
+				// cout << "Null_Kcj_Gt :::::::::::" << endl;
+				// cout << Null_Kcj_Gt << endl;
+				// cout << ":::::::::::::." << endl;
 
 
 
@@ -344,7 +337,7 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 						{	Matrix_is_Zero = false; break; } 
 				
 				if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) = 0 
-					return -27;
+					return -30000000000000;
 
 
 
@@ -353,9 +346,11 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				Eigen::MatrixXd I = MatrixXd::Identity(3*n_c, 3*n_c);
 				Eigen::MatrixXd F(3*n_c,n_q);
 				Eigen::MatrixXd E;
+				
 
 				G_ = G_H_t * K * G_H_t.transpose();
 				G_inv = G_.inverse();
+				
 
 				G_r_k = K * G_H_t.transpose() * G_inv; 
 
@@ -371,9 +366,9 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 				/////////////////////////
 
 
-				cout << " G_r_k 2::::::: " << endl;
-				cout << G_r_k << endl;
-				cout << " :::::::::::::: " << endl;
+				// cout << " G_r_k 2::::::: " << endl;
+				// cout << G_r_k << endl;
+				// cout << " :::::::::::::: " << endl;
 
 				break;
 			}
@@ -389,27 +384,16 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 	int step_ = 0;
 	double f_i_ ;
 
-	Eigen::MatrixXd Rotation(3,3);
-
 	for(int i = 0 ; i < (f_.size()/3)  ; i++)
 	{
 		f_i(0) = f_(step+0);
 		f_i(1) = f_(step+1);
 		f_i(2) = f_(step+2);
 
-		Rotation = G.block<3,3>(0, step_);
-
-		// the normal of the surface is alligned with the z-axis {o,t,n}
-		n_i(0) = Rotation(0,2);
-		n_i(1) = Rotation(1,2);
-		n_i(2) = -Rotation(2,2);
-		
 		f_i_ = f_i(0)+f_i(1)+f_i(2);
 
-		f_i_n = f_i.transpose() * n_i;
-
-		d_f(step+0)  =  f_i_n(0);	
-		d_f(step+1)  =  mu_friction*f_i_n(0) - f_i_*(sin(acos(f_i_n(0)/f_i_)));		
+		d_f(step+0)  =  f_i(2);	
+		d_f(step+1)  =  mu_friction*f_i(2) - f_i_*(sin(acos(f_i(2)/f_i_)));		
 		d_f(step+2)  =  f_i_max - f_i.norm();
 
 		step  += 3;
@@ -434,8 +418,8 @@ inline double quality_measures_PCR_PGR(Eigen::VectorXd &f , Eigen::MatrixXd &G ,
 
     cout << "f_ :" << endl;
     cout << f_ << endl;
-    cout << "G_r_k_ : " << endl;
-    cout << G_r_k_ << endl;
+    // cout << "G_r_k_ : " << endl;
+    // cout << G_r_k_ << endl;
     cout << " d(f) : " << endl;
     cout << d_f << endl;
     cout << "-------------------------------" << endl;
