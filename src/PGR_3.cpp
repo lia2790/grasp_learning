@@ -52,6 +52,12 @@ Contact GitHub API Training Shop Blog About
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
 
+
+
+#include <rviz_visual_tools/rviz_visual_tools.h>
+
+
+
 #include <kdl_parser/kdl_parser.hpp>
 #include <urdf/model.h>
 
@@ -113,6 +119,8 @@ int main (int argc, char **argv)
 
 	ros::init(argc, argv, "Grasp_quality");	// ROS node
 	ros::NodeHandle nh;
+
+
 
 
 
@@ -387,8 +395,15 @@ int main (int argc, char **argv)
 	           		if( i >= 17 && i <= 19 ) which_finger = 4;
 
 
+
+
+
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////	PER AVERE UNA STIFFNESS CONSISTENTE					///////////////////
 //// contact //////////////////////////////////////////////////////////////////////////////////////
 					Eigen::MatrixXd h_T_o = MatrixXd::Identity(4,4);
 
@@ -594,6 +609,22 @@ int main (int argc, char **argv)
 					step += 3;
 					step_ += 6;
 				}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -119,14 +119,14 @@ KDL::Tree hand_tree("RootName");
 	KDL::Chain chain_palm_finger_left;
 	KDL::Chain chain_palm_finger_right;
 
-  	KDL::JntArray jointpositions_right = JntArray(8);  
-  	KDL::JntArray jointpositions_left = JntArray(8);
+  KDL::JntArray jointpositions_right = JntArray(8);  
+  KDL::JntArray jointpositions_left = JntArray(8);
 
 	KDL::Jacobian jacobian_right;
 	KDL::Jacobian jacobian_left;
 
 	boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_right;
-  	boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_left;
+  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_left;
 
 ///////////////////////////////////////////////////////////
 
@@ -137,7 +137,7 @@ void createStructureKDL()
 {
   	chain_palm.addSegment(Segment("palm_trasl_x_link",Joint(Joint::TransX),Frame(Vector(0.0,0.0,0.0))));	
    	chain_palm.addSegment(Segment("palm_trasl_y_link",Joint(Joint::TransY),Frame(Vector(0.0,0.0,0.0))));
-	chain_palm.addSegment(Segment("palm_trasl_z_link",Joint(Joint::TransZ),Frame(Vector(0.0,0.0,0.0))));
+	  chain_palm.addSegment(Segment("palm_trasl_z_link",Joint(Joint::TransZ),Frame(Vector(0.0,0.0,0.0))));
    	chain_palm.addSegment(Segment("palm_rot_x_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.0))));
    	chain_palm.addSegment(Segment("palm_rot_y_link",Joint(Joint::RotY),Frame(Vector(0.0,0.0,0.0))));
    	chain_palm.addSegment(Segment("palm_rot_z_link",Joint(Joint::RotZ),Frame(Vector(0.0,0.0,0.0))));
@@ -224,8 +224,8 @@ int main (int argc, char **argv)
 
 	
 	Eigen::MatrixXd G_i = MatrixXd::Identity(6,6*n_c);
-  	Eigen::MatrixXd G_r = MatrixXd::Identity(6,6*n_c); 
-  	Eigen::MatrixXd Jacobian(6*n_c, n_q);
+  Eigen::MatrixXd G_r = MatrixXd::Identity(6,6*n_c); 
+  Eigen::MatrixXd Jacobian(6*n_c, n_q);
   	
   	int step  = 0;
   	int step_ = 0;

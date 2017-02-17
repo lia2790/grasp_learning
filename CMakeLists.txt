@@ -38,6 +38,9 @@ find_package(catkin REQUIRED COMPONENTS
   urdf
   kdl_conversions
   kdl_parser
+  visualization_msgs
+  rviz_visual_tools
+  rviz
 )
 
 ## System dependencies are found with CMake's conventions
@@ -189,6 +192,13 @@ target_link_libraries (index_quality_PCR_PGR ${catkin_LIBRARIES} ${Eigen_LIBRARI
 
 add_executable(PGR_3 src/PGR_3.cpp)
 target_link_libraries(PGR_3 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+
+#add_executable(test_show_on_Rviz_box src/test_show_on_Rviz_box.cpp)
+#target_link_libraries(test_show_on_Rviz_box ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+
+
 
 
 add_executable(test_file src/test_file.cpp)
