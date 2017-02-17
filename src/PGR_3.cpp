@@ -66,11 +66,9 @@ Contact GitHub API Training Shop Blog About
 #include <ctime>
 #include <time.h>
 
+#include "PGR_3.h"
 #include "quality.h"
-#include "quality_PCR_PGR_2.h"
 #include "normal_component_box_surface.h"
-#include "PGR.h"
-#include "PGR_2.h"
 
 
 using namespace std;
@@ -291,6 +289,10 @@ int main (int argc, char **argv)
 			gap_coordinate += 3;
 		}
 
+		cout << " Box : " << endl ;
+		cout <<  " x : " << values_inline[0] << " y : " << values_inline[1] << " z : " << values_inline[2] << endl;
+ 
+
 		cout << "Contacts : " << endl;
 		cout << Contacts << endl;
 
@@ -463,8 +465,8 @@ int main (int argc, char **argv)
 	           		Eigen::MatrixXd h_T_c_mano = h_T_e * c_T_e.inverse();
 
 
-	           		cout << " Mano contact : " << endl << h_T_c_mano << endl;
-	           		cout << " Object contact : " << endl << h_T_c << endl;
+	           		// cout << " Mano contact : " << endl << h_T_c_mano << endl;
+	           		// cout << " Object contact : " << endl << h_T_c << endl;
 
 	           		Eigen::MatrixXd R_hand_contact(3,3);
 	           		R_hand_contact = h_T_c_mano.block<3,3>(0,0);
@@ -475,7 +477,7 @@ int main (int argc, char **argv)
 
 
 	           		Eigen::MatrixXd R_contact_hand_object = R_hand_contact.transpose() * R_object_contact;
-	           		cout << " contact_hand_object " << endl << R_contact_hand_object << endl; // it is identity 
+	           		// cout << " contact_hand_object " << endl << R_contact_hand_object << endl; // it is identity 
 
 
 	           		R_contact_hand_object_.block<3,3>(s_,s_) = R_contact_hand_object;
@@ -489,7 +491,7 @@ int main (int argc, char **argv)
 	           		KDL::Rotation c_R_e(c_T_e(0,0),c_T_e(0,1),c_T_e(0,2),c_T_e(1,0),c_T_e(1,1),c_T_e(1,2),c_T_e(2,0),c_T_e(2,1),c_T_e(2,2));
 	           		KDL::Vector p_(c_T_e(0,3), c_T_e(1,3), c_T_e(2,3));
 
-	           		cout << "c_T_e" << endl << c_T_e << endl;
+	           		// cout << "c_T_e" << endl << c_T_e << endl;
 
 	           		frame_relative_contact.M = c_R_e;
 					frame_relative_contact.p = p_;
@@ -573,29 +575,7 @@ int main (int argc, char **argv)
     				contact_force_b(i) = contact_force_(i);
 
 
-    			// apply the contact model
-    			Eigen::MatrixXd H_(3,6);
-    			Eigen::MatrixXd H = MatrixXd::Zero(3*n_c, 6*n_c);
-    			// calculation the selection matrix for n_contact points
-				H_ <<   1, 0, 0, 0, 0, 0,
-		  				0, 1, 0, 0, 0, 0,
-		  				0, 0, 1, 0, 0, 0;
-
-				int i = 0;
-				int k = 0;
-				for(int n = 0 ;  n < n_c ; n++)
-				{
-					H.block<3,6>(i,k) = H_;
-					i += 3;
-					k += 6;
-				}
-
-				// apply the type of contact and i obtain the grasp matrix and hand jacobian 
-				Eigen::MatrixXd Grasp_Matrix_c_h = Grasp_Matrix_c * H.transpose();
-				Eigen::MatrixXd Grasp_Matrix_b_h = Grasp_Matrix_b * H.transpose();
-				Eigen::MatrixXd H_J = H * Hand_Jacobian_ ;
-				Eigen::MatrixXd H_f_b = H * contact_force_b ;
-
+    			
 
 				Eigen::MatrixXd c_R_b = MatrixXd::Zero(3*n_c, 3*n_c);
 				Eigen::MatrixXd c_R_b_6 = MatrixXd::Zero(6*n_c, 6*n_c);
@@ -605,9 +585,9 @@ int main (int argc, char **argv)
 				for(int i = 0 ; i < n_c ; i++)
 				{
 					Eigen::MatrixXd b_Rotation_c  = Grasp_Matrix_c.block<3,3>(0,step_);
-					c_R_b.block<3,3>(step, step) = b_Rotation_c.transpose();
+					c_R_b.block<3,3>(step, step) = b_Rotation_c;
 
-					c_R_b_6.block<3,3>(step, step) = b_Rotation_c.transpose();
+					c_R_b_6.block<3,3>(step, step) = b_Rotation_c;
 					c_R_b_6.block<3,3>(step+3, step+3) = MatrixXd::Identity(3,3);
 					
 
@@ -616,18 +596,21 @@ int main (int argc, char **argv)
 				}
 
 
-				contact_force_c_h = c_R_b * H_f_b;
+
+
+
+
+
+				
 				contact_force_c = c_R_b_6 * contact_force_b;
 
-				Eigen::VectorXd contact_force_b_h = H_f_b;
+	
+				cout << " contact_force B : " << endl << contact_force_b << endl;
 
+				//cout << "c_R_b_ : " << endl << c_R_b_6.transpose() << endl;
 
+				cout << " contact_force C : " << endl << contact_force_c << endl;
 
-    				
-	//		    cout << "Contact_forces : " << endl;
-    // 			cout << contact_force_ << endl;
-    // 			cout << "______________" << endl;
-    // 			cout << contact_force << endl;
 
     			Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
     			for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++) //Kis
@@ -639,54 +622,7 @@ int main (int argc, char **argv)
     				Joint_Stiffness_Matrix(j,j) = joint_stiffness;
 
 
-    			int n_z = synergie.size();
-    			Eigen::MatrixXd S(n_q, n_z);
-    			for(int i = 0 ; i < n_q ; i++)
-    				for(int j = 0 ; j < n_z ; j++)
-    					S(i,j) = 1;
-
-
-    			Eigen::VectorXd synergie_(synergie.size()) ;
-    			for(int i = 0 ; i < synergie.size() ; i++)
-    				synergie_(i) = synergie[i];
-
-
-
-    			double quality_final = quality_pcr_pgr_2(contact_force_c, Grasp_Matrix_c, Hand_Jacobian_, R_contact_hand_object_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-
-
-    			double quality_i_PGR_fc_Gc = quality_pcr_pgr(contact_force_c_h, Grasp_Matrix_c_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-				double quality_i_PGR_fc_Gb = quality_pcr_pgr(contact_force_c_h, Grasp_Matrix_b_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-    			    			
-				// double quality_i_PGR_fb_Gc = quality_pcr_pgr(contact_force_b_h, Grasp_Matrix_c_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-				// double quality_i_PGR_fb_Gb = quality_pcr_pgr(contact_force_b_h, Grasp_Matrix_b_h, H_J, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-    			 // WRONG
-
-
-    			double quality_measures_PCR_PGR_fc_Gb_0 = quality_measures_PCR_PGR(contact_force_c, Grasp_Matrix_b, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, 0);
-    			double quality_measures_PCR_PGR_fc_Gc_0 = quality_measures_PCR_PGR(contact_force_c, Grasp_Matrix_c, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, 0);
-
-
-
-    			double quality_measures_PCR_PGR_fc_Gb_1 = quality_measures_PCR_PGR(contact_force_c, Grasp_Matrix_b, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, 1);
-    			double quality_measures_PCR_PGR_fc_Gc_1 = quality_measures_PCR_PGR(contact_force_c, Grasp_Matrix_c, Hand_Jacobian_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, S, synergie_, mu, f_i_max, 1);
-
-
-
-    			// cout << " quality_measures_PCR_PGR_fc_Gb_0 " << endl << quality_measures_PCR_PGR_fc_Gb_0 << endl;
-    			// cout << " quality_measures_PCR_PGR_fc_Gc_0 " << endl << quality_measures_PCR_PGR_fc_Gc_0 << endl;
-
-    			// cout << " quality_measures_PCR_PGR_fc_Gb_1 " << endl << quality_measures_PCR_PGR_fc_Gb_1 << endl;
-    			// cout << " quality_measures_PCR_PGR_fc_Gc_1 " << endl << quality_measures_PCR_PGR_fc_Gc_1 << endl;    			
-
-    			// cout << " quality_i_PGR_fc_Gb : " << endl << quality_i_PGR_fc_Gc << endl;
-    			// cout << " quality_i_PGR_fc_Gc : " << endl << quality_i_PGR_fc_Gc << endl;
-
-    			// cout << " quality_i_PGR_fb_Gc : " << endl << quality_i_PGR_fb_Gc << endl;
-    			// cout << " quality_i_PGR_fb_Gb : " << endl << quality_i_PGR_fb_Gb << endl;     wrong
-
-
-    			
+    			double quality_final = quality_pcr_pgr_3(contact_force_c, Grasp_Matrix_c, Hand_Jacobian_, R_contact_hand_object_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
 
     			quality_i = quality_final;
     		}
@@ -714,8 +650,7 @@ int main (int argc, char **argv)
 	cout << endl;
 	cout << "Count rows : " << count_line << endl;
 	cout << "quality_index : " << quality_index << endl;
-	cout << "setting 0:PCR - 1:PGR  :" << set_PCR_PGR << endl;
-
+	
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;
 

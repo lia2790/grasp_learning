@@ -187,6 +187,9 @@ target_link_libraries (grasp_quality_measure_PCR_PGR ${catkin_LIBRARIES} ${Eigen
 add_executable(index_quality_PCR_PGR src/index_quality_PCR_PGR.cpp)
 target_link_libraries (index_quality_PCR_PGR ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
+add_executable(PGR_3 src/PGR_3.cpp)
+target_link_libraries(PGR_3 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
 
 add_executable(test_file src/test_file.cpp)
 target_link_libraries(test_file ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})

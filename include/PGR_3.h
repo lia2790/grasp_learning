@@ -50,14 +50,14 @@ using namespace KDL;
 
 
 
-inline double quality_pcr_pgr_2(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen::MatrixXd &J_ , Eigen::MatrixXd &R_ , Eigen::MatrixXd &Kis , Eigen::MatrixXd &Kp , double mu , double f_i_max)
+inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen::MatrixXd &J_ , Eigen::MatrixXd &R_ , Eigen::MatrixXd &Kis , Eigen::MatrixXd &Kp , double mu , double f_i_max)
 {
 	// assumed that the argument it is already modelled with contact model : HARD CONTACT FINGER
 	// the vector of force are espressed in contact point --- frame in contact point {C}  --- > f_c
 	// the grasp matrix so are b_G_c 
 
-	cout << " R_ " << endl << R_ << endl; 
-	cout << " f " << endl << f << endl;
+	// cout << " R_ " << endl << R_ << endl; 
+	// cout << " f " << endl << f << endl;
 
 	int n_c = f.size()/6;
 	double Kx = Kis(0,0);
@@ -155,6 +155,11 @@ inline double quality_pcr_pgr_2(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	}	
 
 
+	cout << " Ks : " << endl << Ks << endl;
+	cout << " H : " << endl << H << endl;
+
+
+
 //////////////////////////////////////////////////////////////// Filter the G and J matrix
 
 
@@ -241,10 +246,10 @@ inline double quality_pcr_pgr_2(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	// cout << " Null_Kcj_Gt : " << endl; 
 	// cout << Null_Kcj_Gt << endl;
 	// cout << " df : " << endl << d_f << endl;
-    cout << "f :" << endl;
-    cout << f << endl;
-    cout << "G_r_k_ : " << endl;
-    cout << G_r_k << endl;
+    // cout << "f :" << endl;
+    // cout << f << endl;
+    // cout << "G_r_k_ : " << endl;
+    // cout << G_r_k << endl;
     cout << " d(f) : " << endl;
     cout << d_f << endl;
     cout << "-------------------------------" << endl;
