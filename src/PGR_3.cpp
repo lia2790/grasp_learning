@@ -52,12 +52,6 @@ Contact GitHub API Training Shop Blog About
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
 
-
-
-#include <rviz_visual_tools/rviz_visual_tools.h>
-
-
-
 #include <kdl_parser/kdl_parser.hpp>
 #include <urdf/model.h>
 
