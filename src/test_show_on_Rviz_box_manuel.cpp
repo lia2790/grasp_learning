@@ -84,19 +84,19 @@ using namespace KDL;
 
 //////////////////////////////////	BOX
 
-Eigen::VectorXd box(3);
+std::vector<double> box;
 //////////////////////////////////////////////
 
 
 /////////////////////////////////// CONTACT POINTS
 
-Eigen::VectorXd contact_points(20*3);
+std::vector<double> contact_points;
 ///////////////////////////////////////
 
 
 ////////////////////////////////////  CONTACT FORCE
 
-Eigen::VectorXd contact_wrenches(20*6);
+std::vector<double> contact_wrenches;
 /////////////////////////////////////////////
 
 
@@ -119,6 +119,14 @@ int main (int argc, char **argv)
 
 
 
+	
+	nh.param<std::vector<double>>("box", box, std::vector<double>{1, 1, 1});
+	nh.param<std::vector<double>>("contact_points", contact_points, std::vector<double>{1,1,1,1,1,1});
+	nh.param<std::vector<double>>("contact_wrenches", contact_wrenches, std::vector<double>{1,1,1,1,1,1});
+	nh.param<int>("n_c", n_c, 1);
+
+
+
 
 	nh.param<std::string>("file_name", relative_path_file, "/db/test_file.csv" );
 	///////////////////// load the data_base ////////////////////////////////////
@@ -135,48 +143,18 @@ int main (int argc, char **argv)
     	values_inline.push_back(stod(value));
 
 
-    box(0) = values_inline[0];
-    box(1) = values_inline[1];
-    box(2) = values_inline[2];
+    box.push_back(values_inline[0]);
+    box.push_back(values_inline[1]);
+    box.push_back(values_inline[2]);
 
     for(int i = 0 ; i < 60 ; i++)
-    	contact_points(i) = values_inline[50 + i];
+    	contact_points.push_back(values_inline[50 + i]);
 
    	for(int i = 0 ; i < 120 ; i++)
-   		contact_wrenches(i) = values_inline[110 + i];
+   		contact_wrenches.push_back(values_inline[110 + i]);
 
     
-
-
-   	Eigen::MatrixXd cp(20,3);
-   	int k = 0;
-   	for(int i = 0 ; i < 20 ; i++)
-   		for(int j=0 ; j < 3 ; j++)
-		{	cp(i,j) = values_inline[50 + k]; k++; }
-
-
-	Eigen::MatrixXd cf(20,6);
-   	int h = 0;
-   	for(int i = 0 ; i < 20 ; i++)
-   		for(int j=0 ; j < 6; j++)
-		{	cf(i,j) = values_inline[110 + h]; h++; }
-   	
-
-
-	cout << " cp : " << endl << cp << endl;
-	cout << " cf : " << endl << cf << endl;
-
-
-
-
-
-
-
-
-
-   	cout << " qui 1 " << endl << contact_points << endl;
-   	cout << "------------------" << endl;
-   	cout << " qui 2 " << endl << contact_wrenches << endl;
+   	cout << " qui 1 " << endl;
 
 
 
@@ -198,9 +176,9 @@ int main (int argc, char **argv)
 	pose_.orientation.z = 0;
 	pose_.orientation.w = 1;
 	
-	double x_depth = box(0);
-	double y_width = box(1);
-	double z_height = box(2);
+	double x_depth = box[0];
+	double y_width = box[1];
+	double z_height = box[2];
 
 
 	//Eigen::Affine3d pose;
@@ -216,7 +194,7 @@ int main (int argc, char **argv)
 
 
 
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(100);
 
 
 	static tf::TransformBroadcaster tf_broadcaster; 
@@ -261,14 +239,9 @@ int main (int argc, char **argv)
 
 
 		for(int k = 0 ; k < 20; k++ )
-		{	cout << " contact_points ? " << endl;
-			
-
-			cout << " contact_points : " << contact_points(i+0) << endl;
-			cout << " contact_wrenches : " << contact_wrenches(j+0) << endl;
-
-
-			if(  !std::isnan(contact_points(i+0)) && !std::isnan(contact_wrenches(j+0)) )
+		{	
+			// cout << "qui 4" << endl;
+			if(  !std::isnan(contact_points[i+0]) && !std::isnan(contact_wrenches[j+0]) )
 			{
 
 
@@ -281,15 +254,15 @@ int main (int argc, char **argv)
 
 
 			Eigen::MatrixXd b_Rotation_c(3,3);
-			normal_component(b_Rotation_c, box(0)/2, box(1)/2, box(2)/2 , contact_points(i+0), contact_points(i+1), contact_points(i+2));
+			normal_component(b_Rotation_c, box[0]/2, box[1]/2, box[2]/2 , contact_points[i+0], contact_points[i+1], contact_points[i+2]);
 			KDL::Rotation R( b_Rotation_c(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
 
 
 	
 
-			double px = contact_points(i+0);//p.translation[0];
-			double py = contact_points(i+1);//p.translation[1];
-			double pz = contact_points(i+2);//p.translation[2];
+			double px = contact_points[i+0];//p.translation[0];
+			double py = contact_points[i+1];//p.translation[1];
+			double pz = contact_points[i+2];//p.translation[2];
 		
 			double qx ;//p.quaternion[1];
 			double qy ;//p.quaternion[2];
@@ -307,17 +280,10 @@ int main (int argc, char **argv)
 			tf::StampedTransform ObjToSurface(trasformazione, ros::Time::now(), stringaFrameIdPadre, stringaFrameIdFiglio);
 			tf_broadcaster.sendTransform(ObjToSurface);
 
-
-
 			Eigen::VectorXd fo(3);
-			fo << contact_wrenches(j+0), contact_wrenches(j+1), contact_wrenches(j+2);
+			fo << contact_wrenches[j+0], contact_wrenches[j+1], contact_wrenches[j+2];
 			Eigen::VectorXd fc(3);
 			fc = b_Rotation_c.transpose()*fo;
-
-
-			cout << " fo : " << endl << fo << endl;
-			cout << " fc : " << endl << fc << endl;
-
 
 
 
@@ -326,13 +292,14 @@ int main (int argc, char **argv)
 			wrMsg.header.frame_id = "contact_frame_" + std::to_string(j);
 			wrMsg.header.stamp = ros::Time::now();
 
+
 			wrMsg.wrench.force.x = fc(0);
 			wrMsg.wrench.force.y = fc(1);
 			wrMsg.wrench.force.z = fc(2);
 
-			wrMsg.wrench.torque.x = contact_wrenches(j+3);
-			wrMsg.wrench.torque.y = contact_wrenches(j+4);
-			wrMsg.wrench.torque.z = contact_wrenches(j+5);
+			wrMsg.wrench.torque.x = contact_wrenches[j+3];
+			wrMsg.wrench.torque.y = contact_wrenches[j+4];
+			wrMsg.wrench.torque.z = contact_wrenches[j+5];
 
 			Wrench_pub.publish(wrMsg);
 		

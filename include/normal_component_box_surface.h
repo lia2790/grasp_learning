@@ -44,9 +44,11 @@ Contact GitHub API Training Shop Blog About
 using namespace std;
 using namespace Eigen;
 
+const double PPI  = 3.141592653589793238463;
 
 
-inline void normal_component(Eigen::MatrixXd &R, double x_r, double y_r, double z_r, double x_i, double y_i, double z_i)
+
+inline void normal_component(Eigen::MatrixXd &R_in, double x_r, double y_r, double z_r, double x_i, double y_i, double z_i)
 {
 	// In R viene restituita la rotazione che porta
 	// dal sistema di riferimento posto sulla faccia della box
@@ -68,6 +70,8 @@ inline void normal_component(Eigen::MatrixXd &R, double x_r, double y_r, double 
 	//  espresso rispetto al sistema di riferimento posto al centro dell'oggetto
 	//
 
+	Eigen::MatrixXd R(3,3);
+
 	double x_e = x_r - abs(x_i) ;
 	double y_e = y_r - abs(y_i) ;
 	double z_e = z_r - abs(z_i) ;
@@ -80,24 +84,24 @@ inline void normal_component(Eigen::MatrixXd &R, double x_r, double y_r, double 
 		{
 			if(x_i > 0)  
 			{
-				R << cos(90*PI/180),  0, sin(90*PI/180),
+				R << cos(90*PPI/180),  0, sin(90*PPI/180),
 						       0   ,  1,    0 ,
-					-sin(90*PI/180), 0, cos(90*PI/180);
+					-sin(90*PPI/180), 0, cos(90*PPI/180);
 			}
 			else
 			{	
-				R << cos(-90*PI/180),  0, sin(-90*PI/180),
+				R << cos(-90*PPI/180),  0, sin(-90*PPI/180),
 						       0    ,  1,    0 ,
-					-sin(-90*PI/180),  0, cos(-90*PI/180);
+					-sin(-90*PPI/180),  0, cos(-90*PPI/180);
 			}
 		}
 		else
 		{
 			if(z_i > 0)
 			{	
-				R << cos(180*(PI/180)),  0, sin(180*(PI/180)),
+				R << cos(180*(PPI/180)),  0, sin(180*(PPI/180)),
 					            	0   ,  1,    0 ,
-					-sin(180*(PI/180)), 0, cos(180*(PI/180));
+					-sin(180*(PPI/180)), 0, cos(180*(PPI/180));
 			}
 			else    
 			{
@@ -114,23 +118,23 @@ inline void normal_component(Eigen::MatrixXd &R, double x_r, double y_r, double 
 			if(y_i > 0)  // faccia 1
 			{	
 				R << 1, 0, 0,
-					0, cos(-90*PI/180), -sin(-90*PI/180),
-					0, sin(-90*PI/180), cos(-90*PI/180);
+					0, cos(-90*PPI/180), -sin(-90*PPI/180),
+					0, sin(-90*PPI/180), cos(-90*PPI/180);
 			}
 			else
 			{
 				R << 1, 0, 0,
-					0, cos(90*PI/180), -sin(90*PI/180),
-					0, sin(90*(PI/180)), cos(90*PI/180);
+					0, cos(90*PPI/180), -sin(90*PPI/180),
+					0, sin(90*(PPI/180)), cos(90*PPI/180);
 			}
 		}
 		else
 		{
 			if(z_i > 0)
 			{	
-				R << cos(180*(PI/180)),  0, sin(180*(PI/180)),
+				R << cos(180*(PPI/180)),  0, sin(180*(PPI/180)),
 						0   ,  1,    0 ,
-					-sin(180*(PI/180)), 0, cos(180*(PI/180));
+					-sin(180*(PPI/180)), 0, cos(180*(PPI/180));
 			}
 			else
 			{
@@ -140,4 +144,9 @@ inline void normal_component(Eigen::MatrixXd &R, double x_r, double y_r, double 
 			}
 		}
 	}
+
+
+	R_in = R.transpose();
+
+
 }

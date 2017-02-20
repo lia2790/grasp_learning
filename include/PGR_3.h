@@ -52,23 +52,38 @@ using namespace KDL;
 
 inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen::MatrixXd &J_ , Eigen::MatrixXd &R_ , Eigen::MatrixXd &Kis , Eigen::MatrixXd &Kp , double mu , double f_i_max)
 {
-	// assumed that the argument it is already modelled with contact model : HARD CONTACT FINGER
-	// the vector of force are espressed in contact point --- frame in contact point {C}  --- > f_c
-	// the grasp matrix so are b_G_c 
+	// the vector f the contact forces has size 6 for the number of contact points 
+	// f - 6*n_c_
+	// G - 6,6*n_c_
+	// J - 6*n_c_, n_q
+	// R - 3*n_c_, 3*n_c_
+	
+	cout << " ---------------------------------- " << endl;
+	cout << " f : " << endl << f << endl;
+	cout << " ---------------------------------- " << endl;
+	// cout << " G : " << endl << G_ << endl;
+	// cout << " ---------------------------------- " << endl;
+	// cout << " J : " << endl << J_ << endl;
+	// cout << " ---------------------------------- " << endl;
+	// cout << " R_ : " << endl << R_ << endl;
+	// cout << " ---------------------------------- " << endl;
+	// cout << " Kis : " << endl << Kis << endl;
+	// cout << " ---------------------------------- " << endl;
 
-	// cout << " R_ " << endl << R_ << endl; 
-	// cout << " f " << endl << f << endl;
 
 	int n_c = f.size()/6;
 	double Kx = Kis(0,0);
 	double Ky = Kis(1,1);
 	double Kz = Kis(2,2);
 
+	cout << " n_c : " << endl << n_c << endl;
+	cout << "---------------------" << endl;
+	
 
 	int n_g = 0;
 	int s_ = 0;
 	for( int i = 0 ; i < n_c ; i++ )
-	{		
+	{	
 		if( f(s_+2) >= 0 )   
 		{	if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) / mu ) <=  ( f(s_+2)* f(s_+2)) )
 			{	
@@ -79,7 +94,11 @@ inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 				n_g +=1;
 			}
 		}
+
+		s_ += 6;
+
 	}	
+	
 	
 
 
@@ -108,17 +127,19 @@ inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 
 ///////////////////////////////////////////////// build H matrix and Ks depending in which state the contact force are
 	
-
-
+	
+	int s__ = 0;
 	for( int i = 0 ; i < n_c ; i++ )
-	{
+	{	
 		Kis_(0,0) = 0;
 		Kis_(1,1) = 0;
 		Kis_(2,2) = 0;
+		
+		cout << " f_n for construct Kis : " << endl << f(s__+2) << endl;
 			
-		if( f(s_+2) >= 0 )   
+		if( f(s__+2) >= 0 )   
 		{
-			if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) / mu ) <=  ( f(s_+2)* f(s_+2)) )
+			if(  ((f(s__+0)*f(s__+0) + f(s__+1)*f(s__+1)) / mu ) <=  ( f(s__+2)* f(s__+2)) )
 			{	
 				Kis_(0,0) =  Kx;
 				Kis_(1,1) =  Ky;
@@ -147,11 +168,12 @@ inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 				c_now += 6;
 			}
 		}
-		else
-			return -90;
+		// else
+		// 	return -90;
 		
 
 		now_ += 3;
+		s__ += 6;
 	}	
 
 
@@ -161,11 +183,12 @@ inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 
 
 //////////////////////////////////////////////////////////////// Filter the G and J matrix
-
+cout << "qui " << endl ;
 
 	Eigen::MatrixXd G = G_ * H.transpose();
 	Eigen::MatrixXd J = H * J_;
 
+cout << "qui qui" << endl;
 
 	// Ks is already inverse matrix because i assumed that it is a diagonal matrix
 
@@ -199,7 +222,7 @@ inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	Eigen::VectorXd f_i(3);
 
 	int step = 0;
-	double f_i_ = 0;
+	double f_i_norm = 0;
 
 	
 	for(int i = 0; i < n_c ; i++)  // normal component is a z-axis of each contact force
@@ -208,11 +231,11 @@ inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 		f_i(1) = f(step+1);
 		f_i(2) = f(step+2);
 
-		f_i_ = f_i(0)+f_i(1)+f_i(2);
+		f_i_norm = f_i.norm();
 
 		d_f(step+0)  =  f_i(2);	
-		d_f(step+1)  =  mu*f_i(2) - f_i_*(sin(acos(f_i(2)/f_i_)));	// da nan
-		d_f(step+2)  =  f_i_max - f_i.norm();
+		d_f(step+1)  =  mu*f_i(2) - f_i_norm*(sin(acos(f_i(2)/f_i_norm)));	// da nan
+		d_f(step+2)  =  f_i_max - f_i_norm;
 
 		step += 3;
 	}

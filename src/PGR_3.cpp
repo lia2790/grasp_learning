@@ -80,8 +80,12 @@ using namespace KDL;
 int n_rows;
 int n_cols;
 int quality_index;
+
+
 string file_name;
 string relative_path_file;
+
+
 string frame_name_finger[5];
 string frame_name_root;
 //std::string root_name = "right_hand_softhand_base";
@@ -214,6 +218,14 @@ int main (int argc, char **argv)
     		values_inline.push_back(stod(value));
 
     	int quante_colonne = 0;
+
+
+    	cout << "-----------------------" << endl;
+    	cout << " line : " <<  count_line << endl;
+    	cout << "-----------------------" << endl;
+
+
+
 
  /*   	for(int i = 0 ; i < values_inline.size(); i++)
     	{	cout << " line " << count_line << " : colonna : " << quante_colonne << " = " << values_inline[i] << endl; quante_colonne++;}
@@ -486,11 +498,14 @@ int main (int argc, char **argv)
 
 
 	           		Eigen::MatrixXd R_contact_hand_object = R_hand_contact.transpose() * R_object_contact;
-	           		// cout << " contact_hand_object " << endl << R_contact_hand_object << endl; // it is identity 
+	           		cout << " R_contact_hand_object " << endl << R_contact_hand_object << endl; // it is identity 
 
 
-	           		R_contact_hand_object_.block<3,3>(s_,s_) = R_contact_hand_object;
+	           		R_contact_hand_object_.block<3,3>(s_,s_) = R_contact_hand_object; // for PGR
 			 
+
+	           		cout << " R_contact_hand_object (3*n_c,3*n_c)" << endl << R_contact_hand_object_ << endl;
+
 
 	           		KDL::Chain chain_contact;	           		
 	           		KDL::Frame frame_relative_contact;
@@ -584,6 +599,11 @@ int main (int argc, char **argv)
     				contact_force_b(i) = contact_force_(i);
 
 
+
+
+
+
+
     			
 
 				Eigen::MatrixXd c_R_b = MatrixXd::Zero(3*n_c, 3*n_c);
@@ -605,36 +625,108 @@ int main (int argc, char **argv)
 				}
 
 
+				contact_force_c = c_R_b_6 * contact_force_b;
+
+				cout << " ----------------------------- " << endl;
+				cout << " contact_force B : " << endl << contact_force_b << endl;
+				cout << " ----------------------------- " << endl;
+
+				cout << " ----------------------------- " << endl;
+				cout << " contact_force C : " << endl << contact_force_c << endl;
+				cout << " ----------------------------- " << endl;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+///////////////////////////////////////////////////////////////////////////////
+				/////////////////////////////////////////////////
 
 
 				
-				contact_force_c = c_R_b_6 * contact_force_b;
+				int stepp = 0;
+				int n_c_ = 0;
 
-	
-				cout << " contact_force B : " << endl << contact_force_b << endl;
+				for (int i = 0 ; i < n_c ; i++)
+				{
+					Eigen::VectorXd cf(3);
 
-				//cout << "c_R_b_ : " << endl << c_R_b_6.transpose() << endl;
+					cf(0) = contact_force_c(stepp+0);
+					cf(1) = contact_force_c(stepp+1);
+					cf(2) = contact_force_c(stepp+2);
 
-				cout << " contact_force C : " << endl << contact_force_c << endl;
+					if(cf.norm() >= 1e-3 && cf(2) >= 0)
+						n_c_++;
+
+
+					stepp +=6 ;
+
+				}
+
+
+				cout << " qui 1" << endl;
+
+
+
+				Eigen::MatrixXd G_c(6,6*n_c_);
+				Eigen::VectorXd f_c(6*n_c_);
+				Eigen::MatrixXd R_c = MatrixXd::Identity(3*n_c_, 3*n_c_);
+				Eigen::MatrixXd J_c(6*n_c_, n_q);
+
+
+				cout << " qui 2 " << endl;
+
+
+
+				int stepp_ = 0;
+				int stepp_3 = 0;
+				int stepp_now= 0;
+				int stepp_now_3 = 0;
+				for(int i = 0 ; i < n_c ; i++)
+				{
+
+					Eigen::VectorXd cf(3);
+
+					cf(0) = contact_force_c(stepp_now+0);
+					cf(1) = contact_force_c(stepp_now+1);
+					cf(2) = contact_force_c(stepp_now+2);
+
+					cout << " qui 4" << endl;
+					cout << " --------------- --" << endl;
+					cout << " c_f : " << endl << cf << endl;
+					cout << "-------------------" << endl;
+
+					cout << " cf.norm : " << cf.norm() << endl;
+
+					cout << " cf(2) : " << cf(2) << endl;
+
+					if(cf.norm() >= 1e-3 && cf(2) >= 0)
+					{
+						 cout << " qui 5 " << endl ;
+
+						G_c.block<6,6>(0,stepp_) = Grasp_Matrix_c.block<6,6>(0,stepp_now);
+						R_c.block<3,3>(stepp_3,stepp_3) = R_contact_hand_object_.block<3,3>(stepp_now_3,stepp_now_3);
+						J_c.block(stepp_,0,6,n_q) = Hand_Jacobian_.block(stepp_now, 0, 6,n_q);
+						
+						for(int j = 0 ; j < 6 ; j++)
+						{	f_c(stepp_+j) = contact_force_c(stepp_now+j);
+							// cout << " qui riempio " << endl;	
+						}
+						stepp_3 += 3;
+						stepp_ += 6;
+					}
+					// cout << "qui 7" << endl;
+					stepp_now_3 += 3 ;
+					stepp_now += 6 ;
+				}
+
+			
+
+				cout << " G_c : " << endl << G_c << endl;
+				cout << " R_c : " << endl << R_c << endl;
+				cout << " f_c : " << endl << f_c << endl;
+				
+				cout << " n_c_ : " << endl << n_c_ << endl;
+
+
+
 
 
     			Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
@@ -646,8 +738,14 @@ int main (int argc, char **argv)
     			for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++) //Kp
     				Joint_Stiffness_Matrix(j,j) = joint_stiffness;
 
+    			double quality_final = 0;
+    			//double quality_final = quality_pcr_pgr_3(contact_force_c, Grasp_Matrix_c, Hand_Jacobian_, R_contact_hand_object_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
+    			
 
-    			double quality_final = quality_pcr_pgr_3(contact_force_c, Grasp_Matrix_c, Hand_Jacobian_, R_contact_hand_object_, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
+    			if(n_c_> 0)
+    				quality_final = quality_pcr_pgr_3(f_c, G_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
+    			else
+    				quality_final = -44;
 
     			quality_i = quality_final;
     		}

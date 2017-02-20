@@ -41,6 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   rviz_visual_tools
   rviz
+  eigen_conversions
 )
 
 ## System dependencies are found with CMake's conventions
@@ -194,8 +195,11 @@ add_executable(PGR_3 src/PGR_3.cpp)
 target_link_libraries(PGR_3 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
-#add_executable(test_show_on_Rviz_box src/test_show_on_Rviz_box.cpp)
-#target_link_libraries(test_show_on_Rviz_box ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+
+
+add_executable(test_show_on_Rviz_box src/test_show_on_Rviz_box.cpp)
+target_link_libraries(test_show_on_Rviz_box ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
 

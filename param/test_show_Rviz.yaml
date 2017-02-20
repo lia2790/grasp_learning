@@ -1,4 +1,1 @@
-box: [10, 6, 8]
-contact_points: [0, 3, 2, 0, 0, 0]
-contact_wrenches: [0, 0, 7, 0, 0, 0]
-n_c: 1
+file_name: "/db/test_show_db.csv"
