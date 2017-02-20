@@ -116,11 +116,11 @@ class MVBBLoader(object):
 
     def save_simulation(self, box_dims, pose, h_T_o, q, c_p, c_f):
         if len(c_p) != self.n_l * 3:
-            yield RuntimeError('Incorrect size of c_p when calling save_simulation()')
+            raise RuntimeError('Incorrect size of c_p when calling save_simulation()')
         if len(c_f) != self.n_l * 6:
-            yield RuntimeError('Incorrect size of c_f when calling save_simulation()')
+            raise RuntimeError('Incorrect size of c_f when calling save_simulation()')
         if len(q) != self.n_dofs:
-            yield RuntimeError('Incorrect size of q when calling save_simulation()')
+            raise RuntimeError('Incorrect size of q when calling save_simulation()')
 
         if not self.has_simulation(box_dims, pose):
             f = open(self.filename_simulated, 'a')

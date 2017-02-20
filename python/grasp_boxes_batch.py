@@ -15,7 +15,7 @@ import importlib
 import math
 import os
 import string
-import sys
+import sys, traceback
 import time
 import pickle
 
@@ -248,8 +248,17 @@ class FilteredMVBBTesterVisualizer(GLRealtimeProgram):
                     c_p, c_f = getObjectPhalanxMeanContactPoint(self.sim, self.obj,
                                                                 self.robot, self.links_to_check)
 
-                    self.db.save_simulation(self.box_dims, self.curr_pose, h_T_o,
-                                            q_grasp, c_p, c_f)
+                    try:
+                        self.db.save_simulation(self.box_dims, self.curr_pose, h_T_o,
+                                                q_grasp, c_p, c_f)
+                    except:
+                        print "\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                        print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                        print "X Error while calling save_simulation X"
+                        print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                        traceback.print_exc()
+                        print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n"
+
                 self.is_simulating = False
                 self.sim = None
                 self.robot.setConfig(self.q_0)
