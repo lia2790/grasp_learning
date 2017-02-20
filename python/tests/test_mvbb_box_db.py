@@ -22,7 +22,7 @@ class MVBBLoaderTest(unittest.TestCase):
         p = db.db[k][0]
         self.assertFalse(db.has_simulation(k,p))
         nan = float('nan')
-        db.save_simulation(k, p, np.eye(4), [nan]*19, [nan]*15, [nan]*15)
+        db.save_simulation(k, p, np.eye(4), [nan]*19, [nan]*3*15, [nan]*6*15)
         self.assertTrue(db.has_simulation(k, p))
 
         print "Reloading..."
@@ -38,7 +38,7 @@ class MVBBLoaderTest(unittest.TestCase):
             for k, ps in db_i.db.items():
                 for p in ps:
                     nan = float('nan')
-                    db_i.save_simulation(k, p, np.eye(4), [nan] * 19, [nan] * 15, [nan] * 15)
+                    db_i.save_simulation(k, p, np.eye(4), [nan]*19, [nan]*3*15, [nan]*6*15)
         db.join_results(filenames)
         poses = db.get_all_simulated_poses()
         pose_count = 0

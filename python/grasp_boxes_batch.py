@@ -328,8 +328,8 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
             w_F = sim.contactForce(oId, lId) # total force applied on object
             w_M_obj = sim.contactTorque(oId, lId) # total moment applied on object about it's origin
 
-            wrench_avg[l_i*3:l_i*3+3] = se3.apply_rotation(o_T_w, w_F)
-            wrench_avg[l_i*3+3:l_i*3+6] = se3.apply_rotation(o_T_w, w_M_obj)
+            wrench_avg[l_i*6:l_i*6+3] = se3.apply_rotation(o_T_w, w_F)
+            wrench_avg[l_i*6+3:l_i*6+6] = se3.apply_rotation(o_T_w, w_M_obj)
 
             """ here I should first determine a "contact" reference frame
             cp_M_cp = TODO
