@@ -108,7 +108,7 @@ Eigen::VectorXd contact_flag(20);
 
 ////////////////////////////////////  CONTACT
 
-std::vector<double> contact;
+std::vector<double> contact_id;
 /////////////////////////////////////////////
 
 
@@ -129,6 +129,7 @@ int main (int argc, char **argv)
 
 
 	ros::Publisher Wrench_pub = nh.advertise<geometry_msgs::WrenchStamped>("/box_contact_wrench", 1);
+	ros::Publisher Wrench_pub1 = nh.advertise<geometry_msgs::WrenchStamped>("/box_contact_wrench_1", 1);
 
 
 
@@ -174,7 +175,6 @@ int main (int argc, char **argv)
    		contact_flag(i) = 0;
    	
 
-
    	Eigen::MatrixXd cp(20,3);
    	int k = 0;
    	for(int i = 0 ; i < 20 ; i++)
@@ -189,11 +189,17 @@ int main (int argc, char **argv)
 		{	cf(i,j) = values_inline[110 + h]; h++; }
 
 
-	
+
+	for(int i = 0 ; i < 20 ; i++)
+		if( contact_flag(i) )
+			contact_id.push_back(i);
 
 
 	cout << " cp : " << endl << cp << endl;
 	cout << " cf : " << endl << cf << endl;
+	cout << " contact_flag" << endl << contact_flag << endl;
+	for(int i= 0; i < contact_id.size(); i++)
+	cout << " contact_id : " << endl << contact_id[i] << endl;
 	///////////////////////////////////////////////////////////////////////////////////////////////////////7
     
 
@@ -272,9 +278,6 @@ int main (int argc, char **argv)
 
 			// ros::spinOnce();
 
-	int j = 0;
-	int i = 0;
-
 
 
 	while(nh.ok())
@@ -289,37 +292,25 @@ int main (int argc, char **argv)
 		//  //x_depth; // y_width // z_height
 
 
-
-		for(int k = 0 ; k < 20; k++ )
-		{	cout << " contact_points ? " << endl;
+	
 			
-
-			cout << " contact_points : " << contact_points(i+0) << endl;
-			cout << " contact_wrenches : " << contact_wrenches(j+0) << endl;
-
-
-			if(  !std::isnan(contact_points(i+0)) && !std::isnan(contact_wrenches(j+0)) )
-			{
-
-
-			//creiamo un legame fra i sistemi di riferimento
 			std::string stringaFrameIdPadre = "base_frame";
-			std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(j);
+			std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(contact_id[0]);
 
 
-			cout << " qui 3" << endl;
+			Eigen::MatrixXd c_Rotation_o(3,3);
+			normal_component(c_Rotation_o, box(0)/2, box(1)/2, box(2)/2 , cp(contact_id[0],0), cp(contact_id[0],1), cp(contact_id[0],2));
 
 
-			Eigen::MatrixXd b_Rotation_c(3,3);
-			normal_component(b_Rotation_c, box(0)/2, box(1)/2, box(2)/2 , contact_points(i+0), contact_points(i+1), contact_points(i+2));
-			KDL::Rotation R( b_Rotation_c(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
+			KDL::Rotation R( c_Rotation_o(0,0), c_Rotation_o(0,1),c_Rotation_o(0,2),c_Rotation_o(1,0),c_Rotation_o(1,1),c_Rotation_o(1,2),c_Rotation_o(2,0),c_Rotation_o(2,1),c_Rotation_o(2,2));
+			// KDL::Rotation R( c_Rotation_o(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
 
 
 	
 
-			double px = contact_points(i+0);//p.translation[0];
-			double py = contact_points(i+1);//p.translation[1];
-			double pz = contact_points(i+2);//p.translation[2];
+			double px = cp(contact_id[0],0);//p.translation[0];
+			double py = cp(contact_id[0],1);//p.translation[1];
+			double pz = cp(contact_id[0],2);//p.translation[2];
 		
 			double qx ;//p.quaternion[1];
 			double qy ;//p.quaternion[2];
@@ -340,20 +331,39 @@ int main (int argc, char **argv)
 
 
 			Eigen::VectorXd fo(3);
-			fo << contact_wrenches(j+0), contact_wrenches(j+1), contact_wrenches(j+2);
+			fo << cf(contact_id[0],0), cf(contact_id[0],1), cf(contact_id[0],2);
 			Eigen::VectorXd fc(3);
-			fc = b_Rotation_c.transpose()*fo;
+			 // fc = b_Rotation_c.transpose()*fo;
+			fc = c_Rotation_o*fo;
 
 
 			cout << " fo : " << endl << fo << endl;
 			cout << " fc : " << endl << fc << endl;
 
 
+			geometry_msgs::WrenchStamped wrMsg_;
+
+			wrMsg_.header.frame_id = "base_frame";
+			wrMsg_.header.stamp = ros::Time::now();
+
+
+			wrMsg_.wrench.force.x = fo(0);
+			wrMsg_.wrench.force.y = fo(1);
+			wrMsg_.wrench.force.z = fo(2);
+
+			wrMsg_.wrench.torque.x = cf(contact_id[0],3);
+			wrMsg_.wrench.torque.y = cf(contact_id[0],4);
+			wrMsg_.wrench.torque.z = cf(contact_id[0],5);
+
+			Wrench_pub1.publish(wrMsg_);
+
+
+
 
 
 			geometry_msgs::WrenchStamped wrMsg;
 
-			wrMsg.header.frame_id = "contact_frame_" + std::to_string(j);
+			wrMsg.header.frame_id = "contact_frame_" + std::to_string(contact_id[0]);
 			wrMsg.header.stamp = ros::Time::now();
 
 
@@ -361,20 +371,14 @@ int main (int argc, char **argv)
 			wrMsg.wrench.force.y = fc(1);
 			wrMsg.wrench.force.z = fc(2);
 
-			wrMsg.wrench.torque.x = contact_wrenches(j+3);
-			wrMsg.wrench.torque.y = contact_wrenches(j+4);
-			wrMsg.wrench.torque.z = contact_wrenches(j+5);
+			wrMsg.wrench.torque.x = cf(contact_id[0],3);
+			wrMsg.wrench.torque.y = cf(contact_id[0],4);
+			wrMsg.wrench.torque.z = cf(contact_id[0],5);
 
 			Wrench_pub.publish(wrMsg);
 		
-			}
-
-			j += 6;
-			i += 3;
-		}
-
-		j = 0;
-		i = 0;
+						
+		
 
 		visual_tools_->triggerBatchPublish();
 
