@@ -294,16 +294,18 @@ int main (int argc, char **argv)
 
 	
 			
-			std::string stringaFrameIdPadre = "base_frame";
-			std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(contact_id[0]);
+		std::string stringaFrameIdPadre = "base_frame";
+		std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(contact_id[0]);
 
 
-			Eigen::MatrixXd c_Rotation_o(3,3);
-			normal_component(c_Rotation_o, box(0)/2, box(1)/2, box(2)/2 , cp(contact_id[0],0), cp(contact_id[0],1), cp(contact_id[0],2));
+		Eigen::MatrixXd c_Rotation_o(3,3);
+		normal_component(c_Rotation_o, box(0)/2, box(1)/2, box(2)/2 , cp(contact_id[0],0), cp(contact_id[0],1), cp(contact_id[0],2));
 
 
-			KDL::Rotation R( c_Rotation_o(0,0), c_Rotation_o(0,1),c_Rotation_o(0,2),c_Rotation_o(1,0),c_Rotation_o(1,1),c_Rotation_o(1,2),c_Rotation_o(2,0),c_Rotation_o(2,1),c_Rotation_o(2,2));
-			// KDL::Rotation R( c_Rotation_o(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
+		// KDL::Rotation R( c_Rotation_o(0,0), c_Rotation_o(0,1),c_Rotation_o(0,2),c_Rotation_o(1,0),c_Rotation_o(1,1),c_Rotation_o(1,2),c_Rotation_o(2,0),c_Rotation_o(2,1),c_Rotation_o(2,2));
+			
+		Eigen::MatrixXd b_Rotation_c = c_Rotation_o.transpose();
+		KDL::Rotation R( b_Rotation_c(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
 
 
 	
@@ -331,9 +333,9 @@ int main (int argc, char **argv)
 
 
 			Eigen::VectorXd fo(3);
-			fo << cf(contact_id[0],0), cf(contact_id[0],1), cf(contact_id[0],2);
+			fo << -cf(contact_id[0],0), -cf(contact_id[0],1), -cf(contact_id[0],2);
 			Eigen::VectorXd fc(3);
-			 // fc = b_Rotation_c.transpose()*fo;
+			// fc = b_Rotation_c*fo;
 			fc = c_Rotation_o*fo;
 
 
