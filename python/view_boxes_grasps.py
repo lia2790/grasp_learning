@@ -137,7 +137,9 @@ class GraspVisualizer(GLNavigationProgram):
             glDisable(GL_DEPTH_TEST)
             glEnable(GL_POINT_SMOOTH)
             glColor3f(1,1,0)
+            glLineWidth(1.0)
             glPointSize(5.0)
+            forceLen = 0.01  # scale of forces
             if countContactPoints(self.pose['c_p']) > 0:
                 obj = self.world.rigidObject(0)
                 glBegin(GL_POINTS)
@@ -147,6 +149,18 @@ class GraspVisualizer(GLNavigationProgram):
                         w_T_o = obj.getTransform()
                         w_c_p_i = se3.apply(w_T_o, o_c_p_i)
                         glVertex3f(*w_c_p_i)
+                glEnd()
+                glBegin(GL_LINES)
+                for i in range(len(self.pose['c_p'])/3):
+                    o_c_p_i = self.pose['c_p'][3 * i:3 * i + 3]
+                    o_c_f_i = self.pose['c_f'][6 * i:6 * i+3]
+                    if np.all([False if math.isnan(f) else True for f in o_c_f_i]):
+                        if np.all([False if math.isnan(p) else True for p in o_c_p_i]):
+                            w_T_o = obj.getTransform()
+                            w_c_p_i = se3.apply(w_T_o, o_c_p_i)
+                            w_c_f_i = se3.apply(w_T_o, o_c_f_i)
+                            glVertex3f(*w_c_p_i)
+                            glVertex3f(*vectorops.madd(w_c_p_i, w_c_f_i, forceLen))
                 glEnd()
             else:
                 print '???'

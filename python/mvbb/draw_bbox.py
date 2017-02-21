@@ -39,8 +39,8 @@ def draw_GL_frame(T, axis_length=0.1, color = None):
     glVertex3fv(t)
     glVertex3fv(vectorops.madd(t, R[6:9], axis_length))
     glEnd()
-    glEnable(GL_LIGHTING)
     glEnable(GL_DEPTH_TEST)
+    glEnable(GL_LIGHTING)
 
     """
     glBegin(GL_LINES)
