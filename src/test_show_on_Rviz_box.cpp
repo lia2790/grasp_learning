@@ -100,6 +100,20 @@ Eigen::VectorXd contact_wrenches(20*6);
 /////////////////////////////////////////////
 
 
+////////////////////////////////////  ALL CONTACT FLAG
+
+Eigen::VectorXd contact_flag(20);
+/////////////////////////////////////////////
+
+
+////////////////////////////////////  CONTACT
+
+std::vector<double> contact;
+/////////////////////////////////////////////
+
+
+
+
 
 int n_c;
 string relative_path_file;
@@ -119,9 +133,13 @@ int main (int argc, char **argv)
 
 
 
+	
+
+
+
 
 	nh.param<std::string>("file_name", relative_path_file, "/db/test_file.csv" );
-	///////////////////// load the data_base ////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////// 	TAKE DATA FROM DATABASE
 	std::string path = ros::package::getPath("grasp_learning");
 	file_name = path + relative_path_file;
 	ifstream file(file_name); 
@@ -144,15 +162,24 @@ int main (int argc, char **argv)
 
    	for(int i = 0 ; i < 120 ; i++)
    		contact_wrenches(i) = values_inline[110 + i];
-
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
     
+
+
+
+
+
+   	//////////////////////////////////////////////////////////////////////////////	IT CREATES THE DATA STRUCTURE 
+   	for(int i = 0 ; i < 20 ; i++) // 0 : no contact
+   		contact_flag(i) = 0;
+   	
 
 
    	Eigen::MatrixXd cp(20,3);
    	int k = 0;
    	for(int i = 0 ; i < 20 ; i++)
    		for(int j=0 ; j < 3 ; j++)
-		{	cp(i,j) = values_inline[50 + k]; k++; }
+		{	cp(i,j) = values_inline[50 + k]; if( !std::isnan(cp(i,j))) contact_flag(i) = 1; k++; }
 
 
 	Eigen::MatrixXd cf(20,6);
@@ -160,12 +187,15 @@ int main (int argc, char **argv)
    	for(int i = 0 ; i < 20 ; i++)
    		for(int j=0 ; j < 6; j++)
 		{	cf(i,j) = values_inline[110 + h]; h++; }
-   	
+
+
+	
 
 
 	cout << " cp : " << endl << cp << endl;
 	cout << " cf : " << endl << cf << endl;
-
+	///////////////////////////////////////////////////////////////////////////////////////////////////////7
+    
 
 
 
@@ -325,6 +355,7 @@ int main (int argc, char **argv)
 
 			wrMsg.header.frame_id = "contact_frame_" + std::to_string(j);
 			wrMsg.header.stamp = ros::Time::now();
+
 
 			wrMsg.wrench.force.x = fc(0);
 			wrMsg.wrench.force.y = fc(1);
