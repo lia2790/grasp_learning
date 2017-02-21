@@ -50,7 +50,7 @@ using namespace KDL;
 
 
 
-inline double quality_pcr_pgr_3(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen::MatrixXd &J_ , Eigen::MatrixXd &R_ , Eigen::MatrixXd &Kis , Eigen::MatrixXd &Kp , double mu , double f_i_max)
+inline double quality_pcr_pgr_4(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen::MatrixXd &J_ , Eigen::MatrixXd &R_ , Eigen::MatrixXd &Kis , Eigen::MatrixXd &Kp , double mu , double f_i_max)
 {
 	// the vector f the contact forces has size 6 for the number of contact points 
 	// f - 6*n_c_

@@ -199,7 +199,7 @@ int main (int argc, char **argv)
 	cout << " cf : " << endl << cf << endl;
 	cout << " contact_flag" << endl << contact_flag << endl;
 	for(int i= 0; i < contact_id.size(); i++)
-	cout << " contact_id : " << endl << contact_id[i] << endl;
+		cout << " contact_id : " << endl << contact_id[i] << endl;
 	///////////////////////////////////////////////////////////////////////////////////////////////////////7
     
 
