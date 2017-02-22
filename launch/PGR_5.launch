@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_learning)/param/PGR_5.yaml" command="load"/>
+		<node name="PGR_5" pkg="grasp_learning" type="PGR_5" respawn="false" output="screen"/>
+
+</launch>
