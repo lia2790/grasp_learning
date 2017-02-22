@@ -58,6 +58,14 @@ inline double quality_pcr_pgr_4(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	// J - 6*n_c_, n_q
 	// R - 3*n_c_, 3*n_c_
 	
+	cout << "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" << endl;
+	cout << endl;
+	cout << "	INSIDE quality_pcr_pgr_4              " << endl;
+	cout << endl;
+	cout << "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" << endl;
+
+
+
 	cout << " ---------------------------------- " << endl;
 	cout << " f : " << endl << f << endl;
 	cout << " ---------------------------------- " << endl;
@@ -94,13 +102,8 @@ inline double quality_pcr_pgr_4(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 				n_g +=1;
 			}
 		}
-
 		s_ += 6;
-
 	}	
-	
-	
-
 
 	Eigen::MatrixXd Ks = MatrixXd::Zero(n_g, n_g);
 	Eigen::MatrixXd H = MatrixXd::Zero(n_g, 6*n_c);
@@ -177,18 +180,12 @@ inline double quality_pcr_pgr_4(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	}	
 
 
-	cout << " Ks : " << endl << Ks << endl;
-	cout << " H : " << endl << H << endl;
-
-
 
 //////////////////////////////////////////////////////////////// Filter the G and J matrix
-cout << "qui " << endl ;
+
 
 	Eigen::MatrixXd G = G_ * H.transpose();
 	Eigen::MatrixXd J = H * J_;
-
-cout << "qui qui" << endl;
 
 	// Ks is already inverse matrix because i assumed that it is a diagonal matrix
 

@@ -126,7 +126,7 @@ Eigen::VectorXd contact_flag(20);
 
 ////////////////////////////////////  CONTACT
 
-std::vector<double> contact_id;
+std::vector<int> contact_id;
 /////////////////////////////////////////////
 
 
@@ -295,22 +295,66 @@ int main (int argc, char **argv)
    		int k = 0;
    		for(int i = 0 ; i < 20 ; i++)
    			for(int j=0 ; j < 3 ; j++)
-			{	cp(i,j) = values_inline[50 + k]; if( !std::isnan(cp(i,j))) contact_flag(i) = 1; k++; }
+			{	cp(i,j) = values_inline[50 + k]; if( !std::isnan(cp(i,j))) contact_flag(i) = 1; k++; } cout << "cp : " << endl << cp << endl;
 		
    		int h = 0;
    		for(int i = 0 ; i < 20 ; i++)
    			for(int j=0 ; j < 6; j++)
-			{	cf(i,j) = values_inline[110 + h]; h++; }
+			{	cf(i,j) = values_inline[110 + h]; h++; }	cout << "cf : " << endl << cf << endl;
+
+
+		int s = 0;
+		for(int i = 0 ; i < 20 ; i++)
+		{
+			Eigen::MatrixXd c_Rotation_o(3,3);
+			Eigen::MatrixXd c_Rotation_o_6(6,6);
+			normal_component(c_Rotation_o, box(0)/2, box(1)/2, box(2)/2 , cp(i,0), cp(i,1), cp(i,2));
+
+			c_Rotation_o_6.block<3,3>(0,0) = c_Rotation_o;
+			c_Rotation_o_6.block<3,3>(3,3) = c_Rotation_o;
+			c_Rotation_o_6.block<3,3>(3,0) = MatrixXd::Identity(3,3);
+
+			Eigen::VectorXd fo(6);
+			fo << -cf(i,0), -cf(i,1), -cf(i,2), -cf(i,3), -cf(i,4), -cf(i,5) ;
+			Eigen::VectorXd fc(6);
+
+			fc = c_Rotation_o_6*fo;
+
+			Eigen::VectorXd cf(3);
+			cf << fc(0), fc(1), fc(2);
+
+			if(cf.norm() >= 1e-3 && cf(2) >= 0)
+				contact_flag(i) = 1;
+			else
+				contact_flag(i) = 0;
+
+
+			s += 6;
+		}
+
+
+
+		contact_id.resize(0);
+
+		int n_c = 0;
 
 		for(int i = 0 ; i < 20 ; i++)
+		{	
 			if( contact_flag(i) )
-				contact_id.push_back(i);
+			{	cout << " contact_flag : " << i << endl;
+				contact_id.push_back(i); 
+				n_c++; 
+			}
+		}
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+    	cout << "contact_id.size() : " << endl << contact_id.size() << endl;
+
+		for(int i = 0 ; i < contact_id.size() ; i++)
+			cout << " contact_id : " << endl << contact_id[i] << endl;
 
 
-
-		int n_c = contact_id.size();
+		cout << "n_c : " << endl << n_c << endl;
+		
 
 		if(n_c > 0)
 		{
@@ -630,9 +674,9 @@ int main (int argc, char **argv)
 
 
 
-			cout << " G_c : " << endl << G_c << endl;
-			cout << " R_c : " << endl << R_c << endl;
-			cout << " f_c : " << endl << f_c << endl;	
+			// cout << " G_c : " << endl << G_c << endl;
+			// cout << " R_c : " << endl << R_c << endl;
+			// cout << " f_c : " << endl << f_c << endl;	
 
     		Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
     		for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++) //Kis
