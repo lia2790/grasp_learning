@@ -1,0 +1,13 @@
+file_name: "/db_new/box_db_x_simulated.csv"
+frame_name_thumb: "right_hand_thumb_distal_link"
+frame_name_index: "right_hand_index_distal_link"
+frame_name_middle: "right_hand_middle_distal_link"
+frame_name_ring: "right_hand_ring_distal_link"
+frame_name_little: "right_hand_little_distal_link"
+frame_name_root: "world"
+number_of_fingers: 5
+joint_stiffness: 100
+contact_stiffness: 500
+quality_index: 6
+mu: 0.8
+f_i_max: 30

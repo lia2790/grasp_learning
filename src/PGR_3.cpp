@@ -321,10 +321,10 @@ int main (int argc, char **argv)
 
 		if(n_c > 0)
 		{
-    			//for each contact point 
-			Eigen::MatrixXd Grasp_Matrix_b  = MatrixXd::Zero(6,6*n_c);  // G
-			Eigen::MatrixXd Grasp_Matrix_c  = MatrixXd::Zero(6,6*n_c);  // G
-    		Eigen::MatrixXd Hand_Jacobian_  = MatrixXd::Zero(6*n_c, n_q); // J
+    		//for each contact point 
+			Eigen::MatrixXd Grasp_Matrix_b  = MatrixXd::Zero(6,6*n_c);		// G
+			Eigen::MatrixXd Grasp_Matrix_c  = MatrixXd::Zero(6,6*n_c);  	// G
+    		Eigen::MatrixXd Hand_Jacobian_  = MatrixXd::Zero(6*n_c, n_q);	// J
     		Eigen::MatrixXd R_contact_hand_object_ = MatrixXd::Zero(3*n_c,3*n_c);
 
    			int k = 1;
@@ -409,7 +409,7 @@ int main (int argc, char **argv)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////	PER AVERE UNA STIFFNESS CONSISTENTE					///////////////////
+////////////////////////	Ks = RtKsR				///////////////////
 //// contact //////////////////////////////////////////////////////////////////////////////////////
 					Eigen::MatrixXd h_T_o = MatrixXd::Identity(4,4);
 
@@ -480,7 +480,7 @@ int main (int argc, char **argv)
 
 
 
-//////////////////////// Test 
+///////////////////////////////////////////////////////////////////////////////////////////////////				 Test 
 
 
 	           		Eigen::MatrixXd h_T_c_mano = h_T_e * c_T_e.inverse();
@@ -535,22 +535,22 @@ int main (int argc, char **argv)
 
 
 	           
-/*	           		cout << "which_finger : " << which_finger << endl;
-	        		cout << "which_phalanx : " << which_phalanx << endl;
-*/
+	        //  		cout << "which_finger : " << which_finger << endl;
+	        // 			cout << "which_phalanx : " << which_phalanx << endl;
+
 	           		jnt_to_jac_solver_relative_contact->JntToJac(q_finger[which_finger],hand_jacob[which_finger]);
-/*	  				cout << " Jacobian thumb "  << endl;
-					cout << hand_jacob[4].data  << endl;
-  					cout << " Jacobian index "  << endl;
-	  				cout << hand_jacob[0].data  << endl;
-			  		cout << " Jacobian middle " << endl;
-	  				cout << hand_jacob[2].data  << endl;
-					cout << " Jacobian ring "   << endl;
-					cout << hand_jacob[3].data  << endl;
-					cout << " Jacobian little " << endl;
-					cout << hand_jacob[1].data  << endl;
-					cout << " _______________ " << endl;
-*/
+	  		// 		cout << " Jacobian thumb "  << endl;
+			//		cout << hand_jacob[4].data  << endl;
+  			// 		cout << " Jacobian index "  << endl;
+	  		// 		cout << hand_jacob[0].data  << endl;
+			// 		cout << " Jacobian middle " << endl;
+	  		// 		cout << hand_jacob[2].data  << endl;
+					// cout << " Jacobian ring "   << endl;
+					// cout << hand_jacob[3].data  << endl;
+					// cout << " Jacobian little " << endl;
+					// cout << hand_jacob[1].data  << endl;
+					// cout << " _______________ " << endl;
+
 					Hand_Jacobian_.block<6,6>(step,0) = hand_jacob[0].data.topLeftCorner(6,6);	// 6 
 					Hand_Jacobian_.block<6,7>(step,6) = hand_jacob[0].data.topRightCorner(6,7); // 7
 					Hand_Jacobian_.block<6,7>(step,13)= hand_jacob[1].data.topRightCorner(6,7); // 7
@@ -597,14 +597,6 @@ int main (int argc, char **argv)
 
     			for(int i = 0 ; i < (6*n_c) ; i++)
     				contact_force_b(i) = contact_force_(i);
-
-
-
-
-
-
-
-    			
 
 				Eigen::MatrixXd c_R_b = MatrixXd::Zero(3*n_c, 3*n_c);
 				Eigen::MatrixXd c_R_b_6 = MatrixXd::Zero(6*n_c, 6*n_c);
@@ -717,17 +709,11 @@ int main (int argc, char **argv)
 					stepp_now += 6 ;
 				}
 
-			
-
 				cout << " G_c : " << endl << G_c << endl;
 				cout << " R_c : " << endl << R_c << endl;
 				cout << " f_c : " << endl << f_c << endl;
 				
 				cout << " n_c_ : " << endl << n_c_ << endl;
-
-
-
-
 
     			Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
     			for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++) //Kis
@@ -750,7 +736,7 @@ int main (int argc, char **argv)
     			quality_i = quality_final;
     		}
     		else
-    			quality_i = 9999;
+    			quality_i = 50; // no contact
     	}// end if ( n_c > 0)
 
 

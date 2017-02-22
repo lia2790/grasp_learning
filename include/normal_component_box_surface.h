@@ -146,7 +146,8 @@ inline void normal_component(Eigen::MatrixXd &R_in, double x_r, double y_r, doub
 	}
 
 
-	R_in = R.transpose();
+	// R_in = R.transpose();
+	R_in = R;
 
-
+	// c_R_o
 }
