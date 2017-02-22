@@ -742,7 +742,7 @@ int main (int argc, char **argv)
 
     	// cout << " THEFINALCOUNTDOWN B :::::: " << qualiti << endl;
 	    // cout << " THEFINALCOUNTDOWN C :::::: " << quality_i << endl;
-	    // cout << " THEFINALCOUNTDOWN C_t :::::: " << quality_i_t << endl;
+	    cout << " THEFINALCOUNTDOWN C_t :::::: " << quality_i_t << endl;
 	    file_output << quality_i_t ;
 		
 		for(int i = 0 ; i < 10 ; i++)
