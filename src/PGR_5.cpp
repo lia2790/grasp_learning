@@ -707,7 +707,7 @@ int main (int argc, char **argv)
 
 			// cout << " G_c : " << endl << G_c << endl;
 			// cout << " R_c : " << endl << R_c << endl;
-			// cout << " f_c : " << endl << f_c << endl;	
+			cout << " f_c : " << endl << f_c << endl;	
 
     		Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
     		for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++) //Kis
