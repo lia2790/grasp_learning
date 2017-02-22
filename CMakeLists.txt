@@ -197,6 +197,8 @@ target_link_libraries(PGR_3 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_
 add_executable(PGR_4 src/PGR_4.cpp)
 target_link_libraries(PGR_4 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
+add_executable(PGR_5 src/PGR_5.cpp)
+target_link_libraries(PGR_5 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
 

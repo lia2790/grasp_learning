@@ -141,13 +141,13 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 		cout << " f_n for construct Kis : " << endl << f(s__+2) << endl;
 			
 		if( f(s__+2) >= 0 )   
-		{
+		{cout << "qui 1"<< endl;
 			if(  ((f(s__+0)*f(s__+0) + f(s__+1)*f(s__+1)) ) <=  ( (mu*f(s__+2))*(mu* f(s__+2)) ))
-			{	
+			{	cout << "qui si "<< endl;
 				Kis_(0,0) =  Kx;
 				Kis_(1,1) =  Ky;
 				Kis_(2,2) =  Kz; 
-
+cout << "qui "<< endl;
 				
 				Eigen::MatrixXd R_app = R_.block<3,3>(now_,now_);
 
