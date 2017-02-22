@@ -93,7 +93,7 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	for( int i = 0 ; i < n_c ; i++ )
 	{	
 		if( f(s_+2) >= 0 )   
-		{	if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) / mu ) <=  ( f(s_+2)* f(s_+2)) )
+		{	if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) ) <=  ( (mu*f(s_+2))*(mu* f(s_+2))) )
 			{	
 				n_g += 3;
 			}
@@ -104,6 +104,9 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 		}
 		s_ += 6;
 	}	
+
+
+	cout << "n_g: " << n_g << endl;
 
 	Eigen::MatrixXd Ks = MatrixXd::Zero(n_g, n_g);
 	Eigen::MatrixXd H = MatrixXd::Zero(n_g, 6*n_c);
@@ -150,13 +153,13 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 cout << "qui "<< endl;
 				
 				Eigen::MatrixXd R_app = R_.block<3,3>(now_,now_);
-
+cout<< "qui ci"<< endl;cout << "R_app : " << endl << R_app << endl;
 				Eigen::MatrixXd K_app = R_app.transpose() * Kis_ * R_app;
-
-				Ks.block<3,3>(now,now) = K_app; 
+cout << "qui come" << endl; cout << "K_app : " << endl << K_app << endl;
+				Ks.block<3,3>(now,now) = K_app;  cout << "ci siamo?"<< endl;
 				H.block<3,6>(r_now, c_now) = H_3;
 
-				
+			cout << "qui mannaggia" << endl;	
 				now += 3;
 				r_now += 3;
 				c_now += 6;
