@@ -144,22 +144,22 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 		cout << " f_n for construct Kis : " << endl << f(s__+2) << endl;
 			
 		if( f(s__+2) >= 0 )   
-		{cout << "qui 1"<< endl;
+		{
 			if(  ((f(s__+0)*f(s__+0) + f(s__+1)*f(s__+1)) ) <=  ( (mu*f(s__+2))*(mu* f(s__+2)) ))
-			{	cout << "qui si "<< endl;
+			{	
 				Kis_(0,0) =  Kx;
 				Kis_(1,1) =  Ky;
 				Kis_(2,2) =  Kz; 
-cout << "qui "<< endl;
+
 				
 				Eigen::MatrixXd R_app = R_.block<3,3>(now_,now_);
-cout<< "qui ci"<< endl;cout << "R_app : " << endl << R_app << endl;
+
 				Eigen::MatrixXd K_app = R_app.transpose() * Kis_ * R_app;
-cout << "qui come" << endl; cout << "K_app : " << endl << K_app << endl;
-				Ks.block<3,3>(now,now) = K_app;  cout << "ci siamo?"<< endl;
+
+				Ks.block<3,3>(now,now) = K_app;  
 				H.block<3,6>(r_now, c_now) = H_3;
 
-			cout << "qui mannaggia" << endl;	
+				
 				now += 3;
 				r_now += 3;
 				c_now += 6;
@@ -182,7 +182,7 @@ cout << "qui come" << endl; cout << "K_app : " << endl << K_app << endl;
 		s__ += 6;
 	}	
 
-cout << " Ks : " << endl << Ks << endl;
+// cout << " Ks : " << endl << Ks << endl;
 
 //////////////////////////////////////////////////////////////// Filter the G and J matrix
 
