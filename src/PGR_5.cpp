@@ -198,11 +198,6 @@ int main (int argc, char **argv)
 
 
 
-
-
-
-
-
 	///////////////////// load the data_base ////////////////////////////////////
 	std::string path = ros::package::getPath("grasp_learning");
 	file_name = path + relative_path_file;
@@ -745,9 +740,12 @@ int main (int argc, char **argv)
 	    cout << " THEFINALCOUNTDOWN C_t :::::: " << quality_i_t << endl;
 	    file_output << quality_i_t ;
 		
+
 		for(int i = 0 ; i < 10 ; i++)
 	    	file_output << ' ' << i+1 << ":" << values_inline[i] ;
       	file_output << ' ' << endl;
+
+      
 
     	quality_i = 0;	
     	quality_i_t = 0;

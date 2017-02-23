@@ -3,3 +3,10 @@ cd tools/
 python grid.py box_db_quality.scale 
 cd ..
 ./svm-train -c 0.03125 -g 0.0078125 -s 3 box_db_quality.scale 
+
+output of this  command : ./svm-train -c 0.03125 -g 0.0078125 -s 3 box_db_quality.scale
+*
+optimization finished, #iter = 2
+nu = 0.009456
+obj = -0.006885, rho = -0.099972
+nSV = 4, nBSV = 4
