@@ -203,54 +203,54 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	K_ = K_inv + J * Kp.inverse() * J.transpose();
 	K = K_.inverse(); 
 
-// 	cout << " K:"<< endl << K << endl;
-// 	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	cout << " K*G : " << endl << Kcj_Gt << endl;
-// 	FullPivLU<MatrixXd> lu(Kcj_Gt);		
-// 	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel(); 
+	cout << " K:"<< endl << K << endl;
+	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	cout << " K*G : " << endl << Kcj_Gt << endl;
+	FullPivLU<MatrixXd> lu(Kcj_Gt);		
+	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel(); 
 
-// cout << " Null_Kcj_Gt : " << endl << Null_Kcj_Gt << endl;
+cout << " Null_Kcj_Gt : " << endl << Null_Kcj_Gt << endl;
 
 
 	
 
-// 	bool Matrix_is_Zero = true;				
-// 	for ( int i = 0 ; i < Null_Kcj_Gt.rows() ; i++ )
-// 	{
-// 		for ( int j = 0 ; j < Null_Kcj_Gt.cols() ; j++)
-// 		{
-// 			if( Null_Kcj_Gt(i,j) != 0 )
-// 			{	
-// 				Matrix_is_Zero = false; 
-// 				break;
-// 			}
-// 		} 
-// 	}
-
-
-
-
-	Eigen::MatrixXd Gt = G.transpose();	
-	FullPivLU<MatrixXd> lu(Gt);		
-	Eigen::MatrixXd Null_Gt = lu.kernel(); 
-	cout << " Null_Kcj_Gt : " << endl << Null_Gt << endl;
-
-
-
-	bool Matrix_is_Zero_ = true;				
-	for ( int i = 0 ; i < Null_Gt.rows() ; i++ )
+	bool Matrix_is_Zero = true;				
+	for ( int i = 0 ; i < Null_Kcj_Gt.rows() ; i++ )
 	{
-		for ( int j = 0 ; j < Null_Gt.cols() ; j++)
+		for ( int j = 0 ; j < Null_Kcj_Gt.cols() ; j++)
 		{
-			if( Null_Gt(i,j) != 0 )
+			if( Null_Kcj_Gt(i,j) != 0 )
 			{	
-				Matrix_is_Zero_ = false; 
+				Matrix_is_Zero = false; 
 				break;
 			}
 		} 
 	}
+
+
+
+
+	// Eigen::MatrixXd Gt = G.transpose();	
+	// FullPivLU<MatrixXd> lu(Gt);		
+	// Eigen::MatrixXd Null_Gt = lu.kernel(); 
+	// cout << " Null_Kcj_Gt : " << endl << Null_Gt << endl;
+
+
+
+	// bool Matrix_is_Zero_ = true;				
+	// for ( int i = 0 ; i < Null_Gt.rows() ; i++ )
+	// {
+	// 	for ( int j = 0 ; j < Null_Gt.cols() ; j++)
+	// 	{
+	// 		if( Null_Gt(i,j) != 0 )
+	// 		{	
+	// 			Matrix_is_Zero_ = false; 
+	// 			break;
+	// 		}
+	// 	} 
+	// }
 				
-	if( !Matrix_is_Zero_ ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) != 0 
-	 	return -27;
+	// if( !Matrix_is_Zero_ ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) != 0 
+	//  	return -27;
 
 
 

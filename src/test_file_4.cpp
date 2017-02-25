@@ -305,7 +305,6 @@ int main (int argc, char **argv)
 
 
 
-
 Eigen::MatrixXd G = MatrixXd::Zero(6, 6*n_c);
 Eigen::MatrixXd G1 = MatrixXd::Zero(6,6);
 Eigen::MatrixXd G2 = MatrixXd::Zero(6,6);
@@ -361,7 +360,8 @@ G.block<6,6>(0,18) = G4;
 
 
 
-Eigen::MatrixXd Jacobian(6*n_c,n_q);
+
+Eigen::MatrixXd Jacobian = MatrixXd::Zero(6*n_c,n_q);
 
 jnt_to_jac_right_0->JntToJac(jointpositions_right_0, jacobian_right_0);
 jnt_to_jac_left_0->JntToJac(jointpositions_left_0, jacobian_left_0);
@@ -370,14 +370,20 @@ jnt_to_jac_left_0->JntToJac(jointpositions_left_0, jacobian_left_0);
 jnt_to_jac_right_1->JntToJac(jointpositions_right_1, jacobian_right_1);
 jnt_to_jac_left_1->JntToJac(jointpositions_left_1, jacobian_left_1);
     
-Jacobian.block<6,14>(0,0) = jacobian_right_0.data;
-Jacobian.block<6,14>(6,0) = jacobian_left_0.data;
-Jacobian.block<6,14>(12,0) = jacobian_right_1.data;
-Jacobian.block<6,14>(18,0) = jacobian_left_1.data;
+Jacobian.block<6,8>(0,0) = jacobian_right_0.data;
+
+Jacobian.block<6,6>(0,0) = jacobian_left_0.data.block<6,6>(0,0);
+Jacobian.block<6,2>(6,8) = jacobian_left_0.data.block<6,2>(0,6);
+
+Jacobian.block<6,6>(12,0) = jacobian_right_1.data.block<6,6>(0,0);
+Jacobian.block<6,2>(12,10) = jacobian_right_1.data.block<6,2>(0,6);
+
+Jacobian.block<6,6>(18,0) = jacobian_left_1.data.block<6,6>(0,0);
+Jacobian.block<6,2>(18,12) = jacobian_left_1.data.block<6,2>(0,6);
  
 
 
-
+cout << " qui " << endl;
 
     Eigen::MatrixXd R_c = MatrixXd::Zero(3*n_c,3*n_c);
     int k = 0; 
