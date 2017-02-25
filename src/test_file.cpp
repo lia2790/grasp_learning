@@ -245,7 +245,7 @@ cout << "joints_.size()" << endl << joints_.size() << endl;
 
 
 
-  Eigen::MatrixXd G = MatrixXd::Zero(6, 12);
+Eigen::MatrixXd G = MatrixXd::Zero(6, 12);
 Eigen::MatrixXd G1 = MatrixXd::Zero(6,6);
 Eigen::MatrixXd G2 = MatrixXd::Zero(6,6);
 
@@ -253,12 +253,12 @@ Eigen::MatrixXd R1(3,3);
 Eigen::MatrixXd R2(3,3);
 
 R1  << 1, 0, 0,
-          0, cos(-90*PPI_/180), -sin(-90*PPI_/180),
-          0, sin(-90*PPI_/180), cos(-90*PPI_/180);
+       0, cos(-90*PPI_/180), -sin(-90*PPI_/180),
+       0, sin(-90*PPI_/180), cos(-90*PPI_/180);
 
 R2 << 1, 0, 0,
-          0, cos(90*PPI_/180), -sin(90*PPI_/180),
-          0, sin(90*PPI_/180), cos(90*PPI_/180);
+      0, cos(90*PPI_/180), -sin(90*PPI_/180),
+      0, sin(90*PPI_/180), cos(90*PPI_/180);
 
 G1.block<3,3>(0,0) = R1.transpose();
 G1.block<3,3>(3,3) = R1.transpose();
@@ -272,77 +272,17 @@ G.block<6,6>(0,0) = G1;
 G.block<6,6>(0,6) = G2;
 
 
-	
-  Eigen::MatrixXd G_b = MatrixXd::Identity(6,6*n_c); 
-  Eigen::MatrixXd G_c = MatrixXd::Identity(6,6*n_c); 
-  Eigen::MatrixXd Jacobian(6*n_c, n_q);
-  	
-  int step  = 0;
-  int step_ = 0;
-  for ( int i=0; i < n_c ; i++)
-  {
-	  Eigen::MatrixXd Grasp_b(6,6);  
-    Eigen::MatrixXd Grasp_c(6,6);  
- 	  Eigen::MatrixXd Skew_Matrix(3,3);
+Eigen::MatrixXd Jacobian = MatrixXd::Zero(6*n_c, n_q);
+
   
-  	Eigen::MatrixXd b_Rotation_c(3,3);
-
-    Eigen::MatrixXd Rotation = MatrixXd::Identity(3,3);
-  	normal_component(b_Rotation_c, box[0]/2, box[1]/2, box[2]/2 , contact_points[step+0], contact_points[step+1], contact_points[step+2]);
-
-  	Eigen::VectorXd f_c(3);
-  	f_c(0) = contact_forces[step+0];
-  	f_c(1) = contact_forces[step+1];
-  	f_c(2) = contact_forces[step+2];
-
-  		Eigen::VectorXd f_b = b_Rotation_c * f_c;
-
-  		cout << " f_b " << endl;  cout << f_b << endl;  cout << endl;
-
-  		Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
-     	Skew_Matrix(0,1) = - contact_points[step+2]; // -rz    
-     	Skew_Matrix(0,2) = contact_points[step+1];   // ry
-      Skew_Matrix(1,0) = contact_points[step+2];   // rz
-      Skew_Matrix(2,0) = - contact_points[step+1]; // -ry
-      Skew_Matrix(1,2) = - contact_points[step+0]; // -rx
-      Skew_Matrix(2,1) = contact_points[step+0];   // rx
-
-   		
-       			
-   		Grasp_c.block<3,3>(0,0) = b_Rotation_c.transpose();
-  		Grasp_c.block<3,3>(3,3) = b_Rotation_c.transpose();
-  		Grasp_c.block<3,3>(3,0) = Skew_Matrix * b_Rotation_c.transpose();
-   		Grasp_c.block<3,3>(0,3) = MatrixXd::Zero(3,3);
-
-   		G_c.block<6,6>(0,step_) = Grasp_c;
-
-     
-      Grasp_b.block<3,3>(0,0) = Rotation;
-      Grasp_b.block<3,3>(3,3) = Rotation;
-      Grasp_b.block<3,3>(3,0) = Skew_Matrix * Rotation;
-      Grasp_b.block<3,3>(0,3) = MatrixXd::Zero(3,3);
-
-      G_b.block<6,6>(0,step_) = Grasp_b;
-
-
-
-
-   		
-   		jnt_to_jac_right->JntToJac(jointpositions_right, jacobian_right);
-  		jnt_to_jac_left->JntToJac(jointpositions_left, jacobian_left);
-   	
-		Jacobian.block<6,8>(step_,0) = jacobian_right.data;
-  	Jacobian.block<6,2>(step_,8) = jacobian_left.data.block<6,2>(0,6);
-
-  		step += 3;
-  		step_ += 6;
-  	}
-
+jnt_to_jac_right->JntToJac(jointpositions_right, jacobian_right);
+jnt_to_jac_left->JntToJac(jointpositions_left, jacobian_left);
+    
+Jacobian.block<6,8>(0,0) = jacobian_right.data;
+Jacobian.block<6,8>(6,0) = jacobian_left.data;
   	
-    cout << " G_c : " << endl << G_c << endl;
-
-
-    Eigen::MatrixXd R_c(3*n_c,3*n_c);
+  
+Eigen::MatrixXd R_c = MatrixXd::Zero(3*n_c,3*n_c);
     int k = 0; 
     for(int i = 0 ; i < n_c ; i++)
     { 

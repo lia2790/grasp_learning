@@ -98,7 +98,7 @@ std::vector<double> contact_forces;
 
 ////////////////////////////////////// JOINTS
 
-Eigen::VectorXd joints(10);
+std::vector<double> joints;
 ////////////////////////////////////////////
 
 
@@ -118,8 +118,10 @@ KDL::Tree hand_tree("RootName");
 
   KDL::Chain chain_palm;
 
-  KDL::Chain chain_finger_right;
-  KDL::Chain chain_finger_left;
+  KDL::Chain chain_finger_right_0;
+  KDL::Chain chain_finger_left_0;
+   KDL::Chain chain_finger_right_1;
+  KDL::Chain chain_finger_left_1;
   
 
   KDL::Chain chain_palm_finger_left_0; // return the result
@@ -138,8 +140,8 @@ KDL::Tree hand_tree("RootName");
   KDL::Jacobian jacobian_left_1;
 
   boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_right_0;
-  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_left_1;
-  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_right_0;
+  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_left_0;
+  boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_right_1;
   boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_left_1;
 
 ///////////////////////////////////////////////////////////
@@ -149,64 +151,83 @@ KDL::Tree hand_tree("RootName");
 //------------------------------------------------------------------------------------------
 void createStructureKDL()
 {
-    chain_palm.addSegment(Segment("palm_trasl_x_link",Joint(Joint::TransX),Frame(Vector(0.0,0.0,0.0))));  
-    chain_palm.addSegment(Segment("palm_trasl_y_link",Joint(Joint::TransY),Frame(Vector(0.0,0.0,0.0))));
-    chain_palm.addSegment(Segment("palm_trasl_z_link",Joint(Joint::TransZ),Frame(Vector(0.0,0.0,0.0))));
-    chain_palm.addSegment(Segment("palm_rot_x_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.0))));
-    chain_palm.addSegment(Segment("palm_rot_y_link",Joint(Joint::RotY),Frame(Vector(0.0,0.0,0.0))));
-    chain_palm.addSegment(Segment("palm_rot_z_link",Joint(Joint::RotZ),Frame(Vector(0.0,0.0,0.0))));
 
-  chain_finger_right.addSegment(Segment("finger_right_proximal_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
-  chain_finger_right.addSegment(Segment("finger_right_distal_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
+  chain_palm.addSegment(Segment("palm_trasl_x_link",Joint(Joint::TransX),Frame(Vector(0.0,0.0,0.0))));  
+  chain_palm.addSegment(Segment("palm_trasl_y_link",Joint(Joint::TransY),Frame(Vector(0.0,0.0,0.0))));
+  chain_palm.addSegment(Segment("palm_trasl_z_link",Joint(Joint::TransZ),Frame(Vector(0.0,0.0,0.0))));
+  chain_palm.addSegment(Segment("palm_rot_x_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.0))));
+  chain_palm.addSegment(Segment("palm_rot_y_link",Joint(Joint::RotY),Frame(Vector(0.0,0.0,0.0))));
+  chain_palm.addSegment(Segment("palm_rot_z_link",Joint(Joint::RotZ),Frame(Vector(0.0,0.0,0.0))));
 
-  chain_finger_left.addSegment(Segment("finger_left_proximal_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.3))));
-  chain_finger_left.addSegment(Segment("finger_left_distal_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
+  chain_finger_right_0.addSegment(Segment("finger_right_proximal_link_0",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
+  chain_finger_right_0.addSegment(Segment("finger_right_distal_link_0",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
+
+  chain_finger_left_0.addSegment(Segment("finger_left_proximal_link_0",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.3))));
+  chain_finger_left_0.addSegment(Segment("finger_left_distal_link_0",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
     
 
-  chain_finger_right_.addSegment(Segment("finger_right_proximal_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
-  chain_finger_right.addSegment(Segment("finger_right_distal_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
+  chain_finger_right_1.addSegment(Segment("finger_right_proximal_link_1",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
+  chain_finger_right_1.addSegment(Segment("finger_right_distal_link_1",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
 
-  chain_finger_left.addSegment(Segment("finger_left_proximal_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.3))));
-  chain_finger_left.addSegment(Segment("finger_left_distal_link",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
+  chain_finger_left_1.addSegment(Segment("finger_left_proximal_link_1",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.3))));
+  chain_finger_left_1.addSegment(Segment("finger_left_distal_link_1",Joint(Joint::RotX),Frame(Vector(0.0,0.0,0.03))));
     
-
 
   hand_tree.addChain(chain_palm,"RootName");    
-  hand_tree.addChain(chain_finger_right,"palm_rot_z_link");
-  hand_tree.addChain(chain_finger_left, "palm_rot_z_link"); 
+  hand_tree.addChain(chain_finger_right_0,"palm_rot_z_link");
+  hand_tree.addChain(chain_finger_left_0, "palm_rot_z_link"); 
+  hand_tree.addChain(chain_finger_right_1,"palm_rot_z_link");
+  hand_tree.addChain(chain_finger_left_1, "palm_rot_z_link"); 
 
-  hand_tree.getChain("RootName", "finger_right_distal_link", chain_palm_finger_right);
-  hand_tree.getChain("RootName", "finger_left_distal_link", chain_palm_finger_left);
+  hand_tree.getChain("RootName", "finger_right_distal_link_0", chain_palm_finger_right_0);
+  hand_tree.getChain("RootName", "finger_left_distal_link_0", chain_palm_finger_left_0);
+  hand_tree.getChain("RootName", "finger_right_distal_link_1", chain_palm_finger_right_1);
+  hand_tree.getChain("RootName", "finger_left_distal_link_1", chain_palm_finger_left_1);
 
 }
 //-------------------------------------------------------------------------------------------
 
 
 //-------------------------------------------------------------------------------------------
-void setJoints()
+void setJoints(std::vector<double>  joints_in)
 {
   for(int i=0 ; i < 6 ; i++)
-      jointpositions_right(i) = jointpositions_left(i) = joints[i];
+      jointpositions_right_0(i) = jointpositions_left_0(i) = jointpositions_right_1(i) = jointpositions_left_1(i) = joints[i];
  
-    jointpositions_right(6) = joints[6];
-    jointpositions_right(7) = joints[7];
+    jointpositions_right_0(6) = joints_in[6];
+    jointpositions_right_0(7) = joints_in[7];
 
-    jointpositions_left(6) = joints[8];
-    jointpositions_left(7) = joints[9];
+    jointpositions_left_0(6) = joints_in[8];
+    jointpositions_left_0(7) = joints_in[9];
 
-  jointpositions_right.resize(chain_palm_finger_right.getNrOfJoints());
-  jointpositions_left.resize(chain_palm_finger_left.getNrOfJoints());
+    jointpositions_left_1(6) = joints_in[10];
+    jointpositions_left_1(7) = joints_in[11];
+
+    jointpositions_left_1(6) = joints_in[12];
+    jointpositions_left_1(7) = joints_in[13];
+
+  jointpositions_right_0.resize(chain_palm_finger_right_0.getNrOfJoints());
+  jointpositions_left_0.resize(chain_palm_finger_left_0.getNrOfJoints());
+
+  jointpositions_right_1.resize(chain_palm_finger_right_1.getNrOfJoints());
+  jointpositions_left_1.resize(chain_palm_finger_left_1.getNrOfJoints());
 }
 
 
 
 void initJacobian()
 {
-    jacobian_right.resize(chain_palm_finger_right.getNrOfJoints());
-    jacobian_left.resize(chain_palm_finger_left.getNrOfJoints());
+    jacobian_right_0.resize(chain_palm_finger_right_0.getNrOfJoints());
+    jacobian_left_0.resize(chain_palm_finger_left_0.getNrOfJoints());
 
-    jnt_to_jac_right.reset(new KDL::ChainJntToJacSolver(chain_palm_finger_right));
-    jnt_to_jac_left.reset(new KDL::ChainJntToJacSolver(chain_palm_finger_left));
+    jnt_to_jac_right_0.reset(new KDL::ChainJntToJacSolver(chain_palm_finger_right_0));
+    jnt_to_jac_left_0.reset(new KDL::ChainJntToJacSolver(chain_palm_finger_left_0));
+
+    jacobian_right_1.resize(chain_palm_finger_right_1.getNrOfJoints());
+    jacobian_left_1.resize(chain_palm_finger_left_1.getNrOfJoints());
+
+    jnt_to_jac_right_1.reset(new KDL::ChainJntToJacSolver(chain_palm_finger_right_1));
+    jnt_to_jac_left_1.reset(new KDL::ChainJntToJacSolver(chain_palm_finger_left_1));
 }
 
 
@@ -214,24 +235,20 @@ void initJacobian()
 int main (int argc, char **argv)
 {
 
-  ros::init(argc, argv, "Test_file"); 
+  ros::init(argc, argv, "Test_file_4_finger"); 
   ros::NodeHandle nh;
 
-  std::vector<double> joints_;
+  
 
 
   nh.param<std::vector<double>>("box", box, std::vector<double>{1, 1, 1});
   nh.param<std::vector<double>>("contact_points", contact_points, std::vector<double>{1,1,1,1,1,1});
   nh.param<std::vector<double>>("contact_forces", contact_forces, std::vector<double>{1,1,1,1,1,1});
-  nh.param<std::vector<double>>("joints", joints_, std::vector<double>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+  nh.param<std::vector<double>>("joints", joints, std::vector<double>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
   nh.param<int>("n_c", n_c, 0);
   nh.param<int>("n_q", n_q, 0);
-cout << "joints_.size()" << endl << joints_.size() << endl;
 
-
-
-  for(int i =0 ; i < joints_.size(); i++)
-      joints(i) = joints_[i]*(PI_/180);
+  cout << "joints.size()" << endl << joints.size() << endl;
 
 
 
@@ -239,11 +256,13 @@ cout << "joints_.size()" << endl << joints_.size() << endl;
     return 0;
 
   createStructureKDL();
-  setJoints();
+  setJoints(joints);
   initJacobian();
 
- Eigen::MatrixXd Skew_Matrix1(3,3);
+  Eigen::MatrixXd Skew_Matrix1(3,3);
   Eigen::MatrixXd Skew_Matrix2(3,3);
+  Eigen::MatrixXd Skew_Matrix3(3,3);
+  Eigen::MatrixXd Skew_Matrix4(3,3);
 
   Skew_Matrix1(0,0) = Skew_Matrix1(1,1) = Skew_Matrix1(2,2) = 0;
       Skew_Matrix1(0,1) = - contact_points[2]; // -rz    
@@ -252,6 +271,7 @@ cout << "joints_.size()" << endl << joints_.size() << endl;
       Skew_Matrix1(2,0) = - contact_points[1]; // -ry
       Skew_Matrix1(1,2) = - contact_points[0]; // -rx
       Skew_Matrix1(2,1) = contact_points[0];   // rx
+  // left
 
 
  Skew_Matrix2(0,0) = Skew_Matrix2(1,1) = Skew_Matrix2(2,2) = 0;
@@ -261,23 +281,62 @@ cout << "joints_.size()" << endl << joints_.size() << endl;
       Skew_Matrix2(2,0) = - contact_points[4]; // -ry
       Skew_Matrix2(1,2) = - contact_points[3]; // -rx
       Skew_Matrix2(2,1) = contact_points[3];   // rx
+  // right
+
+
+  Skew_Matrix3(0,0) = Skew_Matrix3(1,1) = Skew_Matrix3(2,2) = 0;
+      Skew_Matrix3(0,1) = - contact_points[8]; // -rz    
+      Skew_Matrix3(0,2) = contact_points[7];   // ry
+      Skew_Matrix3(1,0) = contact_points[8];   // rz
+      Skew_Matrix3(2,0) = - contact_points[7]; // -ry
+      Skew_Matrix3(1,2) = - contact_points[6]; // -rx
+      Skew_Matrix3(2,1) = contact_points[6];   // rx
+  // up
+
+
+ Skew_Matrix4(0,0) = Skew_Matrix4(1,1) = Skew_Matrix4(2,2) = 0;
+      Skew_Matrix4(0,1) = - contact_points[11]; // -rz    
+      Skew_Matrix4(0,2) = contact_points[10];   // ry
+      Skew_Matrix4(1,0) = contact_points[11];   // rz
+      Skew_Matrix4(2,0) = - contact_points[10]; // -ry
+      Skew_Matrix4(1,2) = - contact_points[9]; // -rx
+      Skew_Matrix4(2,1) = contact_points[9];   // rx
+  // down
 
 
 
-  Eigen::MatrixXd G = MatrixXd::Zero(6, 12);
+
+Eigen::MatrixXd G = MatrixXd::Zero(6, 6*n_c);
 Eigen::MatrixXd G1 = MatrixXd::Zero(6,6);
 Eigen::MatrixXd G2 = MatrixXd::Zero(6,6);
+Eigen::MatrixXd G3 = MatrixXd::Zero(6,6);
+Eigen::MatrixXd G4 = MatrixXd::Zero(6,6);
 
 Eigen::MatrixXd R1(3,3);
 Eigen::MatrixXd R2(3,3);
+Eigen::MatrixXd R3(3,3);
+Eigen::MatrixXd R4(3,3);
 
-R1  << 1, 0, 0,
-          0, cos(-90*PPI_/180), -sin(-90*PPI_/180),
-          0, sin(-90*PPI_/180), cos(-90*PPI_/180);
+R1 << 1, 0, 0,
+       0, cos(-90*PPI_/180), -sin(-90*PPI_/180),
+       0, sin(-90*PPI_/180), cos(-90*PPI_/180);
+// left
 
 R2 << 1, 0, 0,
-          0, cos(90*PPI_/180), -sin(90*PPI_/180),
-          0, sin(90*PPI_/180), cos(90*PPI_/180);
+      0, cos(90*PPI_/180), -sin(90*PPI_/180),
+      0, sin(90*PPI_/180), cos(90*PPI_/180);
+// right
+
+R3 << 1, 0, 0,
+      0, cos(180*PPI_/180), -sin(180*PPI_/180),
+      0, sin(180*PPI_/180), cos(180*PPI_/180);
+// up
+
+R4 << 1, 0, 0,
+      0, 1, 0,
+      0, 0, 1;
+// down
+
 
 G1.block<3,3>(0,0) = R1.transpose();
 G1.block<3,3>(3,3) = R1.transpose();
@@ -287,81 +346,40 @@ G2.block<3,3>(0,0) = R2.transpose();
 G2.block<3,3>(3,3) = R2.transpose();
 G2.block<3,3>(3,0) = Skew_Matrix2 * R2.transpose();
 
+G3.block<3,3>(0,0) = R3.transpose();
+G3.block<3,3>(3,3) = R3.transpose();
+G3.block<3,3>(3,0) = Skew_Matrix3 * R3.transpose();
+
+G4.block<3,3>(0,0) = R4.transpose();
+G4.block<3,3>(3,3) = R4.transpose();
+G4.block<3,3>(3,0) = Skew_Matrix4 * R4.transpose();
+
 G.block<6,6>(0,0) = G1;
 G.block<6,6>(0,6) = G2;
+G.block<6,6>(0,12) = G3;
+G.block<6,6>(0,18) = G4;
 
 
-  
-  Eigen::MatrixXd G_b = MatrixXd::Identity(6,6*n_c); 
-  Eigen::MatrixXd G_c = MatrixXd::Identity(6,6*n_c); 
-  Eigen::MatrixXd Jacobian(6*n_c, n_q);
+
+Eigen::MatrixXd Jacobian(6*n_c,n_q);
+
+jnt_to_jac_right_0->JntToJac(jointpositions_right_0, jacobian_right_0);
+jnt_to_jac_left_0->JntToJac(jointpositions_left_0, jacobian_left_0);
+
+
+jnt_to_jac_right_1->JntToJac(jointpositions_right_1, jacobian_right_1);
+jnt_to_jac_left_1->JntToJac(jointpositions_left_1, jacobian_left_1);
     
-  int step  = 0;
-  int step_ = 0;
-  for ( int i=0; i < n_c ; i++)
-  {
-    Eigen::MatrixXd Grasp_b(6,6);  
-    Eigen::MatrixXd Grasp_c(6,6);  
-    Eigen::MatrixXd Skew_Matrix(3,3);
-  
-    Eigen::MatrixXd b_Rotation_c(3,3);
-
-    Eigen::MatrixXd Rotation = MatrixXd::Identity(3,3);
-    normal_component(b_Rotation_c, box[0]/2, box[1]/2, box[2]/2 , contact_points[step+0], contact_points[step+1], contact_points[step+2]);
-
-    Eigen::VectorXd f_c(3);
-    f_c(0) = contact_forces[step+0];
-    f_c(1) = contact_forces[step+1];
-    f_c(2) = contact_forces[step+2];
-
-      Eigen::VectorXd f_b = b_Rotation_c * f_c;
-
-      cout << " f_b " << endl;  cout << f_b << endl;  cout << endl;
-
-      Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
-      Skew_Matrix(0,1) = - contact_points[step+2]; // -rz    
-      Skew_Matrix(0,2) = contact_points[step+1];   // ry
-      Skew_Matrix(1,0) = contact_points[step+2];   // rz
-      Skew_Matrix(2,0) = - contact_points[step+1]; // -ry
-      Skew_Matrix(1,2) = - contact_points[step+0]; // -rx
-      Skew_Matrix(2,1) = contact_points[step+0];   // rx
-
-      
-            
-      Grasp_c.block<3,3>(0,0) = b_Rotation_c.transpose();
-      Grasp_c.block<3,3>(3,3) = b_Rotation_c.transpose();
-      Grasp_c.block<3,3>(3,0) = Skew_Matrix * b_Rotation_c.transpose();
-      Grasp_c.block<3,3>(0,3) = MatrixXd::Zero(3,3);
-
-      G_c.block<6,6>(0,step_) = Grasp_c;
-
-     
-      Grasp_b.block<3,3>(0,0) = Rotation;
-      Grasp_b.block<3,3>(3,3) = Rotation;
-      Grasp_b.block<3,3>(3,0) = Skew_Matrix * Rotation;
-      Grasp_b.block<3,3>(0,3) = MatrixXd::Zero(3,3);
-
-      G_b.block<6,6>(0,step_) = Grasp_b;
+Jacobian.block<6,14>(0,0) = jacobian_right_0.data;
+Jacobian.block<6,14>(6,0) = jacobian_left_0.data;
+Jacobian.block<6,14>(12,0) = jacobian_right_1.data;
+Jacobian.block<6,14>(18,0) = jacobian_left_1.data;
+ 
 
 
 
 
-      
-      jnt_to_jac_right->JntToJac(jointpositions_right, jacobian_right);
-      jnt_to_jac_left->JntToJac(jointpositions_left, jacobian_left);
-    
-    Jacobian.block<6,8>(step_,0) = jacobian_right.data;
-    Jacobian.block<6,2>(step_,8) = jacobian_left.data.block<6,2>(0,6);
-
-      step += 3;
-      step_ += 6;
-    }
-
-    
-    cout << " G_c : " << endl << G_c << endl;
-
-
-    Eigen::MatrixXd R_c(3*n_c,3*n_c);
+    Eigen::MatrixXd R_c = MatrixXd::Zero(3*n_c,3*n_c);
     int k = 0; 
     for(int i = 0 ; i < n_c ; i++)
     { 
