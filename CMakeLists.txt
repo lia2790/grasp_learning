@@ -206,7 +206,8 @@ add_executable(test_show_on_Rviz_box src/test_show_on_Rviz_box.cpp)
 target_link_libraries(test_show_on_Rviz_box ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
-
+add_executable(test_file_4 src/test_file_4.cpp)
+target_link_libraries(test_file_4 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
 add_executable(test_file src/test_file.cpp)

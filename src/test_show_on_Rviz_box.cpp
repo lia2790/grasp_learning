@@ -303,7 +303,7 @@ int main (int argc, char **argv)
 
 
 		// KDL::Rotation R( c_Rotation_o(0,0), c_Rotation_o(0,1),c_Rotation_o(0,2),c_Rotation_o(1,0),c_Rotation_o(1,1),c_Rotation_o(1,2),c_Rotation_o(2,0),c_Rotation_o(2,1),c_Rotation_o(2,2));
-			
+		// per grasp
 		Eigen::MatrixXd b_Rotation_c = c_Rotation_o.transpose();
 		KDL::Rotation R( b_Rotation_c(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
 

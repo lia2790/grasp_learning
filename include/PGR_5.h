@@ -93,13 +93,13 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	for( int i = 0 ; i < n_c ; i++ )
 	{	
 		if( f(s_+2) >= 0 )   
-		{	if(  ((f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) ) <=  ( (mu*f(s_+2))*(mu* f(s_+2))) )
+		{	if(  (   sqrt(f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) ) <=  ( mu*f(s_+2) ) )
 			{	
-				n_g += 3;
+				n_g += 3; cout << "3" << endl;
 			}
 			else
 			{	
-				n_g +=1;
+				n_g +=1; cout << "1" << endl;
 			}
 		}
 		s_ += 6;
@@ -107,6 +107,7 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 
 
 	cout << "n_g: " << n_g << endl;
+	cout << "_____________--"<<endl;
 
 	Eigen::MatrixXd Ks = MatrixXd::Zero(n_g, n_g);
 	Eigen::MatrixXd H = MatrixXd::Zero(n_g, 6*n_c);
@@ -182,7 +183,8 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 		s__ += 6;
 	}	
 
-// cout << " Ks : " << endl << Ks << endl;
+ cout << " Ks : " << endl << Ks << endl;
+ cout << " H " << endl << H << endl;
 
 //////////////////////////////////////////////////////////////// Filter the G and J matrix
 
@@ -192,27 +194,63 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 
 	// Ks is already inverse matrix because i assumed that it is a diagonal matrix
 
+	cout << " G : " << endl << G << endl;
+	cout << " J : " << endl << J << endl;
+
 	
 	Eigen::MatrixXd K_inv = Ks.inverse();
 
 	K_ = K_inv + J * Kp.inverse() * J.transpose();
 	K = K_.inverse(); 
 
+// 	cout << " K:"<< endl << K << endl;
+// 	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	cout << " K*G : " << endl << Kcj_Gt << endl;
+// 	FullPivLU<MatrixXd> lu(Kcj_Gt);		
+// 	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel(); 
+
+// cout << " Null_Kcj_Gt : " << endl << Null_Kcj_Gt << endl;
+
+
 	
-	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	
-	FullPivLU<MatrixXd> lu(Kcj_Gt);		
-	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel(); 
+
+// 	bool Matrix_is_Zero = true;				
+// 	for ( int i = 0 ; i < Null_Kcj_Gt.rows() ; i++ )
+// 	{
+// 		for ( int j = 0 ; j < Null_Kcj_Gt.cols() ; j++)
+// 		{
+// 			if( Null_Kcj_Gt(i,j) != 0 )
+// 			{	
+// 				Matrix_is_Zero = false; 
+// 				break;
+// 			}
+// 		} 
+// 	}
 
 
 
-	bool Matrix_is_Zero = true;				
-	for ( int i = 0 ; i < Null_Kcj_Gt.rows() ; i++ )
-		for ( int j = 0 ; j < Null_Kcj_Gt.cols() ; j++)
-			if( Null_Kcj_Gt(i,j) != 0 )
-			{	Matrix_is_Zero = false; break; } 
+
+	Eigen::MatrixXd Gt = G.transpose();	
+	FullPivLU<MatrixXd> lu(Gt);		
+	Eigen::MatrixXd Null_Gt = lu.kernel(); 
+	cout << " Null_Kcj_Gt : " << endl << Null_Gt << endl;
+
+
+
+	bool Matrix_is_Zero_ = true;				
+	for ( int i = 0 ; i < Null_Gt.rows() ; i++ )
+	{
+		for ( int j = 0 ; j < Null_Gt.cols() ; j++)
+		{
+			if( Null_Gt(i,j) != 0 )
+			{	
+				Matrix_is_Zero_ = false; 
+				break;
+			}
+		} 
+	}
 				
-	if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) != 0 
-		return 0;//-27;
+	if( !Matrix_is_Zero_ ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) != 0 
+	 	return -27;
 
 
 
@@ -249,9 +287,9 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 
 	
 
-	Eigen::MatrixXd GKGt = G*K*G.transpose(); 
-	Eigen::MatrixXd GKGt_inv = GKGt.inverse();
-	Eigen::MatrixXd G_r_k = K * G.transpose() * GKGt_inv; 
+	Eigen::MatrixXd GKGt = G*K*G.transpose(); cout << " GKG : " << endl << GKGt << endl;
+	Eigen::MatrixXd GKGt_inv = GKGt.inverse(); cout << " GKGt_inv : " << endl << GKGt_inv << endl;
+	Eigen::MatrixXd G_r_k = K * G.transpose() * GKGt_inv;  cout << "G_r_k : " << G_r_k << endl;
 
 
 
