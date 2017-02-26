@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<launch>
-
-	<rosparam file="$(find grasp-learning)/param/test_file_4.yaml" command="load"/>
-
-	<node name="test_file_4" pkg="grasp-learning" type="test_file_4" respawn="false" output="screen"/>
-
-</launch>

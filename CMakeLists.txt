@@ -202,16 +202,23 @@ target_link_libraries(PGR_5 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_
 
 
 
+
 add_executable(test_show_on_Rviz_box src/test_show_on_Rviz_box.cpp)
 target_link_libraries(test_show_on_Rviz_box ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
-add_executable(test_file_4 src/test_file_4.cpp)
-target_link_libraries(test_file_4 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
-add_executable(test_file src/test_file.cpp)
-target_link_libraries(test_file ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+add_executable(test_file_2_fingers src/test_file_2_fingers.cpp)
+target_link_libraries(test_file_2_fingers ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+add_executable(test_file_4_fingers src/test_file_4_fingers.cpp)
+target_link_libraries(test_file_4_fingers ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+add_executable(test_file_6_fingers src/test_file_6_fingers.cpp)
+target_link_libraries(test_file_6_fingers ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+
 
 
 ## Add cmake target dependencies of the executable

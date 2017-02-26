@@ -245,11 +245,10 @@ int main (int argc, char **argv)
   nh.param<std::vector<double>>("contact_points", contact_points, std::vector<double>{1,1,1,1,1,1});
   nh.param<std::vector<double>>("contact_forces", contact_forces, std::vector<double>{1,1,1,1,1,1});
   nh.param<std::vector<double>>("joints", joints, std::vector<double>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+  nh.param<double>("mu", mu, 0.5);
+  nh.param<double>("f_i_max", f_i_max, 1);
   nh.param<int>("n_c", n_c, 0);
   nh.param<int>("n_q", n_q, 0);
-
-  cout << "joints.size()" << endl << joints.size() << endl;
-
 
 
   if(n_c <= 0) 
@@ -383,7 +382,7 @@ Jacobian.block<6,2>(18,12) = jacobian_left_1.data.block<6,2>(0,6);
  
 
 
-cout << " qui " << endl;
+
 
     Eigen::MatrixXd R_c = MatrixXd::Zero(3*n_c,3*n_c);
     int k = 0; 

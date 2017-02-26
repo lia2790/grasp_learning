@@ -60,7 +60,7 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	
 	cout << "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" << endl;
 	cout << endl;
-	cout << "	INSIDE quality_pcr_pgr_4              " << endl;
+	cout << "	       INSIDE quality_pcr_pgr_            " << endl;
 	cout << endl;
 	cout << "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" << endl;
 
@@ -69,8 +69,8 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	cout << " ---------------------------------- " << endl;
 	cout << " f : " << endl << f << endl;
 	cout << " ---------------------------------- " << endl;
-	// cout << " G : " << endl << G_ << endl;
-	// cout << " ---------------------------------- " << endl;
+	cout << " G : " << endl << G_ << endl;
+	cout << " ---------------------------------- " << endl;
 	// cout << " J : " << endl << J_ << endl;
 	// cout << " ---------------------------------- " << endl;
 	// cout << " R_ : " << endl << R_ << endl;
@@ -95,11 +95,11 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 		if( f(s_+2) >= 0 )   
 		{	if(  (   sqrt(f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) ) <=  ( mu*f(s_+2) ) )
 			{	
-				n_g += 3; cout << "3" << endl;
+				n_g += 3; 
 			}
 			else
 			{	
-				n_g +=1; cout << "1" << endl;
+				n_g +=1; 
 			}
 		}
 		s_ += 6;
@@ -192,24 +192,21 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	Eigen::MatrixXd G = G_ * H.transpose();
 	Eigen::MatrixXd J = H * J_;
 
-	// Ks is already inverse matrix because i assumed that it is a diagonal matrix
-
-	cout << " G : " << endl << G << endl;
-	cout << " J : " << endl << J << endl;
-
-	
 	Eigen::MatrixXd K_inv = Ks.inverse();
-
 	K_ = K_inv + J * Kp.inverse() * J.transpose();
 	K = K_.inverse(); 
-
-	cout << " K:"<< endl << K << endl;
-	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	cout << " K*G : " << endl << Kcj_Gt << endl;
+	
+	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	
 	FullPivLU<MatrixXd> lu(Kcj_Gt);		
 	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel(); 
 
-cout << " Null_Kcj_Gt : " << endl << Null_Kcj_Gt << endl;
 
+
+	// cout << " G : " << endl << G << endl;
+	// cout << " J : " << endl << J << endl;
+	// cout << " K:"<< endl << K << endl;
+	// cout << " K*G : " << endl << Kcj_Gt << endl;
+	cout << " Null_Kcj_Gt : " << endl << Null_Kcj_Gt << endl;
 
 	
 
@@ -229,7 +226,7 @@ cout << " Null_Kcj_Gt : " << endl << Null_Kcj_Gt << endl;
 
 
 
-	// Eigen::MatrixXd Gt = G.transpose();	
+	// Eigen::MatrixXd Gt = G.transpose();	/// evaluate only kernel{Gt} if it is equal to zero or not
 	// FullPivLU<MatrixXd> lu(Gt);		
 	// Eigen::MatrixXd Null_Gt = lu.kernel(); 
 	// cout << " Null_Kcj_Gt : " << endl << Null_Gt << endl;
@@ -287,9 +284,9 @@ cout << " Null_Kcj_Gt : " << endl << Null_Kcj_Gt << endl;
 
 	
 
-	Eigen::MatrixXd GKGt = G*K*G.transpose(); cout << " GKG : " << endl << GKGt << endl;
-	Eigen::MatrixXd GKGt_inv = GKGt.inverse(); cout << " GKGt_inv : " << endl << GKGt_inv << endl;
-	Eigen::MatrixXd G_r_k = K * G.transpose() * GKGt_inv;  cout << "G_r_k : " << G_r_k << endl;
+	Eigen::MatrixXd GKGt = G*K*G.transpose(); 
+	Eigen::MatrixXd GKGt_inv = GKGt.inverse(); 
+	Eigen::MatrixXd G_r_k = K * G.transpose() * GKGt_inv;  
 
 
 
