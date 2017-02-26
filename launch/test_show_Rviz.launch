@@ -4,6 +4,6 @@
 
 	<rosparam file="$(find grasp_learning)/param/test_show_Rviz.yaml" command="load"/>
 
-	<node name="test_show_on_Rviz_box" pkg="grasp_learning" type="test_show_on_Rviz_box" respawn="false" output="screen"/>
+	<node name="test_show_on_Rviz_box" pkg="grasp-learning" type="test_show_on_Rviz_box" respawn="false" output="screen"/>
 
 </launch>

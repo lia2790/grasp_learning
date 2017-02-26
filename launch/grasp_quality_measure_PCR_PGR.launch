@@ -4,6 +4,6 @@
 
 	<rosparam file="$(find grasp_learning)/param/grasp_quality_parameters_PCR_PGR.yaml" command="load"/>
 
-	<node name="grasp_quality_measure_PCR_PGR" pkg="grasp_learning" type="grasp_quality_measure_PCR_PGR" respawn="false" output="screen"/>
+	<node name="grasp_quality_measure_PCR_PGR" pkg="grasp-learning" type="grasp_quality_measure_PCR_PGR" respawn="false" output="screen"/>
 
 </launch>

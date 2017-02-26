@@ -4,6 +4,6 @@
 
 	<rosparam file="$(find grasp_learning)/param/grasp_quality_parameters.yaml" command="load"/>
 
-	<node name="grasp_quality_" pkg="grasp_learning" type="grasp_quality_" respawn="false" output="screen"/>
+	<node name="grasp_quality_" pkg="grasp-learning" type="grasp_quality_" respawn="false" output="screen"/>
 
 </launch>

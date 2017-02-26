@@ -3,6 +3,6 @@
 <launch>
 
 	<rosparam file="$(find grasp_learning)/param/PGR_4.yaml" command="load"/>
-		<node name="PGR_4" pkg="grasp_learning" type="PGR_4" respawn="false" output="screen"/>
+		<node name="PGR_4" pkg="grasplearning" type="PGR_4" respawn="false" output="screen"/>
 
 </launch>
