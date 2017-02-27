@@ -225,7 +225,7 @@ cout << "joints_.size()" << endl << joints_.size() << endl;
 	setJoints();
 	initJacobian();
 
- Eigen::MatrixXd Skew_Matrix1(3,3);
+  Eigen::MatrixXd Skew_Matrix1(3,3);
   Eigen::MatrixXd Skew_Matrix2(3,3);
 
   Skew_Matrix1(0,0) = Skew_Matrix1(1,1) = Skew_Matrix1(2,2) = 0;
@@ -247,7 +247,7 @@ cout << "joints_.size()" << endl << joints_.size() << endl;
 
 
 
-Eigen::MatrixXd G = MatrixXd::Zero(6, 12);
+Eigen::MatrixXd G  = MatrixXd::Zero(6, 12);
 Eigen::MatrixXd G1 = MatrixXd::Zero(6,6);
 Eigen::MatrixXd G2 = MatrixXd::Zero(6,6);
 

@@ -199,7 +199,7 @@ int main (int argc, char **argv)
 
 
 	///////////////////// load the data_base ////////////////////////////////////
-	std::string path = ros::package::getPath("grasp_learning");
+	std::string path = ros::package::getPath("grasp-learning");
 	file_name = path + relative_path_file;
 	ifstream file(file_name); 
 
@@ -355,7 +355,16 @@ int main (int argc, char **argv)
 
 
 
+		//////////////////////////////////////////////////////////////////////////////////////		POSITION BOX RESPECT TO WORD
+		Eigen::MatrixXd w_T_o_box = MatrixXd::Identity(4,4); 		// transform from world to center of object
+  		Eigen::MatrixXd R_w_T_o_box = MatrixXd::Identity(3,3);
+  		Eigen::VectorXd trasl_w_T_o_box(3);
+  		trasl_w_T_o_box << 0,0,1; 
 
+  		w_T_o_box.block<3,3>(0,0) = R_w_T_o_box;
+  		w_T_o_box(0,3) = trasl_w_T_o_box(0);
+  		w_T_o_box(1,3) = trasl_w_T_o_box(1);
+  		w_T_o_box(2,3) = trasl_w_T_o_box(2);
 
 
 		
@@ -441,16 +450,6 @@ int main (int argc, char **argv)
         	//check if the values ​​of the skew matrix are expressed in the correct reference system RESPECT TO WORD
   			normal_component(b_Rotation_c, box(0)/2, box(1)/2, box(2)/2,cp(contact_id[i],0),cp(contact_id[i],1),cp(contact_id[i],2));
 
-  			Eigen::MatrixXd w_T_o_box = MatrixXd::Identity(4,4); 		// transform from world to center of object
-  			Eigen::MatrixXd R_w_T_o_box = MatrixXd::Identity(3,3);
-  			Eigen::VectorXd trasl_w_T_o_box(3);
-  			trasl_w_T_o_box << 0,0,1; 
-
-  			w_T_o_box.block<3,3>(0,0) = R_w_T_o_box;
-  			w_T_o_box(0,3) = trasl_w_T_o_box(0);
-  			w_T_o_box(1,3) = trasl_w_T_o_box(1);
-  			w_T_o_box(2,3) = trasl_w_T_o_box(2);
-
 
   			Eigen::MatrixXd o_T_c_box = MatrixXd::Identity(4,4);		// transform from center of object to contact point
   			Eigen::MatrixXd R_o_T_c_box = b_Rotation_c.transpose();
@@ -506,8 +505,8 @@ int main (int argc, char **argv)
 
 
 
-		////////////////////////////////////////////////////////////////////////////////////	JACOBIAN MATRIX
-    	Eigen::MatrixXd Hand_Jacobian_  = MatrixXd::Zero(6*n_c, n_q);	// J
+		///////////////////////////////////////////////////////////////////////////////////////////			JACOBIAN MATRIX
+    	Eigen::MatrixXd Hand_Jacobian_  = MatrixXd::Zero(6*n_c, n_q);				// J
     	Eigen::MatrixXd R_contact_hand_object_ = MatrixXd::Zero(3*n_c,3*n_c);
 
 
