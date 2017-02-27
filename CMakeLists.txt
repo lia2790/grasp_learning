@@ -220,6 +220,10 @@ target_link_libraries(test_file_6_fingers ${catkin_LIBRARIES} ${Eigen_LIBRARIES}
 
 
 
+add_executable(media_varianza src/media_varianza.cpp)
+target_link_libraries(media_varianza ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
