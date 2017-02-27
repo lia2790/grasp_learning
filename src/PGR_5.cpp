@@ -352,15 +352,23 @@ int main (int argc, char **argv)
 		cout << "n_c : " << endl << n_c << endl;
 		
 
+
+
+
+
+
+
+		
+
 		if(n_c > 0)
 		{
 
 		////////////////////////////////////////////////////////////////////////////////////////		GRASP MATRIX
 		//for each contact point 
-		Eigen::MatrixXd Grasp_Matrix_b  = MatrixXd::Zero(6,6*n_c);		// G
-		Eigen::MatrixXd Grasp_Matrix_c  = MatrixXd::Zero(6,6*n_c);  	// G
-		Eigen::MatrixXd Grasp_Matrix_c_1  = MatrixXd::Zero(6,6*n_c);  	// G
-
+		Eigen::MatrixXd Grasp_Matrix_b  	= MatrixXd::Zero(6,6*n_c);		// G
+		Eigen::MatrixXd Grasp_Matrix_c  	= MatrixXd::Zero(6,6*n_c);  	// G
+		Eigen::MatrixXd Grasp_Matrix_c_t  	= MatrixXd::Zero(6,6*n_c);  	// G
+		Eigen::MatrixXd Grasp_Matrix_w_T_c  = MatrixXd::Zero(6,6*n_c);  	// G
 
 		int step = 0 ;
 		for(int i=0 ; i < contact_id.size() ; i++)
@@ -425,7 +433,60 @@ int main (int argc, char **argv)
      		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * b_Rotation_c.transpose();
         	Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
 
-        	Grasp_Matrix_c_1.block<6,6>(0,step) = Grasp_Matrix;
+        	Grasp_Matrix_c_t.block<6,6>(0,step) = Grasp_Matrix;
+
+
+
+
+        	//check if the values ​​of the skew matrix are expressed in the correct reference system RESPECT TO WORD
+  			normal_component(b_Rotation_c, box(0)/2, box(1)/2, box(2)/2,cp(contact_id[i],0),cp(contact_id[i],1),cp(contact_id[i],2));
+
+  			Eigen::MatrixXd w_T_o_box = MatrixXd::Identity(4,4); 		// transform from world to center of object
+  			Eigen::MatrixXd R_w_T_o_box = MatrixXd::Identity(3,3);
+  			Eigen::VectorXd trasl_w_T_o_box(3);
+  			trasl_w_T_o_box << 0,0,1; 
+
+  			w_T_o_box.block<3,3>(0,0) = R_w_T_o_box;
+  			w_T_o_box(0,3) = trasl_w_T_o_box(0);
+  			w_T_o_box(1,3) = trasl_w_T_o_box(1);
+  			w_T_o_box(2,3) = trasl_w_T_o_box(2);
+
+
+  			Eigen::MatrixXd o_T_c_box = MatrixXd::Identity(4,4);		// transform from center of object to contact point
+  			Eigen::MatrixXd R_o_T_c_box = b_Rotation_c.transpose();
+  			Eigen::VectorXd trasl_o_T_c_box(3);
+  			trasl_o_T_c_box << cp(contact_id[i],0) , cp(contact_id[i],1) , cp(contact_id[i],2);
+
+  			o_T_c_box.block<3,3>(0,0) = R_o_T_c_box;
+  			o_T_c_box(0,3) = trasl_o_T_c_box(0);
+  			o_T_c_box(1,3) = trasl_o_T_c_box(1);
+  			o_T_c_box(2,3) = trasl_o_T_c_box(2);
+
+
+  			Eigen::MatrixXd w_T_c_box = MatrixXd::Identity(4,4);  		// transform from world to contact point
+  			w_T_c_box = w_T_o_box * o_T_c_box;
+  			Eigen::MatrixXd R_w_T_c_box = MatrixXd::Zero(3,3);
+  			R_w_T_c_box = w_T_c_box.block<3,3>(0,0);
+
+  			double t_x = w_T_c_box(0,3);
+  			double t_y = w_T_c_box(1,3);
+  			double t_z = w_T_c_box(2,3);
+
+	      			
+	      	Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+     		Skew_Matrix(0,1) = - t_z; // -rz    
+     		Skew_Matrix(0,2) = t_y;   // ry
+        	Skew_Matrix(1,0) = t_z;   // rz
+        	Skew_Matrix(2,0) = - t_y; // -ry
+        	Skew_Matrix(1,2) = - t_x; // -rx
+       		Skew_Matrix(2,1) = t_x;   // rx
+
+        	Grasp_Matrix.block<3,3>(0,0) = R_w_T_c_box;
+     		Grasp_Matrix.block<3,3>(3,3) = R_w_T_c_box;
+     		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * R_w_T_c_box;
+        	Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
+
+        	Grasp_Matrix_w_T_c.block<6,6>(0,step) = Grasp_Matrix;
 
 
 
@@ -451,7 +512,7 @@ int main (int argc, char **argv)
 
 
     	/////////////////////////////////////////////////////////////////////////////////////////// init values of the floating base
-		KDL::Vector trasl_w_T_o(0,0, (box(2)/2)); // i m not sure if it is corrected
+		KDL::Vector trasl_w_T_o(0,0,1); // assumed that the object is about one meter
    		KDL::Vector trasl_o_T_p(pose_grasp_nominal(0),pose_grasp_nominal(1),pose_grasp_nominal(2));
     	KDL::Rotation R_o_T_p = Rotation::Quaternion(pose_grasp_nominal(3),pose_grasp_nominal(4),pose_grasp_nominal(5),pose_grasp_nominal(6));
    	
@@ -537,6 +598,9 @@ int main (int argc, char **argv)
 	        if( contact_id[i]==2 || contact_id[i]==6 || contact_id[i]==10 || contact_id[i]==14 || contact_id[i]==18)  which_phalanx = 9;
 	       	if( contact_id[i]==3 || contact_id[i]==7 || contact_id[i]==11 || contact_id[i]==15 || contact_id[i]==19)  which_phalanx = 11;
 	       	if( contact_id[i]==4 || contact_id[i]==8 || contact_id[i]==12 || contact_id[i]==16 ) which_phalanx = 13;
+
+
+
 
 	       	///////////////////////////////////////////////////////////////////				Ks = RtKsR
 			Eigen::MatrixXd h_T_o = MatrixXd::Identity(4,4);
@@ -657,6 +721,7 @@ int main (int argc, char **argv)
 			Eigen::MatrixXd G_b(6,6*n_c);
 			Eigen::MatrixXd G_c(6,6*n_c);
 			Eigen::MatrixXd G_c_t(6,6*n_c);
+			Eigen::MatrixXd G_w_T_c(6,6*n_c);
 			Eigen::MatrixXd J_c(6*n_c, n_q);
 			Eigen::MatrixXd R_c = MatrixXd::Identity(3*n_c, 3*n_c);
 			Eigen::VectorXd f_c(6*n_c);
@@ -665,7 +730,8 @@ int main (int argc, char **argv)
 
 			G_b = Grasp_Matrix_b ;
 			G_c = Grasp_Matrix_c ;
-			G_c_t = Grasp_Matrix_c_1 ;
+			G_c_t = Grasp_Matrix_c_t ;
+			G_w_T_c = Grasp_Matrix_w_T_c;
 
 			J_c = Hand_Jacobian_ ;
 			R_c = R_contact_hand_object_;
@@ -715,7 +781,7 @@ int main (int argc, char **argv)
 
     			
     		// quality_i = quality_pcr_pgr_5(f_c, G_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-    		quality_i_t = quality_pcr_pgr_5(f_c, G_c_t, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
+    		quality_i_t = quality_pcr_pgr_5(f_c, G_w_T_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
     		//qualiti = quality_pcr_pgr_5(f_c, G_b, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
     	}
     	else

@@ -150,5 +150,11 @@ inline void normal_component(Eigen::MatrixXd &R_in, double x_r, double y_r, doub
 	R_in = R;
 
 	//R_in = c_R_o
+	// this file calculates the rotation from the center to the contact
+	// It transforms a force expressed in the reference placed at the center 
+	// of the object system to another reference system on the side of the 
+	// box where the contact point itself lies. 
+	// The reference system integral to the point contact always has 
+	// the component zeta incoming on any face
 	// f_c = c_R_o * f_o
 }

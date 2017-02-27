@@ -205,6 +205,8 @@ int main (int argc, char **argv)
 	nh.param<std::vector<double>>("contact_points", contact_points, std::vector<double>{1,1,1,1,1,1});
 	nh.param<std::vector<double>>("contact_forces", contact_forces, std::vector<double>{1,1,1,1,1,1});
 	nh.param<std::vector<double>>("joints", joints_, std::vector<double>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+  nh.param<double>("mu", mu, 0.5);
+  nh.param<double>("f_i_max", f_i_max, 1);
 	nh.param<int>("n_c", n_c, 0);
 	nh.param<int>("n_q", n_q, 0);
 cout << "joints_.size()" << endl << joints_.size() << endl;
