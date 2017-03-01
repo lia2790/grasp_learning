@@ -1,4 +1,4 @@
-file_name: "/simulations/box_db_12_simulated.csv"
+file_name: "/db_simulated/box_db_29_simulated.csv"
 frame_name_thumb: "right_hand_thumb_distal_link"
 frame_name_index: "right_hand_index_distal_link"
 frame_name_middle: "right_hand_middle_distal_link"
@@ -10,4 +10,4 @@ joint_stiffness: 1
 contact_stiffness: 100
 quality_index: 6
 mu: 1.5
-f_i_max: 200
+f_i_max: 800

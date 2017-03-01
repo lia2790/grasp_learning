@@ -164,6 +164,8 @@ double total_line = 0;
 double qualiti = 0;
 double quality_i_t = 0;
 
+double quality_max = 0 ;
+
 
 
 int main (int argc, char **argv)
@@ -194,9 +196,14 @@ int main (int argc, char **argv)
 
 
 	ofstream file_output; //output file
-    file_output.open("box_db_quality.txt", ofstream::app);
+    file_output.open("box_db_quality", ofstream::app);
 
+  ofstream file_output_1; //output file
+    file_output_1.open("box_db_quality_only_pgr", ofstream::app);
 
+  ofstream file_output_2; //output file
+    file_output_2.open("box_db_quality_only_not_zero", ofstream::app);
+  
 
 	///////////////////// load the data_base ////////////////////////////////////
 	std::string path = ros::package::getPath("grasp-learning");
@@ -319,7 +326,7 @@ int main (int argc, char **argv)
 			Eigen::VectorXd cf(3);
 			cf << fc(0), fc(1), fc(2);
 
-			if(cf.norm() >= 1e-3 && cf(2) >= 0)
+			if(cf.norm() >= 1e-3 && cf(2) >= 0) // condition
 				contact_flag(i) = 1;
 			else
 				contact_flag(i) = 0;
@@ -328,8 +335,8 @@ int main (int argc, char **argv)
 			s += 6;
 		}
 
-
-
+    ///////////////////////////////////////////    contact flag --- >   calculating the quality index when I
+    ///////////////////////////////////////////                          1) a contact point   2) normal force is positive and the norm of contact force is positive
 		contact_id.resize(0);
 
 		int n_c = 0;
@@ -343,7 +350,7 @@ int main (int argc, char **argv)
 			}
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
-    	cout << "contact_id.size() : " << endl << contact_id.size() << endl;
+    cout << "contact_id.size() : " << endl << contact_id.size() << endl;
 
 		for(int i = 0 ; i < contact_id.size() ; i++)
 			cout << " contact_id : " << endl << contact_id[i] << endl;
@@ -391,63 +398,63 @@ int main (int argc, char **argv)
 	 		//check if the values ​​of the skew matrix are expressed in the correct reference system
     	  	Rotation = MatrixXd::Identity(3,3);
 
-			Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+			  Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
      		Skew_Matrix(0,1) = - cp(contact_id[i],2); // -rz    
      		Skew_Matrix(0,2) = cp(contact_id[i],1);   // ry
-        	Skew_Matrix(1,0) = cp(contact_id[i],2);   // rz
-        	Skew_Matrix(2,0) = - cp(contact_id[i],1); // -ry
-        	Skew_Matrix(1,2) = - cp(contact_id[i],0); // -rx
-       		Skew_Matrix(2,1) = cp(contact_id[i],0);   // rx
+        Skew_Matrix(1,0) = cp(contact_id[i],2);   // rz
+        Skew_Matrix(2,0) = - cp(contact_id[i],1); // -ry
+        Skew_Matrix(1,2) = - cp(contact_id[i],0); // -rx
+       	Skew_Matrix(2,1) = cp(contact_id[i],0);   // rx
 
-        	Grasp_Matrix.block<3,3>(0,0) = Rotation;
+        Grasp_Matrix.block<3,3>(0,0) = Rotation;
      		Grasp_Matrix.block<3,3>(3,3) = Rotation;
      		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * Rotation;
-        	Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
+        Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
 
-	      	Grasp_Matrix_b.block<6,6>(0,step) = Grasp_Matrix;
+	      Grasp_Matrix_b.block<6,6>(0,step) = Grasp_Matrix;
 
 
-	      	//check if the values ​​of the skew matrix are expressed in the correct reference system
+	      //check if the values ​​of the skew matrix are expressed in the correct reference system
   			normal_component(b_Rotation_c, box(0)/2, box(1)/2, box(2)/2,cp(contact_id[i],0),cp(contact_id[i],1),cp(contact_id[i],2));
 	      			
-	      	Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+	      Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
      		Skew_Matrix(0,1) = - cp(contact_id[i],2); // -rz    
      		Skew_Matrix(0,2) = cp(contact_id[i],1);   // ry
-        	Skew_Matrix(1,0) = cp(contact_id[i],2);   // rz
-        	Skew_Matrix(2,0) = - cp(contact_id[i],1); // -ry
-        	Skew_Matrix(1,2) = - cp(contact_id[i],0); // -rx
-       		Skew_Matrix(2,1) = cp(contact_id[i],0);   // rx
+        Skew_Matrix(1,0) = cp(contact_id[i],2);   // rz
+        Skew_Matrix(2,0) = - cp(contact_id[i],1); // -ry
+        Skew_Matrix(1,2) = - cp(contact_id[i],0); // -rx
+       	Skew_Matrix(2,1) = cp(contact_id[i],0);   // rx
 
-        	Grasp_Matrix.block<3,3>(0,0) = b_Rotation_c;
+        Grasp_Matrix.block<3,3>(0,0) = b_Rotation_c;
      		Grasp_Matrix.block<3,3>(3,3) = b_Rotation_c;
      		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * b_Rotation_c;
-        	Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
+        Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
 
-        	Grasp_Matrix_c.block<6,6>(0,step) = Grasp_Matrix;
+      	Grasp_Matrix_c.block<6,6>(0,step) = Grasp_Matrix;
 
 
-        	//check if the values ​​of the skew matrix are expressed in the correct reference system
+        //check if the values ​​of the skew matrix are expressed in the correct reference system
   			normal_component(b_Rotation_c, box(0)/2, box(1)/2, box(2)/2,cp(contact_id[i],0),cp(contact_id[i],1),cp(contact_id[i],2));
 	      			
-	      	Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+	      Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
      		Skew_Matrix(0,1) = - cp(contact_id[i],2); // -rz    
      		Skew_Matrix(0,2) = cp(contact_id[i],1);   // ry
-        	Skew_Matrix(1,0) = cp(contact_id[i],2);   // rz
-        	Skew_Matrix(2,0) = - cp(contact_id[i],1); // -ry
-        	Skew_Matrix(1,2) = - cp(contact_id[i],0); // -rx
-       		Skew_Matrix(2,1) = cp(contact_id[i],0);   // rx
+        Skew_Matrix(1,0) = cp(contact_id[i],2);   // rz
+        Skew_Matrix(2,0) = - cp(contact_id[i],1); // -ry
+        Skew_Matrix(1,2) = - cp(contact_id[i],0); // -rx
+       	Skew_Matrix(2,1) = cp(contact_id[i],0);   // rx
 
-        	Grasp_Matrix.block<3,3>(0,0) = b_Rotation_c.transpose();
+        Grasp_Matrix.block<3,3>(0,0) = b_Rotation_c.transpose();
      		Grasp_Matrix.block<3,3>(3,3) = b_Rotation_c.transpose();
      		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * b_Rotation_c.transpose();
-        	Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
+        Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
 
-        	Grasp_Matrix_c_t.block<6,6>(0,step) = Grasp_Matrix;
-
-
+        Grasp_Matrix_c_t.block<6,6>(0,step) = Grasp_Matrix;
 
 
-        	//check if the values ​​of the skew matrix are expressed in the correct reference system RESPECT TO WORD
+
+
+        //check if the values ​​of the skew matrix are expressed in the correct reference system RESPECT TO WORD
   			normal_component(b_Rotation_c, box(0)/2, box(1)/2, box(2)/2,cp(contact_id[i],0),cp(contact_id[i],1),cp(contact_id[i],2));
 
 
@@ -472,25 +479,25 @@ int main (int argc, char **argv)
   			double t_z = w_T_c_box(2,3);
 
 	      			
-	      	Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+	      Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
      		Skew_Matrix(0,1) = - t_z; // -rz    
      		Skew_Matrix(0,2) = t_y;   // ry
-        	Skew_Matrix(1,0) = t_z;   // rz
-        	Skew_Matrix(2,0) = - t_y; // -ry
-        	Skew_Matrix(1,2) = - t_x; // -rx
-       		Skew_Matrix(2,1) = t_x;   // rx
+        Skew_Matrix(1,0) = t_z;   // rz
+        Skew_Matrix(2,0) = - t_y; // -ry
+        Skew_Matrix(1,2) = - t_x; // -rx
+       	Skew_Matrix(2,1) = t_x;   // rx
 
-        	Grasp_Matrix.block<3,3>(0,0) = R_w_T_c_box;
+        Grasp_Matrix.block<3,3>(0,0) = R_w_T_c_box;
      		Grasp_Matrix.block<3,3>(3,3) = R_w_T_c_box;
      		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * R_w_T_c_box;
-        	Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
+        Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
 
-        	Grasp_Matrix_w_T_c.block<6,6>(0,step) = Grasp_Matrix;
-
-
+        Grasp_Matrix_w_T_c.block<6,6>(0,step) = Grasp_Matrix;
 
 
-        	step += 6;
+
+
+        step += 6;
         }			
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
     
@@ -506,48 +513,48 @@ int main (int argc, char **argv)
 
 
 		///////////////////////////////////////////////////////////////////////////////////////////			JACOBIAN MATRIX
-    	Eigen::MatrixXd Hand_Jacobian_  = MatrixXd::Zero(6*n_c, n_q);				// J
-    	Eigen::MatrixXd R_contact_hand_object_ = MatrixXd::Zero(3*n_c,3*n_c);
+    Eigen::MatrixXd Hand_Jacobian_  = MatrixXd::Zero(6*n_c, n_q);				// J
+    Eigen::MatrixXd R_contact_hand_object_ = MatrixXd::Zero(3*n_c,3*n_c);
 
 
-    	/////////////////////////////////////////////////////////////////////////////////////////// init values of the floating base
+    /////////////////////////////////////////////////////////////////////////////////////////// init values of the floating base
 		KDL::Vector trasl_w_T_o(0,0,1); // assumed that the object is about one meter
-   		KDL::Vector trasl_o_T_p(pose_grasp_nominal(0),pose_grasp_nominal(1),pose_grasp_nominal(2));
-    	KDL::Rotation R_o_T_p = Rotation::Quaternion(pose_grasp_nominal(3),pose_grasp_nominal(4),pose_grasp_nominal(5),pose_grasp_nominal(6));
+   	KDL::Vector trasl_o_T_p(pose_grasp_nominal(0),pose_grasp_nominal(1),pose_grasp_nominal(2));
+    KDL::Rotation R_o_T_p = Rotation::Quaternion(pose_grasp_nominal(3),pose_grasp_nominal(4),pose_grasp_nominal(5),pose_grasp_nominal(6));
    	
-    	KDL::Frame w_T_o(trasl_w_T_o);
-    	KDL::Frame o_T_p(R_o_T_p,trasl_o_T_p);
-    	KDL::Frame p_T_h(chains_hand_finger[0].getSegment(5).getFrameToTip());
+    KDL::Frame w_T_o(trasl_w_T_o);
+    KDL::Frame o_T_p(R_o_T_p,trasl_o_T_p);
+    KDL::Frame p_T_h(chains_hand_finger[0].getSegment(5).getFrameToTip());
 
 		KDL::Frame w_T_h = w_T_o * o_T_p * p_T_h ;
-    	KDL::Vector trasl_w_T_h = w_T_h.p;
-    	KDL::Rotation R_w_T_h = w_T_h.M;
+    KDL::Vector trasl_w_T_h = w_T_h.p;
+    KDL::Rotation R_w_T_h = w_T_h.M;
 
-    	double roll , pitch , yaw ;
+    double roll , pitch , yaw ;
 
-    	R_w_T_h.GetRPY(roll,pitch,yaw);
-    	///////////////////////////////////////////////////////////////////////////////////////////////////////
+    R_w_T_h.GetRPY(roll,pitch,yaw);
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
     
 
-    	int first_element_joint_array = 17;
+    int first_element_joint_array = 17;
 		int number_of_joints = 33;
 		int first_element_cp_array = first_element_joint_array + number_of_joints;
 
 
-    	int k_ = 0;
+    int k_ = 0;
 		for(int i = 0; i < n_fingers; i++) //joint values
-    	{	
-    		q_finger[i](0) = trasl_w_T_h.x();
-    		q_finger[i](1) = trasl_w_T_h.y();
-    		q_finger[i](2) = trasl_w_T_h.z();
-    		q_finger[i](3) = roll;
-    		q_finger[i](4) = pitch;
-    		q_finger[i](5) = yaw;
+    {	
+    	q_finger[i](0) = trasl_w_T_h.x();
+    	q_finger[i](1) = trasl_w_T_h.y();
+    	q_finger[i](2) = trasl_w_T_h.z();
+    	q_finger[i](3) = roll;
+    	q_finger[i](4) = pitch;
+    	q_finger[i](5) = yaw;
 
 
-    		if(i == 4) // thumb
-    		{
-    			q_finger[i](6) = joints(k_); // joint around z-axis knuckle
+    	if(i == 4) // thumb
+    	{
+    		q_finger[i](6) = joints(k_); // joint around z-axis knuckle
 
 				q_finger[i](7) = joints(k_+1) ; // joint around y-axis knuckle
 				q_finger[i](8) = joints(k_+2) ; // joint around y-axis proximal
@@ -606,9 +613,9 @@ int main (int argc, char **argv)
 
 			Eigen::MatrixXd R_k(3,3);
 			double qx = pose_grasp_success(3);
-  			double qy = pose_grasp_success(4);
-  			double qz = pose_grasp_success(5);
-  			double qw = pose_grasp_success(6);
+  		double qy = pose_grasp_success(4);
+  		double qz = pose_grasp_success(5);
+  		double qw = pose_grasp_success(6);
 			double q_k[] = {qw, qx, qy, qz};
 		
 			R_k(0,0)	= q_k[0]*q_k[0] + q_k[1]*q_k[1] - q_k[2]*q_k[2] - q_k[3]*q_k[3];
@@ -632,22 +639,22 @@ int main (int argc, char **argv)
 			normal_component(b_Rotation_c, box(0)/2, box(1)/2, box(2)/2,cp(contact_id[i],0),cp(contact_id[i],1),cp(contact_id[i],2));
 	      
 
-         	o_T_c.block<3,3>(0,0) = b_Rotation_c;
-  			o_T_c(0,3) = cp(contact_id[i],0);
-  			o_T_c(1,3) = cp(contact_id[i],1);
-  			o_T_c(2,3) = cp(contact_id[i],2);
+      o_T_c.block<3,3>(0,0) = b_Rotation_c;
+  		o_T_c(0,3) = cp(contact_id[i],0);
+  		o_T_c(1,3) = cp(contact_id[i],1);
+  		o_T_c(2,3) = cp(contact_id[i],2);
 
 			Eigen::MatrixXd h_T_c = h_T_o * o_T_c ;
 			Eigen::MatrixXd h_T_e = MatrixXd::Identity(4,4);
   					
 
 			KDL::Frame h_T_e_step ;
-  			for ( int i = 0 ; i < which_phalanx ; i++)
-  				h_T_e_step = h_T_e_step * chains_hand_finger[which_finger].getSegment(i).getFrameToTip();
+  		for ( int i = 0 ; i < which_phalanx ; i++)
+  			h_T_e_step = h_T_e_step * chains_hand_finger[which_finger].getSegment(i).getFrameToTip();
 
 
-  			h_T_e(0,0) = h_T_e_step.M.data[0];
-	        h_T_e(0,1) = h_T_e_step.M.data[1];
+  		h_T_e(0,0) = h_T_e_step.M.data[0];
+	    h_T_e(0,1) = h_T_e_step.M.data[1];
 	        h_T_e(0,2) = h_T_e_step.M.data[2];
 	        h_T_e(1,0) = h_T_e_step.M.data[3];
 	        h_T_e(1,1) = h_T_e_step.M.data[4];
@@ -698,7 +705,7 @@ int main (int argc, char **argv)
 			jnt_to_jac_solver_relative_contact.reset(new KDL::ChainJntToJacSolver(chain_contact));
 
 			jnt_to_jac_solver_relative_contact->JntToJac(q_finger[which_finger],hand_jacob[which_finger]);
-	  		Hand_Jacobian_.block<6,6>(step_,0) = hand_jacob[0].data.topLeftCorner(6,6);	// 6 
+	  	Hand_Jacobian_.block<6,6>(step_,0) = hand_jacob[0].data.topLeftCorner(6,6);	// 6 
 			Hand_Jacobian_.block<6,7>(step_,6) = hand_jacob[0].data.topRightCorner(6,7); // 7
 			Hand_Jacobian_.block<6,7>(step_,13)= hand_jacob[1].data.topRightCorner(6,7); // 7
 			Hand_Jacobian_.block<6,7>(step_,20)= hand_jacob[2].data.topRightCorner(6,7); // 7
@@ -708,14 +715,14 @@ int main (int argc, char **argv)
 			s_ += 3;
 			step_ += 6;
 	  			
-        }
+      }
 	    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	    if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_b, Hand_Jacobian_); 		
+	  if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_b, Hand_Jacobian_); 		
 
 		if(quality_index == 6 ) // PCR PGR 
-    	{
+    {
 			
 			Eigen::MatrixXd G_b(6,6*n_c);
 			Eigen::MatrixXd G_c(6,6*n_c);
@@ -800,23 +807,42 @@ int main (int argc, char **argv)
 
     	total_line++;
 
-    	// cout << " THEFINALCOUNTDOWN B :::::: " << qualiti << endl;
-	    // cout << " THEFINALCOUNTDOWN C :::::: " << quality_i << endl;
-	    cout << " THEFINALCOUNTDOWN C_t :::::: " << quality_i_t << endl;
-	    file_output << quality_i_t ;
-		
-
+    // cout << " THEFINALCOUNTDOWN B :::::: " << qualiti << endl;
+	 // cout << " THEFINALCOUNTDOWN C :::::: " << quality_i << endl;
+	  cout << " THEFINALCOUNTDOWN C_t :::::: " << quality_i_t << endl;
+	  
+    file_output << quality_i_t ;
 		for(int i = 0 ; i < 10 ; i++)
-	    	file_output << ' ' << i+1 << ":" << values_inline[i] ;
-      	file_output << ' ' << endl;
+	    file_output << ' ' << i+1 << ":" << values_inline[i] ;
+      file_output << ' ' << endl;
 
-      
+      if(quality_i_t != -50)
+      { 
+        file_output_1 << quality_i_t ;
+        for(int i = 0 ; i < 10 ; i++)
+          file_output_1 << ' ' << i+1 << ":" << values_inline[i] ;
+        file_output_1 << ' ' << endl;
+      }
+
+      if(quality_i_t > 0)
+      { 
+        file_output_2 << quality_i_t ;
+        for(int i = 0 ; i < 10 ; i++)
+          file_output_2 << ' ' << i+1 << ":" << values_inline[i] ;
+        file_output_2 << ' ' << endl;
+      }
+
+      if(quality_i_t > quality_max)
+        quality_max = quality_i_t;
 
     	quality_i = 0;	
     	quality_i_t = 0;
     	qualiti = 0;
 
     }// end file
+
+  cout << " BOX DIMENSION : " << box(0) << " " << box(1) << " " << box(2) << endl;
+  cout << " QUALITA MAX : " << quality_max << endl;
 
 	cout << endl;
 	cout << "quality_index : " << quality_index << endl;

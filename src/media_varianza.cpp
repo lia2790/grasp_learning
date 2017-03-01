@@ -124,8 +124,13 @@ int main (int argc, char **argv)
 
 
 
+
+
+
+
     Eigen::VectorXd f_i(3);
-    std::vector<double> f_i_norm_total;
+    std::vector<double> f_i_norm_total; // vettore delle norme delle forze
+
 	int total = 0;
     int s = 0;
 
@@ -139,6 +144,17 @@ int main (int argc, char **argv)
     	total++;
     	s += 6;
     }
+
+
+    double max_f_i = 0;
+    for(int i = 0; i < f_i_norm_total.size() ; i++)
+        if(f_i_norm_total[i] > max_f_i)
+            max_f_i = f_i_norm_total[i];
+
+
+    cout << "MAX NORM FORCE : " << max_f_i << endl;
+
+
 
     double f_i_total = 0;
     for(int i = 0; i < f_i_norm_total.size() ; i++)
