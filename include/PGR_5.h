@@ -224,7 +224,7 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	}
 				
 	if( !Matrix_is_Zero ) // condition-constrain of PGR is not satisfy : N(K(Cj)*Gt) != 0 
-	 	return 0;
+	 	return -27;
 
 
 

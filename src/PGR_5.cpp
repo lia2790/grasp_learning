@@ -135,6 +135,7 @@ std::vector<int> contact_id;
 int n_rows;
 int n_cols;
 int quality_index;
+int no_contact = -50;
 
 
 string file_name;
@@ -165,6 +166,7 @@ double qualiti = 0;
 double quality_i_t = 0;
 
 double quality_max = 0 ;
+
 
 
 
@@ -203,6 +205,9 @@ int main (int argc, char **argv)
 
   ofstream file_output_2; //output file
     file_output_2.open("box_db_quality_only_not_zero", ofstream::app);
+
+  ofstream file_output_3; //output file
+    file_output_3.open("box_db_quality_box", ofstream::app);
   
 
 	///////////////////// load the data_base ////////////////////////////////////
@@ -800,9 +805,9 @@ int main (int argc, char **argv)
 
     	}
     	else
-    	{	quality_i = 0; // no contact 
-    		quality_i_t = 0;
-    		qualiti = 0;
+    	{	quality_i = no_contact; // no contact 
+    		quality_i_t = no_contact;
+    		qualiti = no_contact;
     	}
 
     	total_line++;
@@ -840,6 +845,9 @@ int main (int argc, char **argv)
     	qualiti = 0;
 
     }// end file
+
+
+  file_output_3 << quality_max << ',' << box(0) << ',' << box(1) << ',' << box(2) << endl;
 
   cout << " BOX DIMENSION : " << box(0) << " " << box(1) << " " << box(2) << endl;
   cout << " QUALITA MAX : " << quality_max << endl;
