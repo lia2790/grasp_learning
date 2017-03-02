@@ -41,6 +41,7 @@ Contact GitHub API Training Shop Blog About
 #include "pseudo_inverse.h"
 
 using namespace Eigen;
+using namespace std;
 
 inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, Eigen::MatrixXd &Hand_Jacobian_Contact)
 {
@@ -62,6 +63,13 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 
 
 
+	cout << "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" << endl;
+	cout << endl;
+	cout << "	       INSIDE quality_			           " << endl;
+	cout << endl;
+	cout << "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" << endl;
+
+
 
 
 	switch(which_quality) 
@@ -71,6 +79,9 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 			{
         	   	JacobiSVD<MatrixXd> svd0(Grasp_Matrix_Contact, ComputeThinU | ComputeThinV);  
         		Singular = svd0.singularValues();
+
+        		cout << "Singular : " << endl << Singular << endl;
+        		cout << " Singular.size () : " << endl << Singular[Singular.size()-1] << endl;
 
 				return Singular[Singular.size()-1];
 			} 

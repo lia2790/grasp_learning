@@ -228,6 +228,14 @@ add_executable(filter_database_nan src/filter_database_nan.cpp)
 target_link_libraries(filter_database_nan ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
+add_executable(box_poses src/box_poses.cpp)
+target_link_libraries (box_poses ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
+
+
+add_executable(sort src/sort.cpp)
+target_link_libraries (sort ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
+
+
 
 
 ## Add cmake target dependencies of the executable

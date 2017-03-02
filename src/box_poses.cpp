@@ -65,18 +65,15 @@ using namespace Eigen;
 int number_box;         // How many boxes I want to Generate
 double distance_hand;   // meters
 int discretize_side;    // sampling of boxes
-int scale_factor = 1000;
 
-
+std::vector<double> box_input;
 
 
 struct box                  
 {                       
-
     double width  = 0; // x
 	double height = 0; // y
 	double length = 0; // z
-
 };
 int offset = 1; // centimeters
 int interval_size = 100; // centimeters
@@ -202,47 +199,33 @@ std::vector<Eigen::MatrixXd> populate_face(Eigen::Vector3d axis_dimensions, int 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 int main (int argc, char **argv)
 {
 
-	ros::init(argc, argv, "Random_box");	// ROS node
+	ros::init(argc, argv, "box_poses");	// ROS node
 	ros::NodeHandle nh;
 
 
     nh.param<int>("number_box",number_box,1);
-    nh.param<double>("distance_hand",distance_hand,0.005);
     nh.param<int>("discrete_side",discretize_side,2);
-    nh.param<int>("scale_factor",scale_factor,1000);
+    nh.param<double>("distance_hand",distance_hand,0.005);
+    nh.param<std::vector<double>>("box_input",box_input,{0.1,0.1,0.1});
 
 
 
 
 
 	srand(time(NULL)); //se non voglio la stessa sequenza di numeri casuali
-
 	file_output.open("box_db.csv", ofstream::app);
-
-
 	box n_box[number_box];  //array di box
 
     
 
 	for(int i = 0; i < number_box ; i++)  //per ogni box individuata dall'indice i-esimo vado a discretizzare la superficie
 	{
-        n_box[i].width  = (double)((rand() % interval_size) + offset ) / scale_factor; // x
-		n_box[i].height = (double)((rand() % interval_size) + offset ) / scale_factor; // y
-		n_box[i].length = (double)((rand() % interval_size) + offset ) / scale_factor; // z
+        n_box[i].width  = box_input[0]; // x
+		n_box[i].height = box_input[1]; // y
+		n_box[i].length = box_input[2]; // z
 	
 	   Eigen::Vector3d axis_dimensions_box(3);
 

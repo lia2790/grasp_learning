@@ -135,7 +135,7 @@ std::vector<int> contact_id;
 int n_rows;
 int n_cols;
 int quality_index;
-int no_contact = -50;
+int no_contact = 0;
 
 
 string file_name;
@@ -147,10 +147,11 @@ string frame_name_root;
 //std::string root_name = "right_hand_softhand_base";
 //std::string root_name = "right_hand_palm_link";
 //std::string root_name = "world";
-int n_fingers;
+
 double joint_stiffness = 0;
 double contact_stiffness = 0;
 int n_q = 39;
+int n_fingers;
 
 double quality_i = 0;
 double quality_i_A = 0;
@@ -209,6 +210,10 @@ int main (int argc, char **argv)
   ofstream file_output_3; //output file
     file_output_3.open("box_db_quality_box", ofstream::app);
   
+  ofstream file_output_4; //output file
+    file_output_4.open("box_db_quality_matlab", ofstream::app);
+
+
 
 	///////////////////// load the data_base ////////////////////////////////////
 	std::string path = ros::package::getPath("grasp-learning");
@@ -349,19 +354,19 @@ int main (int argc, char **argv)
 		for(int i = 0 ; i < 20 ; i++)
 		{	
 			if( contact_flag(i) )
-			{	cout << " contact_flag : " << i << endl;
+			{	//cout << " contact_flag : " << i << endl;
 				contact_id.push_back(i); 
 				n_c++; 
 			}
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
-    cout << "contact_id.size() : " << endl << contact_id.size() << endl;
+   // cout << "contact_id.size() : " << endl << contact_id.size() << endl;
 
 		for(int i = 0 ; i < contact_id.size() ; i++)
 			cout << " contact_id : " << endl << contact_id[i] << endl;
 
 
-		cout << "n_c : " << endl << n_c << endl;
+	//	cout << "n_c : " << endl << n_c << endl;
 		
 
 
@@ -594,26 +599,26 @@ int main (int argc, char **argv)
 			for(int n = 0 ; n < n_fingers ; n++)//calc jacobian for each finger
        					jnt_to_jac_solver[n]->JntToJac(q_finger[n], hand_jacob[n], -1);
 
-    		int which_finger = 0;
-      		int which_phalanx = 0;
+    	int which_finger = 0;
+      int which_phalanx = 0;
 
 	        
-	        if( contact_id[i]>= 0 && contact_id[i]<= 4 ) which_finger = 0; // index
-	        if( contact_id[i]>= 5 && contact_id[i]<= 8 ) which_finger = 1; // little
-	        if( contact_id[i]>= 9 && contact_id[i]<= 12 ) which_finger = 2; // middle
-	        if( contact_id[i]>= 13 && contact_id[i]<= 16 ) which_finger = 3; // ring
-	        if( contact_id[i]>= 17 && contact_id[i]<= 19 ) which_finger = 4; // thumb
+	    if( contact_id[i]>= 0 && contact_id[i]<= 4 ) which_finger = 0; // index
+	    if( contact_id[i]>= 5 && contact_id[i]<= 8 ) which_finger = 1; // little
+	    if( contact_id[i]>= 9 && contact_id[i]<= 12 ) which_finger = 2; // middle
+	    if( contact_id[i]>= 13 && contact_id[i]<= 16 ) which_finger = 3; // ring
+	    if( contact_id[i]>= 17 && contact_id[i]<= 19 ) which_finger = 4; // thumb
 
-	        if( contact_id[i]==0 ) which_phalanx = 5; //palm
-	        if( contact_id[i]==1 || contact_id[i]==5 || contact_id[i]==9  || contact_id[i]==13 || contact_id[i]==17)  which_phalanx = 7;
-	        if( contact_id[i]==2 || contact_id[i]==6 || contact_id[i]==10 || contact_id[i]==14 || contact_id[i]==18)  which_phalanx = 9;
-	       	if( contact_id[i]==3 || contact_id[i]==7 || contact_id[i]==11 || contact_id[i]==15 || contact_id[i]==19)  which_phalanx = 11;
-	       	if( contact_id[i]==4 || contact_id[i]==8 || contact_id[i]==12 || contact_id[i]==16 ) which_phalanx = 13;
-
-
+	    if( contact_id[i]==0 ) which_phalanx = 5; //palm
+	    if( contact_id[i]==1 || contact_id[i]==5 || contact_id[i]==9  || contact_id[i]==13 || contact_id[i]==17)  which_phalanx = 7;
+	    if( contact_id[i]==2 || contact_id[i]==6 || contact_id[i]==10 || contact_id[i]==14 || contact_id[i]==18)  which_phalanx = 9;
+	    if( contact_id[i]==3 || contact_id[i]==7 || contact_id[i]==11 || contact_id[i]==15 || contact_id[i]==19)  which_phalanx = 11;
+	    if( contact_id[i]==4 || contact_id[i]==8 || contact_id[i]==12 || contact_id[i]==16 ) which_phalanx = 13;
 
 
-	       	///////////////////////////////////////////////////////////////////				Ks = RtKsR
+
+
+	    ///////////////////////////////////////////////////////////////////				Ks = RtKsR
 			Eigen::MatrixXd h_T_o = MatrixXd::Identity(4,4);
 
 			Eigen::MatrixXd R_k(3,3);
@@ -660,11 +665,11 @@ int main (int argc, char **argv)
 
   		h_T_e(0,0) = h_T_e_step.M.data[0];
 	    h_T_e(0,1) = h_T_e_step.M.data[1];
-	        h_T_e(0,2) = h_T_e_step.M.data[2];
-	        h_T_e(1,0) = h_T_e_step.M.data[3];
-	        h_T_e(1,1) = h_T_e_step.M.data[4];
-	        h_T_e(1,2) = h_T_e_step.M.data[5];
-	        h_T_e(2,0) = h_T_e_step.M.data[6];
+	    h_T_e(0,2) = h_T_e_step.M.data[2];
+	    h_T_e(1,0) = h_T_e_step.M.data[3];
+	    h_T_e(1,1) = h_T_e_step.M.data[4];
+	    h_T_e(1,2) = h_T_e_step.M.data[5];
+	    h_T_e(2,0) = h_T_e_step.M.data[6];
 	        h_T_e(2,1) = h_T_e_step.M.data[7];
 	        h_T_e(2,2) = h_T_e_step.M.data[8];
 	        h_T_e(0,3) = h_T_e_step.p.x();
@@ -718,13 +723,12 @@ int main (int argc, char **argv)
 			Hand_Jacobian_.block<6,5>(step_,34)= hand_jacob[4].data.topRightCorner(6,5); // 5
 
 			s_ += 3;
-			step_ += 6;
-	  			
-      }
-	    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+			step_ += 6;  			
+    }
+	///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	  if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_b, Hand_Jacobian_); 		
+	  if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_w_T_c, Hand_Jacobian_); 		
 
 		if(quality_index == 6 ) // PCR PGR 
     {
@@ -737,8 +741,6 @@ int main (int argc, char **argv)
 			Eigen::MatrixXd R_c = MatrixXd::Identity(3*n_c, 3*n_c);
 			Eigen::VectorXd f_c(6*n_c);
 
-
-
 			G_b = Grasp_Matrix_b ;
 			G_c = Grasp_Matrix_c ;
 			G_c_t = Grasp_Matrix_c_t ;
@@ -746,7 +748,6 @@ int main (int argc, char **argv)
 
 			J_c = Hand_Jacobian_ ;
 			R_c = R_contact_hand_object_;
-
 
 			int s = 0;
 			for(int i = 0 ; i < n_c ; i++)
@@ -781,70 +782,78 @@ int main (int argc, char **argv)
 			// cout << " R_c : " << endl << R_c << endl;
 			cout << " f_c : " << endl << f_c << endl;	
 
-    		Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
-    		for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++) //Kis
-    			Contact_Stiffness_Matrix(i,i) = contact_stiffness;
+    	Eigen::MatrixXd Contact_Stiffness_Matrix = MatrixXd::Zero(3,3);		// Kis
+    	for(int i = 0 ; i < Contact_Stiffness_Matrix.rows() ; i++) //Kis
+    		Contact_Stiffness_Matrix(i,i) = contact_stiffness;
 
 
-    		Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
-    		for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++) //Kp
-    			Joint_Stiffness_Matrix(j,j) = joint_stiffness;
+    	Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
+    	for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++) //Kp
+    		Joint_Stiffness_Matrix(j,j) = joint_stiffness;
 
     			
     		// quality_i = quality_pcr_pgr_5(f_c, G_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-    		quality_i_t = quality_pcr_pgr_5(f_c, G_w_T_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
+    	quality_i = quality_pcr_pgr_5(f_c, G_w_T_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
     		//qualiti = quality_pcr_pgr_5(f_c, G_b, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
-    	}
-    	else
-    	{	quality_i = 0; // no valid qualiti index
-    		qualiti = 0;
-    		quality_i_t = 0;
-    	}
-
-
-
-    	}
-    	else
-    	{	quality_i = no_contact; // no contact 
-    		quality_i_t = no_contact;
-    		qualiti = no_contact;
-    	}
-
-    	total_line++;
-
-    // cout << " THEFINALCOUNTDOWN B :::::: " << qualiti << endl;
-	 // cout << " THEFINALCOUNTDOWN C :::::: " << quality_i << endl;
-	  cout << " THEFINALCOUNTDOWN C_t :::::: " << quality_i_t << endl;
-	  
-    file_output << quality_i_t ;
-		for(int i = 0 ; i < 10 ; i++)
-	    file_output << ' ' << i+1 << ":" << values_inline[i] ;
-      file_output << ' ' << endl;
-
-      if(quality_i_t != -50)
-      { 
-        file_output_1 << quality_i_t ;
-        for(int i = 0 ; i < 10 ; i++)
-          file_output_1 << ' ' << i+1 << ":" << values_inline[i] ;
-        file_output_1 << ' ' << endl;
-      }
-
-      if(quality_i_t > 0)
-      { 
-        file_output_2 << quality_i_t ;
-        for(int i = 0 ; i < 10 ; i++)
-          file_output_2 << ' ' << i+1 << ":" << values_inline[i] ;
-        file_output_2 << ' ' << endl;
-      }
-
-      if(quality_i_t > quality_max)
-        quality_max = quality_i_t;
-
-    	quality_i = 0;	
-    	quality_i_t = 0;
+    }
+    else
+    {	
+      quality_i = 0; // no valid qualiti index
     	qualiti = 0;
+    	quality_i_t = 0;
+    }
 
-    }// end file
+
+
+  }
+  else
+  {	
+    quality_i = no_contact; // no contact 
+    quality_i_t = no_contact;
+    qualiti = no_contact;
+  }
+
+  total_line++;
+
+	cout << " THEFINALCOUNTDOWN    ::::::    " << quality_i << endl;
+	  
+  file_output << quality_i ;  // dataset for libsvm
+	for(int i = 0 ; i < 10 ; i++)
+	   file_output << ' ' << i+1 << ":" << values_inline[i] ;
+  file_output << ' ' << endl;
+
+
+  file_output_4 << quality_i ; // dataset for matlab
+  for(int i = 0 ; i < 10 ; i++)
+     file_output_4 << ' ' << i+1 << ":" << values_inline[i] ;
+  file_output_4 << ' ' << endl;
+
+
+
+  if(quality_i_t != -50)
+  { 
+    file_output_1 << quality_i ;
+    for(int i = 0 ; i < 10 ; i++)
+      file_output_1 << ' ' << i+1 << ":" << values_inline[i] ;
+    file_output_1 << ' ' << endl;
+  }
+
+  if(quality_i > 0)
+  { 
+    file_output_2 << quality_i ;
+    for(int i = 0 ; i < 10 ; i++)
+      file_output_2 << ' ' << i+1 << ":" << values_inline[i] ;
+    file_output_2 << ' ' << endl;
+  }
+
+  if(quality_i > quality_max)
+    quality_max = quality_i;
+
+  quality_i = 0;	
+  quality_i_t = 0;
+  qualiti = 0;
+
+  }// end file
 
 
   file_output_3 << quality_max << ',' << box(0) << ',' << box(1) << ',' << box(2) << endl;
@@ -853,7 +862,7 @@ int main (int argc, char **argv)
   cout << " QUALITA MAX : " << quality_max << endl;
 
 	cout << endl;
-	cout << "quality_index : " << quality_index << endl;
+	cout << " quality_index : " << quality_index << endl;
 	cout << " total line : " << total_line << endl;
 	
 	cout << " YEAH ENJOY " << endl;

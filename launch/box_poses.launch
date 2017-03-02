@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp-learning)/param/box_poses.yaml" command="load"/>
+
+	<node name="box_poses" pkg="grasp-learning" type="box_poses" cwd = "node" respawn="false" output="screen"/>
+
+</launch>
