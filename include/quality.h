@@ -96,8 +96,16 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 				JacobiSVD<MatrixXd> svd1(G_G_t, ComputeThinU | ComputeThinV);  
 				Singular = svd1.singularValues();
 
+				cout << "Singular : " << endl << Singular << endl;
+        		cout << " Singular.size () : " << endl << Singular[Singular.size()-1] << endl;
+
+        		quality = 1;
+
 				for(int i = 0 ; i < Singular.size() ; i++)
-					quality *= Singular[i];
+					quality = quality * Singular[i];
+
+
+				cout << "quality : " << endl << quality << endl;
 
 				return ( quality * k );
 			}

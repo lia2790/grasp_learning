@@ -8,6 +8,6 @@ frame_name_root: "world"
 number_of_fingers: 5
 joint_stiffness: 1
 contact_stiffness: 100
-quality_index: 0
+quality_index: 1
 mu: 1.5
 f_i_max: 800
