@@ -135,6 +135,9 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 			{
 				JacobiSVD<MatrixXd> svd3(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
 				Singular = svd3.singularValues();
+
+				cout << "Singular : " << endl << Singular << endl;
+				cout << " Singular.size () : " << endl << Singular[Singular.size()-1] << endl;
             
               	return Singular[Singular.size()-1];
 			}
@@ -145,14 +148,18 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 		case 4: // "Volume of manipulability ellipsoid" Q = K sqrt(det(HH.t))
 			{
 				Eigen::MatrixXd H_H_t = GRASP_Jacobian * GRASP_Jacobian.transpose();
-				JacobiSVD<MatrixXd> svd4(H_H_t, ComputeThinU | ComputeThinV);  
-
-        		
+				JacobiSVD<MatrixXd> svd4(H_H_t, ComputeThinU | ComputeThinV);      		
 				Singular = svd4.singularValues();
+
+
+				cout << "Singular : " << endl << Singular << endl;
+        		quality = 1;
 
 					
 				for(int i = 0 ; i < Singular.size() ; i++)
-					quality *= Singular[i];
+					quality = quality * Singular[i];
+
+				cout << "quality : " << endl << quality << endl;
 
 
 				return ( quality * k );
