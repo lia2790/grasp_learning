@@ -123,9 +123,9 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 				cout << "sigma_min : " << endl << sigma_min << endl;
 				cout << " sigma_max : " << endl << sigma_max << endl;
 
+				double res = sigma_min/sigma_max;
 
-
-				return sigma_min/sigma_max;
+				return res;
 			}
 			break;
 
