@@ -65,7 +65,7 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 
 	cout << "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" << endl;
 	cout << endl;
-	cout << "	       INSIDE quality_			           " << endl;
+	cout << "	       INSIDE quality_ROA		           " << endl;
 	cout << endl;
 	cout << "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" << endl;
 
@@ -83,7 +83,9 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
         		cout << "Singular : " << endl << Singular << endl;
         		cout << " Singular.size () : " << endl << Singular[Singular.size()-1] << endl;
 
-				return Singular[Singular.size()-1];
+        		double res = Singular[Singular.size()-1];
+
+				return res;
 			} 
         	break;
 

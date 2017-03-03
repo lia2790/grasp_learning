@@ -229,11 +229,11 @@ target_link_libraries(filter_database_nan ${catkin_LIBRARIES} ${Eigen_LIBRARIES}
 
 
 add_executable(box_poses src/box_poses.cpp)
-target_link_libraries (box_poses ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
+target_link_libraries(box_poses ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 
 
-add_executable(sort src/sort.cpp)
-target_link_libraries (sort ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
+add_executable(grasp_quality_ROA src/grasp_quality_ROA.cpp)
+target_link_libraries(grasp_quality_ROA ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 
 
 
