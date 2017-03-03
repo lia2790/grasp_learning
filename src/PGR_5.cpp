@@ -256,9 +256,6 @@ int main (int argc, char **argv)
 
 
 
-
-
-
 	///////////////////////////////// get values from file for each line //////////////////////////////////
 	for(std::string line; getline( file, line, '\n' ); ) // for each line
 	{
@@ -302,18 +299,20 @@ int main (int argc, char **argv)
    		for(int i = 0 ; i < 120 ; i++)
    			contact_wrenches(i) = values_inline[110 + i];
 
-   		for(int i = 0 ; i < 20 ; i++) // 0 : no contact
+   		for(int i = 0 ; i < 20 ; i++) // 0 : no contact --- initialization
    			contact_flag(i) = 0;	
    		
    		int k = 0;
    		for(int i = 0 ; i < 20 ; i++)
    			for(int j=0 ; j < 3 ; j++)
-			{	cp(i,j) = values_inline[50 + k]; if( !std::isnan(cp(i,j))) contact_flag(i) = 1; k++; } cout << "cp : " << endl << cp << endl;
+			{	cp(i,j) = values_inline[50 + k]; if( !std::isnan(cp(i,j))) contact_flag(i) = 1; k++; } cout << "cp : " << endl << cp << endl; // condition of valid contact
+
+
 		
    		int h = 0;
    		for(int i = 0 ; i < 20 ; i++)
    			for(int j=0 ; j < 6; j++)
-			{	cf(i,j) = values_inline[110 + h]; h++; }	cout << "cf : " << endl << cf << endl;
+			 {	cf(i,j) = values_inline[110 + h]; h++; }	cout << "cf : " << endl << cf << endl;
 
 
 		int s = 0;
@@ -336,14 +335,24 @@ int main (int argc, char **argv)
 			Eigen::VectorXd cf(3);
 			cf << fc(0), fc(1), fc(2);
 
-			if(cf.norm() >= 1e-3 && cf(2) >= 0) // condition
-				contact_flag(i) = 1;
+			if(cf.norm() >= 1e-3 && cf(2) >= 0) // condition on valid force
+				contact_flag(i) = 1; // there is a contact
 			else
-				contact_flag(i) = 0;
+				contact_flag(i) = 0; // there isn t a contact
 
 
 			s += 6;
 		}
+
+    int c = 0;    ////// condition on valid joints value
+    for ( int i = 0 ; i < joints.size() ; i++)
+      if(std::isnan(joints(i)))
+        c++;
+
+
+    if(c > 0)
+      for(int i = 0 ; i < contact_flag.size() ; i++)
+        contact_flag(i) = 0 ;
 
     ///////////////////////////////////////////    contact flag --- >   calculating the quality index when I
     ///////////////////////////////////////////                          1) a contact point   2) normal force is positive and the norm of contact force is positive
@@ -554,38 +563,38 @@ int main (int argc, char **argv)
     int k_ = 0;
 		for(int i = 0; i < n_fingers; i++) //joint values
     {	
-    	q_finger[i](0) = trasl_w_T_h.x();
-    	q_finger[i](1) = trasl_w_T_h.y();
-    	q_finger[i](2) = trasl_w_T_h.z();
-    	q_finger[i](3) = roll;
-    	q_finger[i](4) = pitch;
-    	q_finger[i](5) = yaw;
+    	q_finger[i].data(0) = trasl_w_T_h.x();
+    	q_finger[i].data(1) = trasl_w_T_h.y();
+    	q_finger[i].data(2) = trasl_w_T_h.z();
+    	q_finger[i].data(3) = roll;
+    	q_finger[i].data(4) = pitch;
+    	q_finger[i].data(5) = yaw;
 
 
     	if(i == 4) // thumb
     	{
-    		q_finger[i](6) = joints(k_); // joint around z-axis knuckle
+    		q_finger[i].data(6) = joints(k_); // joint around z-axis knuckle
 
-				q_finger[i](7) = joints(k_+1) ; // joint around y-axis knuckle
-				q_finger[i](8) = joints(k_+2) ; // joint around y-axis proximal
+				q_finger[i].data(7) = joints(k_+1) ; // joint around y-axis knuckle
+				q_finger[i].data(8) = joints(k_+2) ; // joint around y-axis proximal
 
-				q_finger[i](9) = joints(k_+3) ; // joint around y-axis proximal
-				q_finger[i](10) = joints(k_+4) ; // joint around y-axis distal
+				q_finger[i].data(9) = joints(k_+3) ; // joint around y-axis proximal
+				q_finger[i].data(10) = joints(k_+4) ; // joint around y-axis distal
 
 				k_+=5;
 			}
 			else
 			{
-				q_finger[i](6) = joints(k_); // joint around z-axis knuckle
+				q_finger[i].data(6) = joints(k_); // joint around z-axis knuckle
 
-				q_finger[i](7) = joints(k_+1) ; // joint around y-axis knuckle
-				q_finger[i](8) = joints(k_+2) ; // joint around y-axis proximal
+				q_finger[i].data(7) = joints(k_+1) ; // joint around y-axis knuckle
+				q_finger[i].data(8) = joints(k_+2) ; // joint around y-axis proximal
 
-				q_finger[i](9) = joints(k_+3) ; // joint around y-axis proximal
-				q_finger[i](10) = joints(k_+4) ;  // joint around y-axis middle
+				q_finger[i].data(9) = joints(k_+3) ; // joint around y-axis proximal
+				q_finger[i].data(10) = joints(k_+4) ;  // joint around y-axis middle
 
-				q_finger[i](11) = joints(k_+5) ;  // joint around y-axis middle
-				q_finger[i](12) = joints(k_+6) ;  // joint around y-axis distal
+				q_finger[i].data(11) = joints(k_+5) ;  // joint around y-axis middle
+				q_finger[i].data(12) = joints(k_+6) ;  // joint around y-axis distal
 
 				k_+=7;
 			}			
@@ -670,11 +679,11 @@ int main (int argc, char **argv)
 	    h_T_e(1,1) = h_T_e_step.M.data[4];
 	    h_T_e(1,2) = h_T_e_step.M.data[5];
 	    h_T_e(2,0) = h_T_e_step.M.data[6];
-	        h_T_e(2,1) = h_T_e_step.M.data[7];
-	        h_T_e(2,2) = h_T_e_step.M.data[8];
-	        h_T_e(0,3) = h_T_e_step.p.x();
-	        h_T_e(1,3) = h_T_e_step.p.y();
-	        h_T_e(2,3) = h_T_e_step.p.z();
+	    h_T_e(2,1) = h_T_e_step.M.data[7];
+	    h_T_e(2,2) = h_T_e_step.M.data[8];
+	    h_T_e(0,3) = h_T_e_step.p.x();
+	    h_T_e(1,3) = h_T_e_step.p.y();
+	    h_T_e(2,3) = h_T_e_step.p.z();
 
 			Eigen::MatrixXd c_T_h = h_T_c.inverse();
 			Eigen::MatrixXd c_T_e = c_T_h * h_T_e;
@@ -692,7 +701,7 @@ int main (int argc, char **argv)
 			Eigen::MatrixXd R_contact_hand_object = R_hand_contact.transpose() * R_object_contact;
 			// cout << " R_contact_hand_object " << endl << R_contact_hand_object << endl; // it is identity 
 
-	        R_contact_hand_object_.block<3,3>(s_,s_) = R_contact_hand_object; // for PGR
+	    R_contact_hand_object_.block<3,3>(s_,s_) = R_contact_hand_object; // for PGR
 			// cout << " R_contact_hand_object (3*n_c,3*n_c)" << endl << R_contact_hand_object_ << endl;
 
 			KDL::Chain chain_contact;	           		
@@ -714,6 +723,10 @@ int main (int argc, char **argv)
 			boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_relative_contact;
 			jnt_to_jac_solver_relative_contact.reset(new KDL::ChainJntToJacSolver(chain_contact));
 
+      cout << "which_finger : " << endl << which_finger << endl;
+      cout << "joints_dataset :" << endl << joints << endl;
+      cout << "joints for jacobian : " << endl << q_finger[which_finger].data << endl;
+
 			jnt_to_jac_solver_relative_contact->JntToJac(q_finger[which_finger],hand_jacob[which_finger]);
 	  	Hand_Jacobian_.block<6,6>(step_,0) = hand_jacob[0].data.topLeftCorner(6,6);	// 6 
 			Hand_Jacobian_.block<6,7>(step_,6) = hand_jacob[0].data.topRightCorner(6,7); // 7
@@ -728,7 +741,7 @@ int main (int argc, char **argv)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	  if(quality_index < 6) quality_i = quality(quality_index, Grasp_Matrix_w_T_c, Hand_Jacobian_); 		
+	 	
 
 		if(quality_index == 6 ) // PCR PGR 
     {
@@ -790,7 +803,7 @@ int main (int argc, char **argv)
     	Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
     	for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++) //Kp
     		Joint_Stiffness_Matrix(j,j) = joint_stiffness;
-
+cout << "J_C :" << endl << J_c << endl;
     			
     		// quality_i = quality_pcr_pgr_5(f_c, G_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
     	quality_i = quality_pcr_pgr_5(f_c, G_w_T_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);

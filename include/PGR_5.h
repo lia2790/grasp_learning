@@ -93,7 +93,7 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	for( int i = 0 ; i < n_c ; i++ )
 	{	
 		if( f(s_+2) >= 0 )   
-		{	if(  (   sqrt(f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1)) ) <=  ( mu*f(s_+2) ) )
+		{	if(  (   f(s_+0)*f(s_+0) + f(s_+1)*f(s_+1) ) <=  ( (mu*f(s_+2))*(mu* f(s_+2)) ) )
 			{	
 				n_g += 3; 
 			}
@@ -109,8 +109,7 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	cout << "n_g: " << n_g << endl;
 	cout << "_____________--"<<endl;
 
-	Eigen::MatrixXd Ks = MatrixXd::Zero(n_g, n_g);
-	Eigen::MatrixXd H = MatrixXd::Zero(n_g, 6*n_c);
+	
 
 	Eigen::MatrixXd H_3(3, 6);
 	Eigen::MatrixXd H_1(1, 6);
@@ -128,8 +127,11 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 	int r_now = 0;
 	int c_now = 0;
 
-	Eigen::MatrixXd K = MatrixXd::Zero(3*n_c,3*n_c);
-	Eigen::MatrixXd K_ = MatrixXd::Zero(3*n_c,3*n_c);
+
+	Eigen::MatrixXd Ks   = MatrixXd::Zero(n_g, n_g); // final matrix
+	Eigen::MatrixXd H    = MatrixXd::Zero(n_g, 6*n_c);
+	Eigen::MatrixXd K    = MatrixXd::Zero(n_g,n_g);
+	Eigen::MatrixXd K_   = MatrixXd::Zero(n_g,n_g);
 	Eigen::MatrixXd Kis_ = MatrixXd::Zero(3,3);
 
 ///////////////////////////////////////////////// build H matrix and Ks depending in which state the contact force are
@@ -157,7 +159,8 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 
 				Eigen::MatrixXd K_app = R_app.transpose() * Kis_ * R_app;
 
-				Ks.block<3,3>(now,now) = K_app;  
+				Ks.block<3,3>(now,now) = K_app; 
+
 				H.block<3,6>(r_now, c_now) = H_3;
 
 				
@@ -175,13 +178,14 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 				c_now += 6;
 			}
 		}
-		// else
-		// 	return -90;
-		
-
 		now_ += 3;
 		s__ += 6;
 	}	
+
+
+	if(n_g == 0) return 0; // detached
+
+
 
  cout << " Ks : " << endl << Ks << endl;
  cout << " H " << endl << H << endl;
@@ -190,12 +194,12 @@ inline double quality_pcr_pgr_5(Eigen::VectorXd &f , Eigen::MatrixXd &G_ , Eigen
 
 
 	Eigen::MatrixXd G = G_ * H.transpose();
-	Eigen::MatrixXd J = H * J_;
+	Eigen::MatrixXd J = H * J_; cout << "J " << endl << J_ << endl;
 
-	Eigen::MatrixXd K_inv = Ks.inverse();
-	K_ = K_inv + J * Kp.inverse() * J.transpose();
+	Eigen::MatrixXd K_inv = Ks.inverse();  cout << "K_inv : " << endl << K_inv << endl;
+	K_ = K_inv + J * Kp.inverse() * J.transpose(); cout << "K_ : " << endl << K_ << endl;
 	K = K_.inverse(); 
-	
+	cout << "K : " << K << endl;
 	Eigen::MatrixXd Kcj_Gt = K*G.transpose();	
 	FullPivLU<MatrixXd> lu(Kcj_Gt);		
 	Eigen::MatrixXd Null_Kcj_Gt = lu.kernel(); 
