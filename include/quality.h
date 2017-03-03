@@ -97,8 +97,7 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 				Singular = svd1.singularValues();
 
 				cout << "Singular : " << endl << Singular << endl;
-        		cout << " Singular.size () : " << endl << Singular[Singular.size()-1] << endl;
-
+        		
         		quality = 1;
 
 				for(int i = 0 ; i < Singular.size() ; i++)
@@ -118,6 +117,13 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 				Singular = svd2.singularValues();
                 sigma_min = Singular[Singular.size()-1];
 				sigma_max = Singular[0];
+
+
+				cout << "Singular : " << endl << Singular << endl;
+				cout << "sigma_min : " << endl << sigma_min << endl;
+				cout << " sigma_max : " << endl << sigma_max << endl;
+
+
 
 				return sigma_min/sigma_max;
 			}
