@@ -169,15 +169,19 @@ inline double quality(int which_quality, Eigen::MatrixXd &Grasp_Matrix_Contact, 
 
 		case 5: // "Uniformity of transformations" Q = sigma_min(H) / sigma_max(H) 
 			{
-				JacobiSVD<MatrixXd> svd5(GRASP_Jacobian, ComputeThinU | ComputeThinV);  
-
-        			
+				JacobiSVD<MatrixXd> svd5(GRASP_Jacobian, ComputeThinU | ComputeThinV);  		
 				Singular = svd5.singularValues();
-
 				sigma_min = Singular[Singular.size()-1];
 				sigma_max = Singular[0];
 
-				return sigma_min/sigma_max;
+				cout << "Singular : " << endl << Singular << endl;
+				cout << "sigma_min : " << endl << sigma_min << endl;
+				cout << " sigma_max : " << endl << sigma_max << endl;
+
+				double res = sigma_min/sigma_max;
+
+
+				return res;
 			}
 			break;
 
