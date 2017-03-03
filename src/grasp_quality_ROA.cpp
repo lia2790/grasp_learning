@@ -196,22 +196,22 @@ int main (int argc, char **argv)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
+  string index = std::to_string(quality_index);
 
 	ofstream file_output; //output file
-    file_output.open("box_db_quality_ROA", ofstream::app);
+    file_output.open("box_db_quality_ROA_" + index, ofstream::app);
 
   ofstream file_output_1; //output file
-    file_output_1.open("box_db_quality_only_pgr_ROA", ofstream::app);
+    file_output_1.open("box_db_quality_only_pgr_ROA_" + index, ofstream::app);
 
   ofstream file_output_2; //output file
-    file_output_2.open("box_db_quality_only_not_zero_ROA", ofstream::app);
+    file_output_2.open("box_db_quality_only_not_zero_ROA_" + index, ofstream::app);
 
   ofstream file_output_3; //output file
-    file_output_3.open("box_db_quality_box_ROA", ofstream::app);
+    file_output_3.open("box_db_quality_box_ROA_" + index, ofstream::app);
   
   ofstream file_output_4; //output file
-    file_output_4.open("box_db_quality_matlab_ROA", ofstream::app);
+    file_output_4.open("box_db_quality_matlab_ROA_" + index, ofstream::app);
 
 
 

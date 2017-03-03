@@ -199,7 +199,7 @@ int main (int argc, char **argv)
 
 
 	ofstream file_output; //output file
-    file_output.open("box_db_quality", ofstream::app);
+    file_output.open("box_db_quality_PGR", ofstream::app);
 
   ofstream file_output_1; //output file
     file_output_1.open("box_db_quality_only_pgr", ofstream::app);
@@ -208,10 +208,10 @@ int main (int argc, char **argv)
     file_output_2.open("box_db_quality_only_not_zero", ofstream::app);
 
   ofstream file_output_3; //output file
-    file_output_3.open("box_db_quality_box", ofstream::app);
+    file_output_3.open("box_db_quality_box_PGR", ofstream::app);
   
   ofstream file_output_4; //output file
-    file_output_4.open("box_db_quality_matlab", ofstream::app);
+    file_output_4.open("box_db_quality_PGR_matlab", ofstream::app);
 
 
 
