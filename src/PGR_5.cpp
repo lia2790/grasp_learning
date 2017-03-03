@@ -344,7 +344,7 @@ int main (int argc, char **argv)
 			s += 6;
 		}
 
-    int c = 0;    ////// condition on valid joints value
+    int c = 0;                               ////// condition on valid joints value
     for ( int i = 0 ; i < joints.size() ; i++)
       if(std::isnan(joints(i)))
         c++;
