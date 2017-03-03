@@ -181,11 +181,11 @@ int main (int argc, char **argv)
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	nh.param<std::string>("file_name", relative_path_file, "/db/box_db_2.csv" );
-	nh.param<std::string>("frame_name_thumb", frame_name_finger[0], "right_hand_index_distal_link" );
-	nh.param<std::string>("frame_name_index", frame_name_finger[1], "right_hand_little_distal_link" );
+	nh.param<std::string>("frame_name_index", frame_name_finger[0], "right_hand_index_distal_link" );
+	nh.param<std::string>("frame_name_little", frame_name_finger[1], "right_hand_little_distal_link" );
 	nh.param<std::string>("frame_name_middle", frame_name_finger[2], "right_hand_middle_distal_link");
 	nh.param<std::string>("frame_name_ring", frame_name_finger[3], "right_hand_ring_distal_link");
-	nh.param<std::string>("frame_name_little", frame_name_finger[4], "right_hand_thumb_distal_link");
+	nh.param<std::string>("frame_name_thumb", frame_name_finger[4], "right_hand_thumb_distal_link");
 	nh.param<std::string>("frame_name_root", frame_name_root, "world");
 	nh.param<double>("joint_stiffness",joint_stiffness,0);
 	nh.param<double>("contact_stiffness",contact_stiffness,0);
