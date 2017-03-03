@@ -4,7 +4,7 @@
     <arg name="robot_name" default="robot"/>
     <arg name="use_rviz" default="true"/>
 
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find grasp-learning)/robot/$(arg robot_name).urdf.xacro use_mimic_tag:=false"/>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find grasp_learning)/robot/$(arg robot_name).urdf.xacro use_mimic_tag:=false"/>
 
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
         <param name="use_gui" value="$(arg gui)"/>
@@ -14,7 +14,7 @@
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  />
 
     <group if="$(arg use_rviz)">
-        <node name="my_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(find grasp-learning)/launch/rviz_config.rviz" output="screen"/>
+        <node name="my_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(find grasp_learning)/launch/rviz_config.rviz" output="screen"/>
     </group>
 
 

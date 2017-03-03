@@ -2,8 +2,8 @@
 
 <launch>
 
-	<rosparam file="$(find grasp-learning)/param/media_varianza.yaml" command="load"/>
+	<rosparam file="$(find grasp_learning)/param/media_varianza.yaml" command="load"/>
 	
-		<node name="media_varianza" pkg="grasp-learning" type="media_varianza" respawn="false" output="screen"/>
+		<node name="media_varianza" pkg="grasp_learning" type="media_varianza" respawn="false" output="screen"/>
 
 </launch>

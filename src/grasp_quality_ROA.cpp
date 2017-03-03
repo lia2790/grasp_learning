@@ -216,7 +216,7 @@ int main (int argc, char **argv)
 
 
 	///////////////////// load the data_base ////////////////////////////////////
-	std::string path = ros::package::getPath("grasp-learning");
+	std::string path = ros::package::getPath("grasp_learning");
 	file_name = path + relative_path_file;
 	ifstream file(file_name); 
 

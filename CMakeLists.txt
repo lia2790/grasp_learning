@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(grasp-learning)
+project(grasp_learning)
 
 
 # Check for c++11 support
