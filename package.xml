@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>grasp-learning</name>
+  <name>grasp_learning</name>
   <version>0.0.0</version>
-  <description>The grasp-learning package</description>
+  <description>The grasp_learning package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

@@ -2,8 +2,8 @@
 
 <launch>
 
-	<rosparam file="$(find grasp-learning)/param/test_file_6_fingers.yaml" command="load"/>
+	<rosparam file="$(find grasp_learning)/param/test_file_6_fingers.yaml" command="load"/>
 
-	<node name="test_file_6_fingers" pkg="grasp-learning" type="test_file_6_fingers" respawn="false" output="screen"/>
+	<node name="test_file_6_fingers" pkg="grasp_learning" type="test_file_6_fingers" respawn="false" output="screen"/>
 
 </launch>

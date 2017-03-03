@@ -2,8 +2,8 @@
 
 <launch>
 
-	<rosparam file="$(find grasp-learning)/param/filter_database_nan.yaml" command="load"/>
+	<rosparam file="$(find grasp_learning)/param/filter_database_nan.yaml" command="load"/>
 	
-		<node name="filter_database_nan" pkg="grasp-learning" type="filter_database_nan" cwd = "node" respawn="false" output="screen"/>
+		<node name="filter_database_nan" pkg="grasp_learning" type="filter_database_nan" cwd = "node" respawn="false" output="screen"/>
 
 </launch>

@@ -2,8 +2,8 @@
 
 <launch>
 
-	<rosparam file="$(find grasp-learning)/param/PGR_5.yaml" command="load"/>
+	<rosparam file="$(find grasp_learning)/param/PGR_5.yaml" command="load"/>
 	
-		<node name="PGR_5" pkg="grasp-learning" type="PGR_5" cwd = "node" respawn="false" output="screen"/>
+		<node name="PGR_5" pkg="grasp_learning" type="PGR_5" cwd = "node" respawn="false" output="screen"/>
 
 </launch>

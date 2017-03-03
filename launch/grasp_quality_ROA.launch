@@ -2,8 +2,8 @@
 
 <launch>
 
-	<rosparam file="$(find grasp-learning)/param/grasp_quality_ROA.yaml" command="load"/>
+	<rosparam file="$(find grasp_learning)/param/grasp_quality_ROA.yaml" command="load"/>
 	
-		<node name="grasp_quality_ROA" pkg="grasp-learning" type="grasp_quality_ROA" cwd = "node" respawn="false" output="screen"/>
+		<node name="grasp_quality_ROA" pkg="grasp_learning" type="grasp_quality_ROA" cwd = "node" respawn="false" output="screen"/>
 
 </launch>
