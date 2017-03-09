@@ -97,7 +97,7 @@
    	<link name="floating_base_link" /> -->
 		
 
-	<xacro:soft_hand parent="floating_base_link_rot_z" name="right_hand" left="false" withAdaptiveTransmission="true" useMimicTag="false"> 
+	<xacro:soft_hand parent="floating_base_link_rot_z" name="right_hand" left="false" withAdaptiveTransmission="true" useMimicTag="true"> 
     <origin xyz="0 0 0" rpy="0 0 0"/> 
   	</xacro:soft_hand>
 </robot>

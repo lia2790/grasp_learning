@@ -128,8 +128,8 @@ int main (int argc, char **argv)
 
 
 
-	ros::Publisher Wrench_pub = nh.advertise<geometry_msgs::WrenchStamped>("/box_contact_wrench", 1);
-	ros::Publisher Wrench_pub1 = nh.advertise<geometry_msgs::WrenchStamped>("/box_contact_wrench_1", 1);
+	ros::Publisher Wrench_pub_center = nh.advertise<geometry_msgs::WrenchStamped>("/box_contact_wrench_center", 1);
+	ros::Publisher Wrench_pub_contact = nh.advertise<geometry_msgs::WrenchStamped>("/box_contact_wrench_contact", 1);
 
 
 
@@ -140,13 +140,13 @@ int main (int argc, char **argv)
 
 
 	nh.param<std::string>("file_name", relative_path_file, "/db/test_file.csv" );
-	//////////////////////////////////////////////////////////////////////////// 	TAKE DATA FROM DATABASE
+	//////////////////////////////////////////////////////////////////////////// 	TAKE DATA FROM DATABASE ----------- ONLY ONE LINE
 	std::string path = ros::package::getPath("grasp_learning");
 	file_name = path + relative_path_file;
 	ifstream file(file_name); 
 
 	string line;
-	getline( file, line, '\n' ); // for each line
+	getline( file, line, '\n' ); //take only one line or rather one grasp
 	
 	std::vector<double> values_inline;
     std::istringstream iss_line(line);	
@@ -208,20 +208,10 @@ int main (int argc, char **argv)
 
 
 
-
-
-   	cout << " qui 1 " << endl << contact_points << endl;
-   	cout << "------------------" << endl;
-   	cout << " qui 2 " << endl << contact_wrenches << endl;
-
-
-
 	// For visualizing things in rviz
 	rviz_visual_tools::RvizVisualToolsPtr visual_tools_;
 	visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("base_frame","/rviz_visual_markers"));
 
-
-	cout << " qui 2 " << endl;
 
 	geometry_msgs::Pose pose_;
 
@@ -257,7 +247,7 @@ int main (int argc, char **argv)
 
 	static tf::TransformBroadcaster tf_broadcaster; 
 
-	
+			//////////////////////////////////		trasf world
 			double px = 0;//p.translation[0];
 			double py = 0;//p.translation[1];
 			double pz = 0;//p.translation[2];
@@ -276,7 +266,7 @@ int main (int argc, char **argv)
 			tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_);
 			tf_broadcaster.sendTransform(ObjToSurfaceBase);
 
-			// ros::spinOnce();
+			
 
 
 
@@ -285,39 +275,44 @@ int main (int argc, char **argv)
 		// Publish arrow vector of pose
 		// ROS_INFO_STREAM_NAMED("test","Publishing Box");
 
-		tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_);
+		tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_); // stamped always frame world
 		tf_broadcaster.sendTransform(ObjToSurfaceBase);
 
-		visual_tools_->publishWireframeCuboid(pose_box,  x_depth,  y_width, z_height);
+		visual_tools_->publishWireframeCuboid(pose_box,  x_depth,  y_width, z_height); // stamped always box
 		//  //x_depth; // y_width // z_height
 
 
 	
-			
-		std::string stringaFrameIdPadre = "base_frame";
-		std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(contact_id[0]);
+		////////////////////////////////////////////////////////////////////////// contact frame
+
+		for(int i= 0; i < contact_id.size(); i++)
+		{
 
 
-		Eigen::MatrixXd c_Rotation_o(3,3);
-		normal_component(c_Rotation_o, box(0)/2, box(1)/2, box(2)/2 , cp(contact_id[0],0), cp(contact_id[0],1), cp(contact_id[0],2));
+			std::string stringaFrameIdPadre = "base_frame";
+			std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(contact_id[i]);
 
 
-		// KDL::Rotation R( c_Rotation_o(0,0), c_Rotation_o(0,1),c_Rotation_o(0,2),c_Rotation_o(1,0),c_Rotation_o(1,1),c_Rotation_o(1,2),c_Rotation_o(2,0),c_Rotation_o(2,1),c_Rotation_o(2,2));
-		// per grasp
-		Eigen::MatrixXd b_Rotation_c = c_Rotation_o.transpose();
-		KDL::Rotation R( b_Rotation_c(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
+			Eigen::MatrixXd c_Rotation_o(3,3);
+			normal_component(c_Rotation_o, box(0)/2, box(1)/2, box(2)/2 , cp(contact_id[i],0), cp(contact_id[i],1), cp(contact_id[i],2));
+
+
+			// KDL::Rotation R( c_Rotation_o(0,0), c_Rotation_o(0,1),c_Rotation_o(0,2),c_Rotation_o(1,0),c_Rotation_o(1,1),c_Rotation_o(1,2),c_Rotation_o(2,0),c_Rotation_o(2,1),c_Rotation_o(2,2));
+			// per grasp
+			Eigen::MatrixXd b_Rotation_c = c_Rotation_o.transpose();
+			KDL::Rotation R( b_Rotation_c(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
 
 
 	
 
-			double px = cp(contact_id[0],0);//p.translation[0];
-			double py = cp(contact_id[0],1);//p.translation[1];
-			double pz = cp(contact_id[0],2);//p.translation[2];
+			double px = cp(contact_id[i],0);//p.translation[i];
+			double py = cp(contact_id[i],1);//p.translation[1];
+			double pz = cp(contact_id[i],2);//p.translation[2];
 		
 			double qx ;//p.quaternion[1];
 			double qy ;//p.quaternion[2];
 			double qz ;//p.quaternion[3];
-			double qw ;//p.quaternion[0];
+			double qw ;//p.quaternion[i];
 
 
 			R.GetQuaternion(qx, qy, qz, qw);
@@ -332,14 +327,34 @@ int main (int argc, char **argv)
 
 
 
-			Eigen::VectorXd fo(3);
-			fo << -cf(contact_id[0],0), -cf(contact_id[0],1), -cf(contact_id[0],2);
-			Eigen::VectorXd fc(3);
+			Eigen::VectorXd fo(6);
+			fo << -cf(contact_id[i],0), -cf(contact_id[i],1), -cf(contact_id[i],2), cf(contact_id[i],3), cf(contact_id[i],4), cf(contact_id[i],5);
+			Eigen::VectorXd fc(6);
 			// fc = b_Rotation_c*fo;
-			fc = c_Rotation_o*fo;
+
+			Eigen::MatrixXd Grasp_Matrix = MatrixXd::Identity(6,6);
+			Eigen::MatrixXd Skew_Matrix = MatrixXd::Zero(3,3);
+
+
+
+	      	Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
+     		Skew_Matrix(0,1) = - cp(contact_id[i],2); // -rz    
+     		Skew_Matrix(0,2) = cp(contact_id[i],1);   // ry
+        	Skew_Matrix(1,0) = cp(contact_id[i],2);   // rz
+        	Skew_Matrix(2,0) = - cp(contact_id[i],1); // -ry
+        	Skew_Matrix(1,2) = - cp(contact_id[i],0); // -rx
+       		Skew_Matrix(2,1) = cp(contact_id[i],0);   // rx
+
+        	Grasp_Matrix.block<3,3>(0,0) = c_Rotation_o;
+     		Grasp_Matrix.block<3,3>(3,3) = c_Rotation_o;
+     		Grasp_Matrix.block<3,3>(3,0) = Skew_Matrix * c_Rotation_o;
+        	Grasp_Matrix.block<3,3>(0,3) = MatrixXd::Zero(3,3);
+
+			fc = Grasp_Matrix*fo;
 
 
 			cout << " fo : " << endl << fo << endl;
+			cout << "-----------------------" << endl;
 			cout << " fc : " << endl << fc << endl;
 
 
@@ -353,11 +368,11 @@ int main (int argc, char **argv)
 			wrMsg_.wrench.force.y = fo(1);
 			wrMsg_.wrench.force.z = fo(2);
 
-			wrMsg_.wrench.torque.x = cf(contact_id[0],3);
-			wrMsg_.wrench.torque.y = cf(contact_id[0],4);
-			wrMsg_.wrench.torque.z = cf(contact_id[0],5);
+			wrMsg_.wrench.torque.x = fo(3);
+			wrMsg_.wrench.torque.y = fo(4);
+			wrMsg_.wrench.torque.z = fo(5);
 
-			Wrench_pub1.publish(wrMsg_);
+			Wrench_pub_center.publish(wrMsg_); // force mapping in center of the box
 
 
 
@@ -365,7 +380,7 @@ int main (int argc, char **argv)
 
 			geometry_msgs::WrenchStamped wrMsg;
 
-			wrMsg.header.frame_id = "contact_frame_" + std::to_string(contact_id[0]);
+			wrMsg.header.frame_id = "contact_frame_" + std::to_string(contact_id[i]);
 			wrMsg.header.stamp = ros::Time::now();
 
 
@@ -373,11 +388,13 @@ int main (int argc, char **argv)
 			wrMsg.wrench.force.y = fc(1);
 			wrMsg.wrench.force.z = fc(2);
 
-			wrMsg.wrench.torque.x = cf(contact_id[0],3);
-			wrMsg.wrench.torque.y = cf(contact_id[0],4);
-			wrMsg.wrench.torque.z = cf(contact_id[0],5);
+			wrMsg.wrench.torque.x = fc(3);
+			wrMsg.wrench.torque.y = fc(4);
+			wrMsg.wrench.torque.z = fc(5);
 
-			Wrench_pub.publish(wrMsg);
+			Wrench_pub_contact.publish(wrMsg);
+
+		}
 		
 						
 		

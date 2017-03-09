@@ -354,7 +354,7 @@ int main (int argc, char **argv)
       for(int i = 0 ; i < contact_flag.size() ; i++)
         contact_flag(i) = 0 ;
 
-    ///////////////////////////////////////////    contact flag --- >   calculating the quality index when I
+    ///////////////////////////////////////////    contact flag --- >   calculating the quality index when I have
     ///////////////////////////////////////////                          1) a contact point   2) normal force is positive and the norm of contact force is positive
 		contact_id.resize(0);
 
