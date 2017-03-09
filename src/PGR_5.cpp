@@ -838,7 +838,7 @@ cout << "J_C :" << endl << J_c << endl;
 
   file_output_4 << quality_i ; // dataset for matlab
   for(int i = 0 ; i < 10 ; i++)
-     file_output_4 << ' ' << i+1 << ":" << values_inline[i] ;
+     file_output_4 << ' ' << values_inline[i] ;
   file_output_4 << ' ' << endl;
 
 
