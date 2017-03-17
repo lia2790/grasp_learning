@@ -213,6 +213,9 @@ int main (int argc, char **argv)
   ofstream file_output_4; //output file
     file_output_4.open("box_db_quality_PGR_matlab", ofstream::app);
 
+  ofstream file_output_5; //output file
+    file_output_5.open("box_db_quality_PGR_pos", ofstream::app);
+
 
 
 	///////////////////// load the data_base ////////////////////////////////////
@@ -854,9 +857,12 @@ cout << "J_C :" << endl << J_c << endl;
   if(quality_i > 0)
   { 
     file_output_2 << quality_i ;
+    file_output_5 << quality_i ;
     for(int i = 0 ; i < 10 ; i++)
-      file_output_2 << ' ' << i+1 << ":" << values_inline[i] ;
+    {  file_output_2 << ' ' << i+1 << ":" << values_inline[i] ;
+       file_output_5 << ' ' << values_inline[i]; }
     file_output_2 << ' ' << endl;
+    file_output_5 << ' ' << endl;
   }
 
   if(quality_i > quality_max)

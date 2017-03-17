@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_learning)/param/populate_db.yaml" command="load"/>
+	
+		<node name="populate_grasp_dataset" pkg="grasp_learning" type="populate_grasp_dataset" cwd = "node" respawn="false" output="screen"/>
+
+</launch>

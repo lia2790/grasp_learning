@@ -207,6 +207,11 @@ add_executable(test_show_on_Rviz_box src/test_show_on_Rviz_box.cpp)
 target_link_libraries(test_show_on_Rviz_box ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
+add_executable(populate_grasp_dataset src/populate_grasp_dataset.cpp)
+target_link_libraries(populate_grasp_dataset ${catkin_LIBRARIES} ${Eigen_LIBRARIES} )
+
+
+
 
 
 add_executable(test_file_2_fingers src/test_file_2_fingers.cpp)
