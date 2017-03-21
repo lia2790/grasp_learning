@@ -111,8 +111,11 @@ int main (int argc, char **argv)
 
 
 
-	ofstream file_output; //output file
+	ofstream file_output; //output file for matlab
     file_output.open("box_db_pop", ofstream::app);
+
+    ofstream file_output_1; //output file for matlab
+    file_output_1.open("box_db_pop.csv", ofstream::app);
 
 
 	///////////////////////////////// get values from file for each line //////////////////////////////////
@@ -222,6 +225,13 @@ int main (int argc, char **argv)
 			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(3,0)<<' '<<T0(3,1)<<' '<<T0(3,2)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;
 			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T1(3,0)<<' '<<T1(3,1)<<' '<<T1(3,2)<<' '<<q1.x()<<' '<<q1.y()<<' '<<q1.z()<<' '<<q1.w()<<endl;
 			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T2(3,0)<<' '<<T2(3,1)<<' '<<T2(3,2)<<' '<<q2.x()<<' '<<q2.y()<<' '<<q2.z()<<' '<<q2.w()<<endl;
+
+			file_output_1<<xb<<','<<yb<<','<<zb<<','<<xp<<','<<yp<<' '<<zp<<','<<qx<<','<<qy<<','<<qz<<','<<qw<<endl;
+			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T0(3,0)<<','<<T0(3,1)<<','<<T0(3,2)<<','<<q0.x()<<','<<q0.y()<<','<<q0.z()<<','<<q0.w()<<endl;
+			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T1(3,0)<<','<<T1(3,1)<<','<<T1(3,2)<<','<<q1.x()<<','<<q1.y()<<','<<q1.z()<<','<<q1.w()<<endl;
+			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T2(3,0)<<','<<T2(3,1)<<','<<T2(3,2)<<','<<q2.x()<<','<<q2.y()<<','<<q2.z()<<','<<q2.w()<<endl;
+
+
 
 			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<xp<<' '<<yp<<' '<<zp<<' '<<qx<<' '<<qy<<' '<<qz<<' '<<qw<<endl;
 			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(3,0)<<' '<<T0(3,1)<<' '<<T0(3,2)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;

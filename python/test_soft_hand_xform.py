@@ -18,7 +18,7 @@ import sys
 import time
 
 from klampt.math import so3, se3
-import pydany_bb
+# import pydany_bb
 import numpy as np
 from IPython import embed
 from mvbb.draw_bbox import draw_GL_frame, draw_bbox
