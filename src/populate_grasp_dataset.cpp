@@ -146,9 +146,9 @@ int main (int argc, char **argv)
 
 			Eigen::MatrixXd T_point = MatrixXd::Identity(4,4);
 
-			T_point(3,0) = xp;
-			T_point(3,1) = yp;
-			T_point(3,2) = zp;
+			T_point(0,3) = xp;
+			T_point(1,3) = yp;
+			T_point(2,3) = zp;
 
 			KDL::Rotation Rot_point = Rotation::Quaternion(qx,qy,qz,qw);
 
@@ -173,38 +173,57 @@ int main (int argc, char **argv)
 			Eigen::MatrixXd R2 = MatrixXd::Identity(3,3);
 
 		
-			R0 << 1, 0, 0,
-				0, cos(180*PPI/180), -sin(180*PPI/180),
-				0, sin(180*PPI/180), cos(180*PPI/180);
+			R1 << 1.0, 0.0, 0.0,
+				0.0, cos(180.0*M_PI/180.0), -sin(180.0*M_PI/180.0),
+				0.0, sin(180.0*M_PI/180.0), cos(180.0*M_PI/180.0);
 	
 	
-			R1 << cos(180*(PPI/180)), sin(180*(PPI/180)), 0,
-				-sin(180*(PPI/180)), cos(180*(PPI/180)), 0,
-				0,				0, 				 1;
+			R0 << cos(180.0*(M_PI/180.0)), sin(180.0*(M_PI/180.0)), 0.0,
+				-sin(180.0*(M_PI/180.0)), cos(180.0*(M_PI/180.0)), 0.0,
+				0.0,				0.0, 				1.0;
 	
-			R2 << cos(180*(PPI/180)),  0, sin(180*(PPI/180)),
-					        0   ,  1,    0 ,
-				-sin(180*(PPI/180)), 0, cos(180*(PPI/180));
+			R2 << cos(180.0*(M_PI/180.0)),  0.0, sin(180.0*(M_PI/180.0)),
+					        0.0  ,  1.0,    0.0 ,
+				-sin(180.0*(M_PI/180.0)), 0.0, cos(180.0*(M_PI/180.0));
 			
 
 
 			T_rot_same_face.block<3,3>(0,0) = R0;
 			T_rot_opposite1.block<3,3>(0,0) = R1;
 			T_rot_opposite2.block<3,3>(0,0) = R2;
+
+			cout << T_rot_same_face << endl;
+			cout << T_rot_opposite1 << endl;
+			cout << T_rot_opposite2 << endl;
+
+			cout << T_point << endl;
+
+
+
    	
 			Eigen::MatrixXd T0 = MatrixXd::Identity(4,4);
 			Eigen::MatrixXd T1 = MatrixXd::Identity(4,4);
 			Eigen::MatrixXd T2 = MatrixXd::Identity(4,4);
 
 
-			T0 = T_rot_same_face * T_point;
-			T1 = T_rot_opposite1 * T_point;
-			T2 = T_rot_opposite2 * T_point;
+			T0 = T_rot_same_face * T_point; //around z
+			T1 = T_rot_opposite1 * T_point; //around x
+			T2 = T_rot_opposite2 * T_point; //around y
+
+			cout << "-------------- T0 - Z - 1----------------"<< endl;
+			cout << T0 << endl;
+			cout << "-------------- T1 - X - 3----------------"<< endl;
+			cout << T1 << endl;
+			cout << "-------------- T2 - Y - 2----------------"<< endl;
+			cout << T2 << endl;
+
+			
+
 
 			Eigen::Matrix3f TR0(3,3);
 			Eigen::Matrix3f TR1(3,3);
 			Eigen::Matrix3f TR2(3,3);
-
+			Eigen::Matrix3f TRpoint(3,3);
 
 			for(int i = 0 ; i <3 ; i++)
 			{	for(int j = 0 ; j <3 ; j++)
@@ -212,31 +231,32 @@ int main (int argc, char **argv)
 					TR0(i,j) = T0(i,j);
 					TR1(i,j) = T1(i,j);
 					TR2(i,j) = T2(i,j);
+					TRpoint(i,j) = T_point(i,j);
 				}
 			}
-
 
 
 			Eigen::Quaternionf q0(TR0);
 			Eigen::Quaternionf q1(TR1);
 			Eigen::Quaternionf q2(TR2);
+			Eigen::Quaternionf qp(TRpoint);
 
 			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<xp<<' '<<yp<<' '<<zp<<' '<<qx<<' '<<qy<<' '<<qz<<' '<<qw<<endl;
-			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(3,0)<<' '<<T0(3,1)<<' '<<T0(3,2)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;
-			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T1(3,0)<<' '<<T1(3,1)<<' '<<T1(3,2)<<' '<<q1.x()<<' '<<q1.y()<<' '<<q1.z()<<' '<<q1.w()<<endl;
-			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T2(3,0)<<' '<<T2(3,1)<<' '<<T2(3,2)<<' '<<q2.x()<<' '<<q2.y()<<' '<<q2.z()<<' '<<q2.w()<<endl;
+			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(0,3)<<' '<<T0(1,3)<<' '<<T0(2,3)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;
+			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T1(0,3)<<' '<<T1(1,3)<<' '<<T1(2,3)<<' '<<q1.x()<<' '<<q1.y()<<' '<<q1.z()<<' '<<q1.w()<<endl;
+			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T2(0,3)<<' '<<T2(1,3)<<' '<<T2(2,3)<<' '<<q2.x()<<' '<<q2.y()<<' '<<q2.z()<<' '<<q2.w()<<endl;
 
-			file_output_1<<xb<<','<<yb<<','<<zb<<','<<xp<<','<<yp<<' '<<zp<<','<<qx<<','<<qy<<','<<qz<<','<<qw<<endl;
-			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T0(3,0)<<','<<T0(3,1)<<','<<T0(3,2)<<','<<q0.x()<<','<<q0.y()<<','<<q0.z()<<','<<q0.w()<<endl;
-			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T1(3,0)<<','<<T1(3,1)<<','<<T1(3,2)<<','<<q1.x()<<','<<q1.y()<<','<<q1.z()<<','<<q1.w()<<endl;
-			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T2(3,0)<<','<<T2(3,1)<<','<<T2(3,2)<<','<<q2.x()<<','<<q2.y()<<','<<q2.z()<<','<<q2.w()<<endl;
+			file_output_1<<xb<<','<<yb<<','<<zb<<','<<xp<<','<<yp<<','<<zp<<','<<qx<<','<<qy<<','<<qz<<','<<qw<<endl;
+			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T0(0,3)<<','<<T0(1,3)<<','<<T0(2,3)<<','<<q0.x()<<','<<q0.y()<<','<<q0.z()<<','<<q0.w()<<endl;
+			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T1(0,3)<<','<<T1(1,3)<<','<<T1(2,3)<<','<<q1.x()<<','<<q1.y()<<','<<q1.z()<<','<<q1.w()<<endl;
+			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T2(0,3)<<','<<T2(1,3)<<','<<T2(2,3)<<','<<q2.x()<<','<<q2.y()<<','<<q2.z()<<','<<q2.w()<<endl;
 
 
 
 			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<xp<<' '<<yp<<' '<<zp<<' '<<qx<<' '<<qy<<' '<<qz<<' '<<qw<<endl;
-			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(3,0)<<' '<<T0(3,1)<<' '<<T0(3,2)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;
-			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T1(3,0)<<' '<<T1(3,1)<<' '<<T1(3,2)<<' '<<q1.x()<<' '<<q1.y()<<' '<<q1.z()<<' '<<q1.w()<<endl;
-			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T2(3,0)<<' '<<T2(3,1)<<' '<<T2(3,2)<<' '<<q2.x()<<' '<<q2.y()<<' '<<q2.z()<<' '<<q2.w()<<endl;
+			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(0,3)<<' '<<T0(1,3)<<' '<<T0(2,3)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;
+			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T1(0,3)<<' '<<T1(1,3)<<' '<<T1(2,3)<<' '<<q1.x()<<' '<<q1.y()<<' '<<q1.z()<<' '<<q1.w()<<endl;
+			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T2(0,3)<<' '<<T2(1,3)<<' '<<T2(2,3)<<' '<<q2.x()<<' '<<q2.y()<<' '<<q2.z()<<' '<<q2.w()<<endl;
 		}
     }
 }
