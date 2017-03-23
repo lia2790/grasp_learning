@@ -84,7 +84,10 @@ int main (int argc, char **argv)
 
 	string relative_path_file;
 	string file_name;
+	//int set = 0;
 	nh.param<std::string>("file_name", relative_path_file, "/box_db_2/box_db_quality_PGR_matlab" );
+	//nh.param<std::string>("set", set, 0);
+
 
 
 
@@ -110,12 +113,23 @@ int main (int argc, char **argv)
 	double qw = 0;
 
 
+	// if ( set )
+	// {
 
-	ofstream file_output; //output file for matlab
-    file_output.open("box_db_pop", ofstream::app);
+	// 	ofstream file_output; //output file for matlab
+ //    	file_output.open("box_db_pop", ofstream::app);
 
-    ofstream file_output_1; //output file for matlab
-    file_output_1.open("box_db_pop.csv", ofstream::app);
+ //    	ofstream file_output_1; //output file for klampt
+ //    	file_output_1.open("box_db_pop.csv", ofstream::app);
+ //    }
+ //    else
+ //    {
+   		ofstream file_output; //output file for matlab
+    	file_output.open("box_db_pop_complete", ofstream::app);
+
+    	ofstream file_output_1; //output file for klampt
+    	file_output_1.open("box_db_pop_complete.csv", ofstream::app);
+   // }
 
 
 	///////////////////////////////// get values from file for each line //////////////////////////////////
@@ -126,8 +140,8 @@ int main (int argc, char **argv)
     	for(std::string value; getline(iss_line, value, ' ' ); )
     		values_inline.push_back(stod(value));
 
-    	if( values_inline[0] > 0)
-    	{
+    	//if( values_inline[0] > 0 )
+    	//{
     		q = values_inline[0];
 
     		xb = values_inline[1];
@@ -257,6 +271,6 @@ int main (int argc, char **argv)
 			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(0,3)<<' '<<T0(1,3)<<' '<<T0(2,3)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;
 			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T1(0,3)<<' '<<T1(1,3)<<' '<<T1(2,3)<<' '<<q1.x()<<' '<<q1.y()<<' '<<q1.z()<<' '<<q1.w()<<endl;
 			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T2(0,3)<<' '<<T2(1,3)<<' '<<T2(2,3)<<' '<<q2.x()<<' '<<q2.y()<<' '<<q2.z()<<' '<<q2.w()<<endl;
-		}
+		//}
     }
 }

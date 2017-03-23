@@ -85,8 +85,8 @@ double quality = 0;
 //random value da 0 a 100 (from offset to interval_size)
 
 
-ofstream file_output; //output file
-
+ofstream file_output; //output file for klampt
+ofstream file_output1; //output file for matlab train svm
 
 
 
@@ -217,6 +217,7 @@ int main (int argc, char **argv)
 
 	srand(time(NULL)); //se non voglio la stessa sequenza di numeri casuali
 	file_output.open("box_db.csv", ofstream::app);
+    file_output1.open("box_db", ofstream::app);
 	box n_box[number_box];  //array di box
 
     
@@ -236,18 +237,15 @@ int main (int argc, char **argv)
                                                                         // corrisponde al centro della box
 
 
-
-
   
 	   std::vector<Eigen::MatrixXd> grasp_point = populate_face(axis_dimensions_box, discretize_side, distance_hand, T_fixed_frame );
-        //discretizzo le facce della i-esima box
-        //ad ogni punto discretizzato corrisponde una trasformazione 
+
 
     
 
 		for(int j = 0 ; j < grasp_point.size(); j++)
 		{
-            //quality = (double)((rand() % interval_size) + offset ) / 100; // probabilità di successo di grasp
+            
 
             Matrix3f Rotation_matrix(3,3);
             Rotation_matrix << grasp_point[j](0,0) , grasp_point[j](0,1) , grasp_point[j](0,2),
@@ -257,16 +255,6 @@ int main (int argc, char **argv)
 
             q.normalize();
 
-
-
-            /* STD OUTPUT 
-
-
-			file_output 
-            <<n_box[i].width<<','<<n_box[i].height<<','<<n_box[i].length<<','                // box h l d
-            <<grasp_point[j](0,3)<<','<<grasp_point[j](1,3)<<','<<grasp_point[j](2,3)<<','   // x y z
-            <<q.x()<<','<<q.y()<<','<<q.z()<<','<<q.w()<<endl;                               // qx qy qz qw
-            */
  
             /* OUTput KLAMPT */
 
@@ -277,18 +265,16 @@ int main (int argc, char **argv)
             <<q.x()<<','<<q.y()<<','<<q.z()<<','<<q.w();  
             file_output << endl; 
 
+            /* output for matlab */
+
+            file_output1 
+            <<n_box[i].width<<' '<<n_box[i].height<<' '<<n_box[i].length<<' '                // box h l d
+            <<grasp_point[j](0,3)<<' '<<grasp_point[j](1,3)<<' '<<grasp_point[j](2,3)<<' '   // x y z
+            <<q.x()<<' '<<q.y()<<' '<<q.z()<<' '<<q.w();  
+            file_output1 << endl; 
 
             
-            /*  OUTPUT for LIBSVM
-
-
-            <<quality
-            <<' '<<"1:"<<n_box[i].width<<' '<<"2:"<<n_box[i].height<<' '<<"3:"<<n_box[i].length
-            <<' '<<"4:"<<grasp_point[j](0,0)<<' '<<"5:"<<grasp_point[j](0,1)<<' '<<"6:"<<grasp_point[j](0,2)<<' '<<"7:"<<grasp_point[j](0,3)
-            <<' '<<"8:"<<grasp_point[j](1,0)<<' '<<"9:"<<grasp_point[j](1,1)<<' '<<"10:"<<grasp_point[j](1,2)<<' '<<"11:"<<grasp_point[j](1,3)
-            <<' '<<"12:"<<grasp_point[j](2,0)<<' '<<"13:"<<grasp_point[j](2,1)<<' '<<"14:"<<grasp_point[j](2,2)<<' '<<"15:"<<grasp_point[j](2,3)
-            <<' '<<"16:"<<grasp_point[j](3,0)<<' '<<"17:"<<grasp_point[j](3,1)<<' '<<"18:"<<grasp_point[j](3,2)<<' '<<"19:"<<grasp_point[j](3,3)
-            <<' '<<'\n'; */
+        
         }
 	}// end for
 

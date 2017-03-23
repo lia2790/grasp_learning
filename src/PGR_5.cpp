@@ -217,6 +217,10 @@ int main (int argc, char **argv)
     file_output_5.open("box_db_quality_PGR_pos", ofstream::app);
 
 
+  ofstream file_output_6; //output file
+    file_output_6.open("box_db_quality_PGR_matlab_pos", ofstream::app);
+
+
 
 	///////////////////// load the data_base ////////////////////////////////////
 	std::string path = ros::package::getPath("grasp_learning");
@@ -858,11 +862,13 @@ cout << "J_C :" << endl << J_c << endl;
   { 
     file_output_2 << quality_i ;
     file_output_5 << quality_i ;
+    file_output_6 << quality_i ;
     for(int i = 0 ; i < 10 ; i++)
     {  file_output_2 << ' ' << i+1 << ":" << values_inline[i] ;
        file_output_5 << ' ' << values_inline[i]; }
     file_output_2 << ' ' << endl;
     file_output_5 << ' ' << endl;
+    file_output_6 << ' ' << endl;
   }
 
   if(quality_i > quality_max)
