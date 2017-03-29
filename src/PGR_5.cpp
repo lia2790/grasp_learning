@@ -417,12 +417,12 @@ int main (int argc, char **argv)
 		{
 			Eigen::MatrixXd Grasp_Matrix(6,6);  
  			Eigen::MatrixXd Skew_Matrix(3,3);
-  			Eigen::MatrixXd Rotation(3,3);
-  			Eigen::MatrixXd b_Rotation_c(3,3);
+  		Eigen::MatrixXd Rotation(3,3);
+  		Eigen::MatrixXd b_Rotation_c(3,3);
 
   					
 	 		//check if the values ​​of the skew matrix are expressed in the correct reference system
-    	  	Rotation = MatrixXd::Identity(3,3);
+    	Rotation = MatrixXd::Identity(3,3);
 
 			  Skew_Matrix(0,0) = Skew_Matrix(1,1) = Skew_Matrix(2,2) = 0;
      		Skew_Matrix(0,1) = - cp(contact_id[i],2); // -rz    

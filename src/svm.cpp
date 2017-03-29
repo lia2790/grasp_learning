@@ -178,12 +178,17 @@ cout << "dim_sample : " << dim_sample << endl;
 	///////////////////////////////// get values //////////////////////////////////
 	int i=0;
 	int j=0;
-	for(std::string line; getline( file_model, line, '\n' ); )
+	std::string line_model; 
+	for(std::string line; getline(file_model, line_model, '\n' ); )
 	{
-    	std::istringstream iss_line(line);	
+
+		cout << "yyy "<<endl;
+
+    	std::istringstream iss_line(line_model);	
     	j=0;
     	for(std::string value_model; getline(iss_line, value_model, ' ' ); )
     	{
+    			cout << " elem : " << stod(value_model) << endl;
     			Model(i,j) = stod(value_model);
     			j++;
     	}
