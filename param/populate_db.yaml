@@ -1,1 +1,2 @@
-file_name: "/box_db/Asus_manuel/box_db_quality_PGR_matlab"
+file_name_in: "/box_test/database_train/bicchiere/box_db_quality_PGR_matlab"
+file_name_out: "/box_test/database_train/"

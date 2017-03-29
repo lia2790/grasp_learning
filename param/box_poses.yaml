@@ -1,4 +1,4 @@
 number_box: 1
 distance_hand: 0.02
-discrete_side: 20
-box_input: [0.062, 0.062, 0.062]
+discrete_side: 10
+box_input: [0.051, 0.051, 0.135]

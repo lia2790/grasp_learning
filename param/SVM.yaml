@@ -1,0 +1,3 @@
+filename_box_text: "/box_test/"
+filename_model: "/svm_model/model"
+filename_box_estimate: "/box_estimate/"

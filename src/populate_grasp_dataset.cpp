@@ -82,10 +82,13 @@ int main (int argc, char **argv)
 	ros::init(argc, argv, "grasp_dataset_populate");	// ROS node
 	ros::NodeHandle nh;
 
-	string relative_path_file;
-	string file_name;
+	string relative_path_file_in;
+	string relative_path_file_out;
+	string file_name_in;
+	string file_name_out;
 	//int set = 0;
-	nh.param<std::string>("file_name", relative_path_file, "/box_db_2/box_db_quality_PGR_matlab" );
+	nh.param<std::string>("file_name_in", relative_path_file_in, "/box_db_2/box_db_quality_PGR_matlab" );
+	nh.param<std::string>("file_name_out", relative_path_file_out, "/box_db_2/" );
 	//nh.param<std::string>("set", set, 0);
 
 
@@ -93,8 +96,8 @@ int main (int argc, char **argv)
 
 	///////////////////// load the data_base ////////////////////////////////////
 	std::string path = ros::package::getPath("grasp_learning");
-	file_name = path + relative_path_file;
-	ifstream file(file_name); 
+	file_name_in = path + relative_path_file_in;
+	ifstream file(file_name_in); 
 
 
 	double q = 0;
@@ -113,23 +116,18 @@ int main (int argc, char **argv)
 	double qw = 0;
 
 
-	// if ( set )
-	// {
 
-	// 	ofstream file_output; //output file for matlab
- //    	file_output.open("box_db_pop", ofstream::app);
+	file_name_out = path + relative_path_file_out;
 
- //    	ofstream file_output_1; //output file for klampt
- //    	file_output_1.open("box_db_pop.csv", ofstream::app);
- //    }
- //    else
- //    {
-   		ofstream file_output; //output file for matlab
-    	file_output.open("box_db_pop_complete", ofstream::app);
 
-    	ofstream file_output_1; //output file for klampt
-    	file_output_1.open("box_db_pop_complete.csv", ofstream::app);
-   // }
+   	ofstream file_output; //output file for matlab
+   	std::string name = "box_db_pop";
+    file_output.open( file_name_out + name, ofstream::app);
+
+    ofstream file_output_1; //output file for klampt
+    std::string name_csv = "box_db_pop.csv";
+    file_output_1.open(file_name_out + name_csv, ofstream::app);
+  
 
 
 	///////////////////////////////// get values from file for each line //////////////////////////////////
