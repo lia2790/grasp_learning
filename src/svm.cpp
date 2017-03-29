@@ -114,7 +114,7 @@ int main (int argc, char **argv)
    	std::string name = "box_estimate";
     file_output.open( file_name_out + name, ofstream::app);
 
-
+cout << "1" << endl;
 
 
 
@@ -135,7 +135,7 @@ int main (int argc, char **argv)
 
 	Eigen::MatrixXd Model(n_sv,dim_cols);
 
-
+cout << "2" << endl;
 
 	int n_samples = 0;
     int dim_sample = 0;
@@ -144,8 +144,8 @@ int main (int argc, char **argv)
     std::string line_in; 
     getline( file_in, line_in, '\n' ); //count cols
     std::istringstream iss_line_in(line_in);
-    std::string value_in;	
-    for(std::string value; getline(iss_line_in, value_in, ' ' ); )
+  	
+    for(std::string value_in; getline(iss_line_in, value_in, ' ' ); )
     	dim_sample++;
 	
     for(std::string line; getline( file_in, line_in, '\n' ); )
@@ -154,7 +154,7 @@ int main (int argc, char **argv)
 
 	Eigen::MatrixXd box_est = MatrixXd::Zero(n_samples,dim_sample+1);
 
-
+cout << "3" << endl;
 
 
 
@@ -166,7 +166,7 @@ int main (int argc, char **argv)
 	{
     	std::istringstream iss_line(line);	
     	j=0;
-    	for(std::string value; getline(iss_line, value_model, ' ' ); )
+    	for(std::string value_model; getline(iss_line, value_model, ' ' ); )
     	{
     			Model(i,j) = stod(value_model);
     			j++;
@@ -180,7 +180,7 @@ int main (int argc, char **argv)
 
     Eigen::MatrixXd row = MatrixXd::Zero(1,dim_cols-1);
    
-
+cout << "4" <<endl;
 
 	///////////////////////////////// get values //////////////////////////////////
 	
