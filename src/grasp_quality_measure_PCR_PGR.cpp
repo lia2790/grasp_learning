@@ -189,32 +189,6 @@ int main (int argc, char **argv)
 
 
 
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;

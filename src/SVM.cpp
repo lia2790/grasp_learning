@@ -101,160 +101,155 @@ int main (int argc, char **argv)
 	std::string path = ros::package::getPath("grasp_learning");
 
 
-	file_name_in = path + relative_path_file_in;
-	ifstream file(file_name_in); 
+	file_name_in = path + relative_path_file_in;//input box 
+	ifstream file_in(file_name_in); 
 
 
 
-	file_name_model = path + relative_path_file_model;
-	ifstream file(file_name_model);
+	file_name_model = path + relative_path_file_model;//input model
+	ifstream file_model(file_name_model);
 
 
-   	ofstream file_output; //output file for matlab
+   	ofstream file_output; //output file 
    	std::string name = "box_estimate";
     file_output.open( file_name_out + name, ofstream::app);
 
 
 
-	///////////////////////////////// get values from file for each line //////////////////////////////////
-	for(std::string line; getline( file, line, '\n' ); ) // for each line
+
+
+    int n_sv = 0;
+    int dim_cols = 0;
+
+    ///////////////////////////////// get values //////////////////////////////////
+    std::string line_model; 
+    getline( file_model, line_model, '\n' ); //count cols
+    std::istringstream iss_line_model(line_model);
+    std::string value_model;	
+    for(std::string value; getline(iss_line_model, value_model, ' ' ); )
+    	dim_cols++;
+	
+    for(std::string line; getline( file_model, line_model, '\n' ); )
+		n_sv++;
+	////////////////////////////////////////////////////////////////////////////////
+
+	Eigen::MatrixXd Model(n_sv,dim_cols);
+
+
+
+	int n_samples = 0;
+    int dim_sample = 0;
+
+    ///////////////////////////////// get values //////////////////////////////////
+    std::string line_in; 
+    getline( file_in, line_in, '\n' ); //count cols
+    std::istringstream iss_line_in(line_in);
+    std::string value_in;	
+    for(std::string value; getline(iss_line_in, value_in, ' ' ); )
+    	dim_sample++;
+	
+    for(std::string line; getline( file_in, line_in, '\n' ); )
+		n_samples++;
+	////////////////////////////////////////////////////////////////////////////////
+
+	Eigen::MatrixXd box_est = MatrixXd::Zero(n_samples,dim_sample+1);
+
+
+
+
+
+
+	///////////////////////////////// get values //////////////////////////////////
+	int i=0;
+	int j=0;
+	for(std::string line; getline( file_model, line, '\n' ); )
+	{
+    	std::istringstream iss_line(line);	
+    	j=0;
+    	for(std::string value; getline(iss_line, value_model, ' ' ); )
+    	{
+    			Model(i,j) = stod(value_model);
+    			j++;
+    	}
+
+    	i++;
+    	
+    }
+
+
+
+    Eigen::MatrixXd row = MatrixXd::Zero(1,dim_cols-1);
+   
+
+
+	///////////////////////////////// get values //////////////////////////////////
+	
+	for(std::string line; getline( file_in, line, '\n' ); )
 	{
 		std::vector<double> values_inline;
     	std::istringstream iss_line(line);	
     	for(std::string value; getline(iss_line, value, ' ' ); )
-    		values_inline.push_back(stod(value));
-
-    	//if( values_inline[0] > 0 )
-    	//{
-    		q = values_inline[0];
-
-    		xb = values_inline[1];
-			yb = values_inline[2];
-			zb = values_inline[3];
-
-			xp = values_inline[4];
-			yp = values_inline[5];
-			zp = values_inline[6];
-
-			qx = values_inline[7];
-			qy = values_inline[8];
-			qz = values_inline[9];
-			qw = values_inline[10];
-
-
-			Eigen::MatrixXd T_point = MatrixXd::Identity(4,4);
-
-			T_point(0,3) = xp;
-			T_point(1,3) = yp;
-			T_point(2,3) = zp;
-
-			KDL::Rotation Rot_point = Rotation::Quaternion(qx,qy,qz,qw);
-
-			T_point(0,0) = Rot_point.data[0];
-			T_point(0,1) = Rot_point.data[1];
-			T_point(0,2) = Rot_point.data[2];
-			T_point(1,0) = Rot_point.data[3];
-			T_point(1,1) = Rot_point.data[4];
-			T_point(1,2) = Rot_point.data[5];
-			T_point(2,0) = Rot_point.data[6];
-			T_point(2,1) = Rot_point.data[7];
-			T_point(2,2) = Rot_point.data[8];
-
-
-			Eigen::MatrixXd T_rot_same_face = MatrixXd::Identity(4,4);
-			Eigen::MatrixXd T_rot_opposite1 = MatrixXd::Identity(4,4);
-			Eigen::MatrixXd T_rot_opposite2 = MatrixXd::Identity(4,4);
-
-
-			Eigen::MatrixXd R0 = MatrixXd::Identity(3,3);
-			Eigen::MatrixXd R1 = MatrixXd::Identity(3,3);
-			Eigen::MatrixXd R2 = MatrixXd::Identity(3,3);
-
-		
-			R1 << 1.0, 0.0, 0.0,
-				0.0, cos(180.0*M_PI/180.0), -sin(180.0*M_PI/180.0),
-				0.0, sin(180.0*M_PI/180.0), cos(180.0*M_PI/180.0);
-	
-	
-			R0 << cos(180.0*(M_PI/180.0)), sin(180.0*(M_PI/180.0)), 0.0,
-				-sin(180.0*(M_PI/180.0)), cos(180.0*(M_PI/180.0)), 0.0,
-				0.0,				0.0, 				1.0;
-	
-			R2 << cos(180.0*(M_PI/180.0)),  0.0, sin(180.0*(M_PI/180.0)),
-					        0.0  ,  1.0,    0.0 ,
-				-sin(180.0*(M_PI/180.0)), 0.0, cos(180.0*(M_PI/180.0));
-			
-
-
-			T_rot_same_face.block<3,3>(0,0) = R0;
-			T_rot_opposite1.block<3,3>(0,0) = R1;
-			T_rot_opposite2.block<3,3>(0,0) = R2;
-
-			cout << T_rot_same_face << endl;
-			cout << T_rot_opposite1 << endl;
-			cout << T_rot_opposite2 << endl;
-
-			cout << T_point << endl;
+    			values_inline.push_back(stod(value));
 
 
 
-   	
-			Eigen::MatrixXd T0 = MatrixXd::Identity(4,4);
-			Eigen::MatrixXd T1 = MatrixXd::Identity(4,4);
-			Eigen::MatrixXd T2 = MatrixXd::Identity(4,4);
+    	Eigen::MatrixXd X_sv(1,dim_cols-2);
+    	Eigen::MatrixXd X_test(1,dim_cols-2);	
+
+    	for(int i = 0; i < (dim_cols-2); i++)
+    		X_test(0,i) = values_inline[i];
+
+    	Eigen::MatrixXd dist = MatrixXd::Zero(1,dim_cols-1);
+    	double arg = 0;
+    	double y_est = 0;
+
+    	for(int i = 0; i < Model.rows() ; i++)
+    	{
+
+    		for(int j=0 ; j< (dim_cols-2) ; j++)
+    			X_sv(0,j) = Model(i,2+j);
 
 
-			T0 = T_rot_same_face * T_point; //around z
-			T1 = T_rot_opposite1 * T_point; //around x
-			T2 = T_rot_opposite2 * T_point; //around y
+    		dist = X_sv - X_test;
+    		arg = dist * dist.transpose(); 
+    		y_est = y_est + Model(i,1)*exp(-Model(i,0)*arg);
 
-			cout << "-------------- T0 - Z - 1----------------"<< endl;
-			cout << T0 << endl;
-			cout << "-------------- T1 - X - 3----------------"<< endl;
-			cout << T1 << endl;
-			cout << "-------------- T2 - Y - 2----------------"<< endl;
-			cout << T2 << endl;
-
-			
+    	}
 
 
-			Eigen::Matrix3f TR0(3,3);
-			Eigen::Matrix3f TR1(3,3);
-			Eigen::Matrix3f TR2(3,3);
-			Eigen::Matrix3f TRpoint(3,3);
+    	row(0,0) = y_est;
 
-			for(int i = 0 ; i <3 ; i++)
-			{	for(int j = 0 ; j <3 ; j++)
-				{ 
-					TR0(i,j) = T0(i,j);
-					TR1(i,j) = T1(i,j);
-					TR2(i,j) = T2(i,j);
-					TRpoint(i,j) = T_point(i,j);
-				}
-			}
+    	for(int i = 0 ; i < (dim_cols-2) ; i++)
+    		row(0,1+i) = X_test(0,i);
 
+   
+    	int insert=0;
+    	for(int i =0; i < box_est.size(); i++)
+    	{
+    		if(box_est(i,0) <= row(0,0))
+    		{
+    			insert = i;
+    			break;
+    		}	
+    	}
 
-			Eigen::Quaternionf q0(TR0);
-			Eigen::Quaternionf q1(TR1);
-			Eigen::Quaternionf q2(TR2);
-			Eigen::Quaternionf qp(TRpoint);
+    	int bloc = n_samples - insert -1;
 
-			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<xp<<' '<<yp<<' '<<zp<<' '<<qx<<' '<<qy<<' '<<qz<<' '<<qw<<endl;
-			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(0,3)<<' '<<T0(1,3)<<' '<<T0(2,3)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;
-			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T1(0,3)<<' '<<T1(1,3)<<' '<<T1(2,3)<<' '<<q1.x()<<' '<<q1.y()<<' '<<q1.z()<<' '<<q1.w()<<endl;
-			file_output<<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T2(0,3)<<' '<<T2(1,3)<<' '<<T2(2,3)<<' '<<q2.x()<<' '<<q2.y()<<' '<<q2.z()<<' '<<q2.w()<<endl;
-
-			file_output_1<<xb<<','<<yb<<','<<zb<<','<<xp<<','<<yp<<','<<zp<<','<<qx<<','<<qy<<','<<qz<<','<<qw<<endl;
-			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T0(0,3)<<','<<T0(1,3)<<','<<T0(2,3)<<','<<q0.x()<<','<<q0.y()<<','<<q0.z()<<','<<q0.w()<<endl;
-			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T1(0,3)<<','<<T1(1,3)<<','<<T1(2,3)<<','<<q1.x()<<','<<q1.y()<<','<<q1.z()<<','<<q1.w()<<endl;
-			file_output_1<<xb<<','<<yb<<','<<zb<<','<<T2(0,3)<<','<<T2(1,3)<<','<<T2(2,3)<<','<<q2.x()<<','<<q2.y()<<','<<q2.z()<<','<<q2.w()<<endl;
-
-
-
-			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<xp<<' '<<yp<<' '<<zp<<' '<<qx<<' '<<qy<<' '<<qz<<' '<<qw<<endl;
-			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T0(0,3)<<' '<<T0(1,3)<<' '<<T0(2,3)<<' '<<q0.x()<<' '<<q0.y()<<' '<<q0.z()<<' '<<q0.w()<<endl;
-			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T1(0,3)<<' '<<T1(1,3)<<' '<<T1(2,3)<<' '<<q1.x()<<' '<<q1.y()<<' '<<q1.z()<<' '<<q1.w()<<endl;
-			cout <<q<<' '<<xb<<' '<<yb<<' '<<zb<<' '<<T2(0,3)<<' '<<T2(1,3)<<' '<<T2(2,3)<<' '<<q2.x()<<' '<<q2.y()<<' '<<q2.z()<<' '<<q2.w()<<endl;
-		//}
+    	box_est.block(insert+1,0, bloc, 11) = box_est.block(insert,0, bloc,11);
+    	box_est.block<1,11>(insert,0) = row.block<1,11>(0,0);
     }
+
+
+    for(int i = 0 ; i < n_samples; i++)
+    {	for(int j = 0 ; j < dim_sample; j++)
+    		file_output<<box_est(i,j)<<' ';
+   		file_output<<endl;
+   	}
+
+
+
+
+    ros::spinOnce();
+	return 0;
+
 }
