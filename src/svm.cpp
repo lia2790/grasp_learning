@@ -90,9 +90,9 @@ int main (int argc, char **argv)
 	string relative_path_file_out;
 	string file_name_out;
 	
-	nh.param<std::string>("file_name_in", relative_path_file_in, "/box_test/test" );
-	nh.param<std::string>("file_name_model", relative_path_file_model, "/svm_model/model");
-	nh.param<std::string>("file_name_out", relative_path_file_out, "/box_estimate/" );
+	nh.param<std::string>("filename_in", relative_path_file_in, "/box_test/test" );
+	nh.param<std::string>("filename_model", relative_path_file_model, "/svm_model/model");
+	nh.param<std::string>("filename_out", relative_path_file_out, "/box_estimate/" );
 	
 
 
@@ -104,9 +104,18 @@ int main (int argc, char **argv)
 	ifstream file_in(file_name_in); 
 
 
+	std::cout << "file: " << file_name_in.c_str() << " is " << (file_in.is_open() == true ? "already" : "not") << " open" << std::endl;
+	if(!file_in.is_open())
+	return 0;
+
 
 	file_name_model = path + relative_path_file_model;//input model
 	ifstream file_model(file_name_model);
+
+
+	std::cout << "file: " << file_name_model.c_str() << " is " << (file_model.is_open() == true ? "already" : "not") << " open" << std::endl;
+	if(!file_model.is_open())
+	return 0;
 
 
    	ofstream file_output; //output file 
@@ -125,13 +134,16 @@ cout << "1" << endl;
     std::string line_model; 
     getline( file_model, line_model, '\n' ); //count cols
     std::istringstream iss_line_model(line_model);
-    std::string value_model;	
-    for(std::string value; getline(iss_line_model, value_model, ' ' ); )
+   	
+    for(std::string value_model; getline(iss_line_model, value_model, ' ' ); )
     	dim_cols++;
 	
     for(std::string line; getline( file_model, line_model, '\n' ); )
 		n_sv++;
 	////////////////////////////////////////////////////////////////////////////////
+
+cout << "N_sv : " << n_sv << endl;
+cout << "Dim_cols : " << dim_cols << endl;
 
 	Eigen::MatrixXd Model(n_sv,dim_cols);
 
@@ -151,6 +163,9 @@ cout << "2" << endl;
     for(std::string line; getline( file_in, line_in, '\n' ); )
 		n_samples++;
 	////////////////////////////////////////////////////////////////////////////////
+
+cout << "n_samples : " << n_samples << endl;
+cout << "dim_sample : " << dim_sample << endl;	
 
 	Eigen::MatrixXd box_est = MatrixXd::Zero(n_samples,dim_sample+1);
 
@@ -176,7 +191,7 @@ cout << "3" << endl;
     	
     }
 
-
+cout << "3/4" << endl;
 
     Eigen::MatrixXd row = MatrixXd::Zero(1,dim_cols-1);
    

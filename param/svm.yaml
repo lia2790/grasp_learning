@@ -1,3 +1,3 @@
-filename_box_text: "/box_test/box1test/box_db"
+filename_in: "/box_test/box1test/box_db"
 filename_model: "/svm_model/box1/model_5"
-filename_box_estimate: "/box_estimate/box1est"
+filename_out: "/box_estimate/box1est"
