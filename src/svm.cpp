@@ -127,7 +127,7 @@ int main (int argc, char **argv)
 
 
     int n_sv = 1;
-    int dim_cols = 1;
+    int dim_cols = 0;
 
     ///////////////////////////////// get values //////////////////////////////////
     std::string line_model; 
@@ -151,7 +151,7 @@ cout << "Dim_cols : " << dim_cols << endl;
 
 
 	int n_samples = 1;
-    int dim_sample = 1;
+    int dim_sample = 0;
 
     ///////////////////////////////// get values //////////////////////////////////
     std::string line_in; 
@@ -194,7 +194,7 @@ cout << "dim_sample : " << dim_sample << endl;
 
 
 
-    cout << "Model : " << Model << endl;
+    cout << "Model : "<< endl << Model << endl;
 
 
 
@@ -257,6 +257,9 @@ cout << "dim_sample : " << dim_sample << endl;
     	box_est.block(insert+1,0, bloc, 11) = box_est.block(insert,0, bloc,11);
     	box_est.block<1,11>(insert,0) = row.block<1,11>(0,0);
     }
+
+
+    cout << " EST box : " << endl << box_est << endl;
 
 
     for(int i = 0 ; i < n_samples; i++)

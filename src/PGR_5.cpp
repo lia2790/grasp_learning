@@ -266,10 +266,10 @@ int main (int argc, char **argv)
 	///////////////////////////////// get values from file for each line //////////////////////////////////
 	for(std::string line; getline( file, line, '\n' ); ) // for each line
 	{
-		std::vector<double> values_inline;
+		  std::vector<double> values_inline;
     	std::istringstream iss_line(line);	
     	for(std::string value; getline(iss_line, value, ',' ); )
-    		values_inline.push_back(stod(value));
+    		  values_inline.push_back(stod(value));
 
 
 
@@ -390,14 +390,14 @@ int main (int argc, char **argv)
 
 		//////////////////////////////////////////////////////////////////////////////////////		POSITION BOX RESPECT TO WORD
 		Eigen::MatrixXd w_T_o_box = MatrixXd::Identity(4,4); 		// transform from world to center of object
-  		Eigen::MatrixXd R_w_T_o_box = MatrixXd::Identity(3,3);
-  		Eigen::VectorXd trasl_w_T_o_box(3);
-  		trasl_w_T_o_box << 0,0,1; 
+  	Eigen::MatrixXd R_w_T_o_box = MatrixXd::Identity(3,3);
+  	Eigen::VectorXd trasl_w_T_o_box(3);
+  	trasl_w_T_o_box << 0,0,1; 
 
-  		w_T_o_box.block<3,3>(0,0) = R_w_T_o_box;
-  		w_T_o_box(0,3) = trasl_w_T_o_box(0);
-  		w_T_o_box(1,3) = trasl_w_T_o_box(1);
-  		w_T_o_box(2,3) = trasl_w_T_o_box(2);
+  	w_T_o_box.block<3,3>(0,0) = R_w_T_o_box;
+  	w_T_o_box(0,3) = trasl_w_T_o_box(0);
+  	w_T_o_box(1,3) = trasl_w_T_o_box(1);
+  	w_T_o_box(2,3) = trasl_w_T_o_box(2);
 
 
 		
