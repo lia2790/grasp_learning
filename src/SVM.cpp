@@ -200,7 +200,7 @@ int main (int argc, char **argv)
     		X_test(0,i) = values_inline[i];
 
     	Eigen::MatrixXd dist = MatrixXd::Zero(1,dim_cols-1);
-    	double arg = 0;
+    	Eigen::MatrixXd arg(1,1);
     	double y_est = 0;
 
     	for(int i = 0; i < Model.rows() ; i++)
@@ -212,7 +212,7 @@ int main (int argc, char **argv)
 
     		dist = X_sv - X_test;
     		arg = dist * dist.transpose(); 
-    		y_est = y_est + Model(i,1)*exp(-Model(i,0)*arg);
+    		y_est = y_est + Model(i,1)*exp(-Model(i,0)*arg(0,0));
 
     	}
 

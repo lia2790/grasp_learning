@@ -227,10 +227,6 @@ int main (int argc, char **argv)
 	double x_depth = box(0);
 	double y_width = box(1);
 	double z_height = box(2);
-
-
-	//Eigen::Affine3d pose;
-	//poseMsgtoEigen(pose_, pose);
 	
 
 
@@ -248,14 +244,14 @@ int main (int argc, char **argv)
 	static tf::TransformBroadcaster tf_broadcaster; 
 
 			//////////////////////////////////		trasf world
-			double px = 0;//p.translation[0];
-			double py = 0;//p.translation[1];
-			double pz = 0;//p.translation[2];
+			double px = 0;
+			double py = 0;
+			double pz = 0;
 		
-			double qx = 0 ;//p.quaternion[1];
-			double qy = 0;//p.quaternion[2];
-			double qz = 0;//p.quaternion[3];
-			double qw = 1;//p.quaternion[0];
+			double qx = 0;
+			double qy = 0;
+			double qz = 0;
+			double qw = 1;
 
 			tf::Quaternion rotazione(qx,qy,qz,qw);
     		tf::Vector3 traslazione(px,py,pz);
@@ -283,12 +279,9 @@ int main (int argc, char **argv)
 
 
 	
-		////////////////////////////////////////////////////////////////////////// contact frame
-
+		/////////////////////////////////////////////////// contact frame
 		for(int i= 0; i < contact_id.size(); i++)
 		{
-
-
 			std::string stringaFrameIdPadre = "base_frame";
 			std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(contact_id[i]);
 
@@ -297,8 +290,6 @@ int main (int argc, char **argv)
 			normal_component(c_Rotation_o, box(0)/2, box(1)/2, box(2)/2 , cp(contact_id[i],0), cp(contact_id[i],1), cp(contact_id[i],2));
 
 
-			// KDL::Rotation R( c_Rotation_o(0,0), c_Rotation_o(0,1),c_Rotation_o(0,2),c_Rotation_o(1,0),c_Rotation_o(1,1),c_Rotation_o(1,2),c_Rotation_o(2,0),c_Rotation_o(2,1),c_Rotation_o(2,2));
-			// per grasp
 			Eigen::MatrixXd b_Rotation_c = c_Rotation_o.transpose();
 			KDL::Rotation R( b_Rotation_c(0,0), b_Rotation_c(0,1),b_Rotation_c(0,2),b_Rotation_c(1,0),b_Rotation_c(1,1),b_Rotation_c(1,2),b_Rotation_c(2,0),b_Rotation_c(2,1),b_Rotation_c(2,2));
 

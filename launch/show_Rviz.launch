@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_learning)/param/show_Rviz.yaml" command="load"/>
+
+	<node name="show_Rviz" pkg="grasp_learning" type="show_Rviz" respawn="false" output="screen"/>
+
+</launch>
