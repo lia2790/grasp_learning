@@ -262,7 +262,7 @@ cout << "4" <<endl;
    	}
 
 
-
+   	cout << "HAPPY" << endl;
 
     ros::spinOnce();
 	return 0;
