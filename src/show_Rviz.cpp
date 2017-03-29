@@ -66,9 +66,8 @@ Contact GitHub API Training Shop Blog About
 #include <ctime>
 #include <time.h>
 
-#include "PGR_5.h"
-#include "quality.h"
-#include "normal_box_surface.h"
+
+#include <rviz_visual_tools/rviz_visual_tools.h>
 
 
 using namespace std;
@@ -233,13 +232,10 @@ int main (int argc, char **argv)
 		
 
 		ros::spinOnce();
-		loop_rate.sleep();
-
-		
+		loop_rate.sleep();	
 	}
 	
 
 	return 0;
-
 }
 

@@ -204,7 +204,7 @@ target_link_libraries(PGR_5 ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_
 add_executable(svm src/SVM.cpp)
 target_link_libraries(svm ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
-add_executable(show_Rviz src/show_Rviz_box.cpp)
+add_executable(show_Rviz src/show_Rviz.cpp)
 target_link_libraries(show_Rviz ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
