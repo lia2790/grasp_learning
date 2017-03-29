@@ -2,3 +2,4 @@ number_box: 1
 distance_hand: 0.02
 discrete_side: 10
 box_input: [0.051, 0.051, 0.135]
+filename_out: "/box_test/"

@@ -34,6 +34,7 @@ Contact GitHub API Training Shop Blog About
 
 
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
@@ -212,12 +213,26 @@ int main (int argc, char **argv)
     nh.param<std::vector<double>>("box_input",box_input,{0.1,0.1,0.1});
 
 
+    string file_name_out;
+    string relative_path_file_out;
+    nh.param<std::string>("filename_out", relative_path_file_out, "/box_estimate/" );
 
+    srand(time(NULL)); //se non voglio la stessa sequenza di numeri casuali
+	
 
+    ofstream file_output; //output file 
+    ofstream file_output1; //output file 
 
-	srand(time(NULL)); //se non voglio la stessa sequenza di numeri casuali
-	file_output.open("box_db.csv", ofstream::app);
-    file_output1.open("box_db", ofstream::app);
+    std::string path = ros::package::getPath("grasp_learning");
+
+    file_name_out = path + relative_path_file_out;
+    
+    std::string name1 = "box_db";
+    std::string name  ="box_db.csv";
+    file_output1.open( file_name_out + name1, ofstream::app);
+    file_output.open( file_name_out + name, ofstream::app);
+
+    
 	box n_box[number_box];  //array di box
 
     

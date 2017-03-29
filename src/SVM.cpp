@@ -66,9 +66,6 @@ Contact GitHub API Training Shop Blog About
 #include <ctime>
 #include <time.h>
 
-#include "PGR_5.h"
-#include "quality.h"
-#include "normal_box_surface.h"
 
 
 using namespace std;
@@ -84,11 +81,13 @@ int main (int argc, char **argv)
 	ros::init(argc, argv, "svm_predict");	// ROS node
 	ros::NodeHandle nh;
 
-	string relative_path_file_in;
-	string relative_path_file_model;
-	string relative_path_file_out;
+	string relative_path_file_in;	
 	string file_name_in;
+
+	string relative_path_file_model;
 	string file_name_model;
+
+	string relative_path_file_out;
 	string file_name_out;
 	
 	nh.param<std::string>("file_name_in", relative_path_file_in, "/box_test/test" );
@@ -111,6 +110,7 @@ int main (int argc, char **argv)
 
 
    	ofstream file_output; //output file 
+   	file_name_out = path + relative_path_file_out;
    	std::string name = "box_estimate";
     file_output.open( file_name_out + name, ofstream::app);
 
