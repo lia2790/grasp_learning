@@ -123,12 +123,11 @@ int main (int argc, char **argv)
    	std::string name = "box_estimate";
     file_output.open( file_name_out + name, ofstream::app);
 
-cout << "1" << endl;
 
 
 
-    int n_sv = 0;
-    int dim_cols = 0;
+    int n_sv = 1;
+    int dim_cols = 1;
 
     ///////////////////////////////// get values //////////////////////////////////
     std::string line_model; 
@@ -147,10 +146,12 @@ cout << "Dim_cols : " << dim_cols << endl;
 
 	Eigen::MatrixXd Model(n_sv,dim_cols);
 
-cout << "2" << endl;
 
-	int n_samples = 0;
-    int dim_sample = 0;
+
+
+
+	int n_samples = 1;
+    int dim_sample = 1;
 
     ///////////////////////////////// get values //////////////////////////////////
     std::string line_in; 
@@ -169,7 +170,7 @@ cout << "dim_sample : " << dim_sample << endl;
 
 	Eigen::MatrixXd box_est = MatrixXd::Zero(n_samples,dim_sample+1);
 
-cout << "3" << endl;
+
 
 
 
@@ -191,11 +192,14 @@ cout << "3" << endl;
     	
     }
 
-cout << "3/4" << endl;
+
+
+    cout << "Model : " << Model << endl;
+
+
 
     Eigen::MatrixXd row = MatrixXd::Zero(1,dim_cols-1);
-   
-cout << "4" <<endl;
+
 
 	///////////////////////////////// get values //////////////////////////////////
 	
