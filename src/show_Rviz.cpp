@@ -92,7 +92,7 @@ int main (int argc, char **argv)
 
 	string relative_path_file_in;
 	string file_name_in;
-	nh.param<std::string>("file_name_out", relative_path_file_in, "/box_estimate/" );
+	nh.param<std::string>("file_name", relative_path_file_in, "/box_estimate/" );
 
 
 
@@ -101,12 +101,14 @@ int main (int argc, char **argv)
 	file_name_in = path + relative_path_file_in;
 	ifstream file_in(file_name_in); 
 
+	std::cout << "file: " << file_name_in.c_str() << " is " << (file_in.is_open() == true ? "already" : "not") << " open" << std::endl;
+	if(!file_in.is_open())
+	return 0;
 
 
 
 
-
-	Eigen::VectorXd grasp = VectorXd::Zero(7);
+	Eigen::VectorXd grasp = VectorXd::Zero(7); //pose of hand
 	std::vector<Eigen::VectorXd> Grasp;
 
 
@@ -134,14 +136,46 @@ int main (int argc, char **argv)
 
 
 
+    cout << "box dimension : " << endl << box << endl;
 
+
+
+	static tf::TransformBroadcaster tf_broadcaster; 
+
+	//////////////////////////////////		trasf world
+	double px = 0;
+	double py = 0;
+	double pz = 0;
+		
+	double qx = 0;
+	double qy = 0;
+	double qz = 0;
+	double qw = 1;
+
+	tf::Quaternion rotazione(qx,qy,qz,qw);
+    tf::Vector3 traslazione(px,py,pz);
+    tf::Transform trasformazione(rotazione, traslazione);
+    std::string stringaFrameIdPadre_ = "/world";
+	std::string stringaFrameIdFiglio_ = "base_frame";
+
+	tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_);
+	tf_broadcaster.sendTransform(ObjToSurfaceBase);
+
+  
 
 
 
 	
-	// For visualizing things in rviz
-	rviz_visual_tools::RvizVisualToolsPtr visual_tools_;
-	visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("base_frame","/rviz_visual_markers"));
+	// For visualizing things in rviz FOR SHOW BOX
+	rviz_visual_tools::RvizVisualToolsPtr visual_tools_box;
+	visual_tools_box.reset(new rviz_visual_tools::RvizVisualTools("base_frame","/rviz_visual_markers_box"));
+
+	// For visualizing things in rviz FOR SHOW ARROW
+	rviz_visual_tools::RvizVisualToolsPtr visual_tools_arrow;
+	visual_tools_arrow.reset(new rviz_visual_tools::RvizVisualTools("base_frame","/rviz_visual_markers_arrow"));
+
+
+
 
 
 	geometry_msgs::Pose pose_;
@@ -171,34 +205,31 @@ int main (int argc, char **argv)
 	ros::Rate loop_rate(1);
 
 
-	static tf::TransformBroadcaster tf_broadcaster; 
-
-	//////////////////////////////////		trasf world
-	double px = 0;
-	double py = 0;
-	double pz = 0;
-		
-	double qx = 0;
-	double qy = 0;
-	double qz = 0;
-	double qw = 1;
-
-	tf::Quaternion rotazione(qx,qy,qz,qw);
-    tf::Vector3 traslazione(px,py,pz);
-    tf::Transform trasformazione(rotazione, traslazione);
-    std::string stringaFrameIdPadre_ = "/world";
-	std::string stringaFrameIdFiglio_ = "base_frame";
-
-	tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_);
-	tf_broadcaster.sendTransform(ObjToSurfaceBase);
+	
 
 	while(nh.ok())
 	{
+
+
 		tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_); // stamped always frame world
 		tf_broadcaster.sendTransform(ObjToSurfaceBase);
 
-		visual_tools_->publishWireframeCuboid(pose_box,  x_depth,  y_width, z_height); // stamped always box
+		visual_tools_box->publishWireframeCuboid(pose_box,  x_depth,  y_width, z_height); // stamped always box
 		//  //x_depth; // y_width // z_height
+
+
+
+		// Create pose
+		Eigen::Affine3d pose_arrows;
+		pose_arrows = Eigen::AngleAxisd(M_PI/4, Eigen::Vector3d::UnitY()); // rotate along X axis by 45 degrees
+		pose_arrows.translation() = Eigen::Vector3d( 0.1, 0.1, 0.1 ); // translate x,y,z
+
+		
+		visual_tools_arrow->publishArrow(pose_arrows, rviz_visual_tools::RED, rviz_visual_tools::LARGE);
+
+
+
+
 
 		/////////////////////////////////////////////////// contact frame
 		for(int i= 0; i < Grasp.size(); i++)
@@ -224,10 +255,26 @@ int main (int argc, char **argv)
 
 			tf::StampedTransform ObjToSurface(trasformazione, ros::Time::now(), stringaFrameIdPadre, stringaFrameIdFiglio);
 			tf_broadcaster.sendTransform(ObjToSurface);
+
+
+			// Eigen::Quaterniond q_arrow(qw, qx, qy, qz);
+   			// Eigen::Translation3d t_arrow(px, py, pz);
+   			// Eigen::Affine3d pose_arrows = Eigen::Affine3d::Identity() * t_arrow * q_arrow;
+
+
+
+
+			// Create pose
+			// Eigen::Affine3d pose;
+			// pose = Eigen::AngleAxisd(M_PI/4, Eigen::Vector3d::UnitY()); // rotate along X axis by 45 degrees
+			// pose.translation() = Eigen::Vector3d( 0.1, 0.1, 0.1 ); // translate x,y,z
+
+		
+			// visual_tools_arrow->publishArrow(pose_arrows, rviz_visual_tools::RED, rviz_visual_tools::LARGE);
 		}
 
-		visual_tools_->triggerBatchPublish();
-
+		visual_tools_box->triggerBatchPublish();
+		visual_tools_arrow->triggerBatchPublish();
 
 		
 
