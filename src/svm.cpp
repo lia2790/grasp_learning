@@ -225,17 +225,11 @@ cout << "dim_sample : " << dim_sample << endl;
     	for(std::string value; getline(iss_line, value, ' ' ); )
     		values_inline.push_back(stod(value));
 
-
-
     	Eigen::VectorXd X_sv(dim_cols-2);
     	Eigen::VectorXd X_test(dim_cols-2);	
 
     	for(int i = 0; i < (dim_cols-2); i++)
     		X_test(i) = values_inline[i];
-
-    	//cout << "X_test : " << X_test << endl;
-
-
 
     	Eigen::VectorXd dist = VectorXd::Zero(dim_cols-2);
     	Eigen::VectorXd arg(1);
@@ -261,11 +255,8 @@ cout << "dim_sample : " << dim_sample << endl;
 
     		double gaussWeight = weight*expo;
 
-    		
-
+    	
     		y_est = y_est + gaussWeight;
-
-
 
     		cout << "X_sv " << i << " : " << endl << X_sv.transpose() << endl;
     		cout << "X_test : " << endl << X_test.transpose() << endl;
@@ -275,9 +266,7 @@ cout << "dim_sample : " << dim_sample << endl;
     		cout << "weight  " << i << " : " << weight << endl;
     		cout << "expo " << i << "  : " << expo << endl;
     		cout << "gaussWeight  " << i << " : " << gaussWeight << endl;
-    		cout << "y_est " << i << " : " << y_est << endl;
-
-    		
+    		cout << "y_est " << i << " : " << y_est << endl;    		
     	}
 
 
@@ -307,15 +296,16 @@ cout << "dim_sample : " << dim_sample << endl;
 		app = box_est.block(insert,0, bloc,11);    	
 
     	box_est.block(insert+1,0, bloc, 11) = app;
-    	box_est.block<1,11>(insert,0) = row.block<1,11>(0,0);
+    	box_est.block<1,11>(insert,0) = row;
     }
 
 
     cout << " EST box : " << endl << box_est << endl;
 
 
-    for(int i = 0 ; i < n_samples; i++)
-    {	for(int j = 0 ; j < dim_sample; j++)
+    for(int i = 0 ; i < box_est.rows(); i++)
+    {	
+    	for(int j = 0 ; j < box_est.cols(); j++)
     		file_output<<box_est(i,j)<<' ';
    		file_output<<endl;
    	}

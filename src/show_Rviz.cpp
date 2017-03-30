@@ -175,7 +175,7 @@ int main (int argc, char **argv)
 	visual_tools_arrow.reset(new rviz_visual_tools::RvizVisualTools("base_frame","/rviz_visual_markers_arrow"));
 
 
-
+	ros::Publisher vis_pub = nh.advertise<visualization_msgs::Marker>( "visualization_marker", 0 );
 
 
 	geometry_msgs::Pose pose_;
@@ -219,13 +219,13 @@ int main (int argc, char **argv)
 
 
 
-		// Create pose
-		Eigen::Affine3d pose_arrows;
-		pose_arrows = Eigen::AngleAxisd(M_PI/4, Eigen::Vector3d::UnitY()); // rotate along X axis by 45 degrees
-		pose_arrows.translation() = Eigen::Vector3d( 0.1, 0.1, 0.1 ); // translate x,y,z
+		// // Create pose
+		// Eigen::Affine3d pose_arrows;
+		// pose_arrows = Eigen::AngleAxisd(M_PI/4, Eigen::Vector3d::UnitY()); // rotate along X axis by 45 degrees
+		// pose_arrows.translation() = Eigen::Vector3d( 0.1, 0.1, 0.1 ); // translate x,y,z
 
 		
-		visual_tools_arrow->publishArrow(pose_arrows, rviz_visual_tools::RED, rviz_visual_tools::LARGE);
+		// visual_tools_arrow->publishArrow(pose_arrows, rviz_visual_tools::RED, rviz_visual_tools::LARGE);
 
 
 
@@ -249,6 +249,10 @@ int main (int argc, char **argv)
 			double qw = Grasp[i](6);
 
 
+			cout << "Position: [ px : " << px << " , py : " << py << " , pz : " << pz << " ]" << endl;
+			cout << "Orientation : [ qx : " << qx << " , qy : " << qy << " , qz : " << qz << " , qw : " << qw << " ]" << endl;
+
+
 			tf::Quaternion rotazione(qx,qy,qz,qw);
     		tf::Vector3 traslazione(px,py,pz);
     		tf::Transform trasformazione(rotazione, traslazione);
@@ -257,20 +261,47 @@ int main (int argc, char **argv)
 			tf_broadcaster.sendTransform(ObjToSurface);
 
 
-			// Eigen::Quaterniond q_arrow(qw, qx, qy, qz);
-   			// Eigen::Translation3d t_arrow(px, py, pz);
-   			// Eigen::Affine3d pose_arrows = Eigen::Affine3d::Identity() * t_arrow * q_arrow;
+			
+
+			KDL::Rotation R = Rotation::Quaternion(qx,qy,qz,qw);
+			R.DoRotY(-90*(M_PI/180));
+
+			double ppx = 0;
+			double ppy = 0;
+			double ppz = 0;//-0.07;
+
+			KDL::Vector tr(px, py, pz);
+			KDL::Frame f_point(R,tr);
+			
+			KDL::Vector t(ppx, ppy, ppz);
+			KDL::Frame f_trasl(t);
+
+			KDL::Frame f = f_trasl*f_point;
 
 
+			double px_ = f.p.x();
+			double py_ = f.p.y();
+			double pz_ = f.p.z();
+
+			double qx_ = 0;
+			double qy_ = 0;
+			double qz_ = 0;
+			double qw_ = 1;
 
 
-			// Create pose
-			// Eigen::Affine3d pose;
-			// pose = Eigen::AngleAxisd(M_PI/4, Eigen::Vector3d::UnitY()); // rotate along X axis by 45 degrees
-			// pose.translation() = Eigen::Vector3d( 0.1, 0.1, 0.1 ); // translate x,y,z
+			f.M.GetQuaternion(qx_, qy_, qz_, qw_);
+
+
+			Eigen::Quaterniond q_arrow(qw_, qx_, qy_, qz_);
+   			Eigen::Translation3d t_arrow(px_, py_, pz_);
+   			Eigen::Affine3d pose_arrows = Eigen::Affine3d::Identity() * t_arrow * q_arrow;
 
 		
-			// visual_tools_arrow->publishArrow(pose_arrows, rviz_visual_tools::RED, rviz_visual_tools::LARGE);
+			visual_tools_arrow->publishArrow(pose_arrows, rviz_visual_tools::RED, rviz_visual_tools::LARGE);
+
+
+
+
 		}
 
 		visual_tools_box->triggerBatchPublish();
@@ -282,7 +313,7 @@ int main (int argc, char **argv)
 		loop_rate.sleep();	
 	}
 	
-
+	ros::spinOnce();
 	return 0;
 }
 
