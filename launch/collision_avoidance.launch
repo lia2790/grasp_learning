@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_learning)/param/collision_avoidance.yaml" command="load"/>
+	
+		<node name="collision_avoidance" pkg="grasp_learning" type="collision_avoidance" respawn="false" output="screen"/>
+
+</launch>

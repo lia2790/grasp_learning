@@ -216,8 +216,9 @@ cout << "dim_sample : " << dim_sample << endl;
     Eigen::MatrixXd row = MatrixXd::Zero(1,dim_cols-1); // 11 elem
     Eigen::MatrixXd box_est = MatrixXd::Zero(n_samples,dim_cols-1);
 
-	///////////////////////////////// get values //////////////////////////////////
-	
+
+
+	///////////////////////////////// get values //////////////////////////////////	
 	for(std::string line; getline( filein, line, '\n' ); )
 	{
 		std::vector<double> values_inline;
@@ -249,21 +250,21 @@ cout << "dim_sample : " << dim_sample << endl;
 
     		double gamma = Model(i,0);
 
-    		double weight = Model(i,1);
+    		double beta = Model(i,1);
 
-    		double expo = exp(-(gamma*arg(0)));
+    		double expo = std::exp(-(gamma*arg(0)));
 
-    		double gaussWeight = weight*expo;
+    		double gaussWeight = beta*expo;
 
     	
-    		y_est = y_est + gaussWeight;
+    		y_est += gaussWeight;
 
     		cout << "X_sv " << i << " : " << endl << X_sv.transpose() << endl;
     		cout << "X_test : " << endl << X_test.transpose() << endl;
     		cout << "dist  " << i << " : " <<endl<< dist.transpose() << endl;
     		cout << "arg  " << i << " : " << arg(0) << endl;
     		cout << "gamma " << i << "  : " << gamma << endl;
-    		cout << "weight  " << i << " : " << weight << endl;
+    		cout << "beta  " << i << " : " << beta << endl;
     		cout << "expo " << i << "  : " << expo << endl;
     		cout << "gaussWeight  " << i << " : " << gaussWeight << endl;
     		cout << "y_est " << i << " : " << y_est << endl;    		

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_learning)/param/test_show_hand_point.yaml" command="load"/>
+	
+		<node name="test_show_hand_point" pkg="grasp_learning" type="test_show_hand_point" respawn="false" output="screen"/>
+
+</launch>
