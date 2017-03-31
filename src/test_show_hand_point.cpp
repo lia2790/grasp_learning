@@ -221,7 +221,7 @@ int main (int argc, char **argv)
 			KDL::Frame f_hp(R_hp, t_hp);
 
 
-			KDL::Frame f_hp_cp = f_hp*f_cp;
+			KDL::Frame f_hp_cp = f_cp*f_hp;
 
 			f_hand.push_back(f_hp_cp);
 		}	
@@ -248,10 +248,10 @@ int main (int argc, char **argv)
 	tf::Quaternion rotazione(qx,qy,qz,qw);
     tf::Vector3 traslazione(px,py,pz);
     tf::Transform trasformazione(rotazione, traslazione);
-    std::string stringaFrameIdPadre_ = "/world";
-	std::string stringaFrameIdFiglio_ = "base_frame";
+    std::string stringaFrameIdPadre_box = "/world";
+	std::string stringaFrameIdFiglio_box = "base_frame";
 
-	tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_);
+	tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_box, stringaFrameIdFiglio_box);
 	tf_broadcaster.sendTransform(ObjToSurfaceBase);
 	/////////////////////////////////////////////////////////////////////////////
 
@@ -289,7 +289,7 @@ int main (int argc, char **argv)
 
 	while(nh.ok())
 	{
-		tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_); // stamped always frame world
+		tf::StampedTransform ObjToSurfaceBase(trasformazione, ros::Time::now(), stringaFrameIdPadre_box, stringaFrameIdFiglio_box); // stamped always frame world
 		tf_broadcaster.sendTransform(ObjToSurfaceBase);
 
 		visual_tools_box->publishWireframeCuboid(pose_box,  x_depth,  y_width, z_height); // stamped always box
@@ -301,6 +301,9 @@ int main (int argc, char **argv)
 		{
 			std::string stringaFrameIdPadre = "base_frame";
 			std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(i);
+
+			std::string stringaFrameIdPadre_ = "base_frame";
+			std::string stringaFrameIdFiglio_ = "contact_frame_cp" ;
 
 			double px_ = fcp[0].p.x();
 			double py_ = fcp[0].p.y();
@@ -315,11 +318,11 @@ int main (int argc, char **argv)
 
 
 
-			tf::Quaternion rotazione_(qx,qy,qz,qw);
-    		tf::Vector3 traslazione_(px,py,pz);
+			tf::Quaternion rotazione_(qx_,qy_,qz_,qw_);
+    		tf::Vector3 traslazione_(px_,py_,pz_);
     		tf::Transform trasformazione_(rotazione_, traslazione_);
 
-			tf::StampedTransform ObjToSurfaceT(trasformazione_, ros::Time::now(), stringaFrameIdPadre, stringaFrameIdFiglio);
+			tf::StampedTransform ObjToSurfaceT(trasformazione_, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_);
 			tf_broadcaster.sendTransform(ObjToSurfaceT);
 
 
