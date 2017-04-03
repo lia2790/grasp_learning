@@ -137,7 +137,7 @@ int main (int argc, char **argv)
 
 	
     //////////////////////////////////////////////////////////////////////////// TAKE HAND POINT
-    std::vector<Eigen::VectorXd> hp; //collision point?
+    std::vector<Eigen::VectorXd> hp; //hand point , each point is a pose ( 7 var , position and orientation with quaternion)
 
 
     for(std::string line; getline( file_hand, line, '\n' ); )
@@ -178,7 +178,7 @@ int main (int argc, char **argv)
 
   	////////////////////////////////////////////////////////////////////////////// TAKE GRASP POINT
     std::vector<std::vector<KDL::Frame>> f_point;
-    std::vector<KDL::Frame> fcp;
+    std::vector<KDL::Frame> fcp; // take a grasp point from a dataset 
 
 
     for(std::string line; getline( file_in, line, '\n' ); )
@@ -206,6 +206,8 @@ int main (int argc, char **argv)
 
 		KDL::Vector t_cp(px,py,pz);
 		KDL::Rotation R_cp = Rotation::Quaternion(qx,qy,qz,qw);
+		//KDL::Rotation R_cp = Rotation::Quaternion(0,0,0,1);
+
 
 		KDL::Frame f_cp(R_cp,t_cp);
 
@@ -221,7 +223,11 @@ int main (int argc, char **argv)
 			KDL::Frame f_hp(R_hp, t_hp);
 
 
-			KDL::Frame f_hp_cp = f_cp*f_hp;
+			KDL::Frame f = f_cp*f_hp;
+
+			KDL::Rotation R = Rotation::Quaternion(0,0,0,1);
+
+			KDL::Frame f_hp_cp(R,f.p);
 
 			f_hand.push_back(f_hp_cp);
 		}	
@@ -238,7 +244,7 @@ int main (int argc, char **argv)
 	//////////////////////////////////		trasf world
 	double px = 0;
 	double py = 0;
-	double pz = 0;
+	double pz = box(2)/2;
 		
 	double qx = 0;
 	double qy = 0;
