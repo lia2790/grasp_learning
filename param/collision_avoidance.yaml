@@ -1,3 +1,3 @@
-file_name_in: "/box_test/"
-file_name_out: "/box_test/"
+file_name_in: "/box_test/box1test/box_db"
+file_name_out: "/box_test/box1test/"
 file_name_hand_point: "/hand_point/hand_points"

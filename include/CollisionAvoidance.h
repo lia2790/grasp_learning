@@ -35,6 +35,18 @@ Contact GitHub API Training Shop Blog About
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Geometry>
 
+#include <kdl/chain.hpp>
+#include <kdl/chainfksolver.hpp>
+#include <kdl/chainfksolverpos_recursive.hpp>
+#include <kdl/frames_io.hpp>
+
+#include <boost/scoped_ptr.hpp>
+#include <kdl/chainjnttojacsolver.hpp>
+#include <kdl/chainfksolverpos_recursive.hpp>
+
+#include <kdl_parser/kdl_parser.hpp>
+
+
 #include <math.h>
 #include <stdio.h>
 #include <ctime>
@@ -43,14 +55,19 @@ Contact GitHub API Training Shop Blog About
 
 using namespace std;
 using namespace Eigen;
+using namespace KDL;
 
 
-inline bool CollisionAvoidance(Eigen::VectorXd &cp, std::vector<Eigen::VectorXd> &hand_pose)
+inline bool CollisionAvoidance(Eigen::VectorXd &box, Eigen::VectorXd &cp, std::vector<Eigen::VectorXd> &hp)
 {
+
+	double box_x = box(0);
+	double box_y = box(1);
+	double box_z = box(2);
 
 	double px = cp(0);
 	double py = cp(1);
-	double pz = cp(2);
+	double pz = cp(2)+box(2)/2;
 
 	double qx = cp(3);
 	double qy = cp(4);
@@ -63,10 +80,10 @@ inline bool CollisionAvoidance(Eigen::VectorXd &cp, std::vector<Eigen::VectorXd>
 	KDL::Frame f_cp(R_cp,t_cp);
 
 
-	for(int i = 0; i < hand_pose.size(); i++)
+	for(int i = 0; i < hp.size(); i++)
 	{
-		KDL::Vector t_hp(hand_pose[i](0), hand_pose[i](1), hand_pose[i](2));
-		KDL::Rotation R_hp = Rotation::Quaternion(hand_pose[i](3),hand_pose[i](4),hand_pose[i](5),hand_pose[i](6));
+		KDL::Vector t_hp(hp[i](0), hp[i](1), hp[i](2));
+		KDL::Rotation R_hp = Rotation::Quaternion(hp[i](3),hp[i](4),hp[i](5),hp[i](6));
 		KDL::Frame f_hp(R_hp, t_hp);
 
 

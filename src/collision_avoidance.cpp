@@ -65,6 +65,8 @@ Contact GitHub API Training Shop Blog About
 #include <ctime>
 #include <time.h>
 
+#include "CollisionAvoidance.h"
+
 
 using namespace std;
 using namespace Eigen;
@@ -133,10 +135,17 @@ int main (int argc, char **argv)
 
 
 
-	ofstream file_output; //output file 
+	
    	file_name_out = path + relative_path_file_out;
-   	std::string name = "box_filter_test";
+
+
+   	ofstream file_output; //output file 
+   	std::string name = "box_collisionAvoidance_test";
     file_output.open( file_name_out + name, ofstream::app);
+
+    ofstream file_output_klampt; //output file for KLAMPT
+   	std::string name_ = "box_collisionAvoidance_test.csv";
+    file_output_klampt.open( file_name_out + name_, ofstream::app);
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -147,7 +156,7 @@ int main (int argc, char **argv)
     std::vector<Eigen::VectorXd> hp; //collision point?
 
 
-    for(std::string line; getline( file_in, line, '\n' ); )
+    for(std::string line; getline( file_hand, line, '\n' ); )
 	{
 		std::vector<double> values_inline;
     	std::istringstream iss_line(line);	
@@ -177,11 +186,12 @@ int main (int argc, char **argv)
 
     	hp.push_back(t);
     }
+
+  ////////////////////////////////////////////////////////////////////////////// /////////////////
+
+
+
   ////////////////////////////////////////////////////////////////////////////// TAKE GRASP POINT
-
-
-
-
 
 
     for(std::string line; getline( file_in, line, '\n' ); )
@@ -190,6 +200,11 @@ int main (int argc, char **argv)
     	std::istringstream iss_line(line);	
     	for(std::string value; getline(iss_line, value, ' ' ); )
     		values_inline.push_back(stod(value));
+
+
+    	box(0) = values_inline[0];
+    	box(1) = values_inline[1];
+    	box(2) = values_inline[2];
 
     	cp(0) = values_inline[3];
     	cp(1) = values_inline[4];
@@ -200,16 +215,19 @@ int main (int argc, char **argv)
     	cp(6) = values_inline[9];
 
 
-    	if(CollisionAvoidance(cp, hp))
-    		file_output<<line<<endl;  
+    	if(CollisionAvoidance(box, cp, hp))
+    	{
+    		file_output<<line<<endl;
+    		file_output_klampt<<box(0)<<','<<box(1)<<','<<box(2)<<','<<cp(0)<<','<<cp(1)<<','<<cp(2)<<','<<cp(3)<<','<<cp(4)<<','<<cp(5)<<','<<cp(6)<<endl;
+    	}
     }
 
+  ////////////////////////////////////////////////////////////////////////////// /////////////////
 
 
-
-
-
-
+    cout << "-------------------------------------------------" << endl;
+    cout << " You can see your result in this folder : " << (file_name_out + name) << endl;
+    cout << "-------------------------------------------------" << endl;
 
 
 	ros::spinOnce();

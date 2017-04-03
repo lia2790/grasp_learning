@@ -210,8 +210,8 @@ target_link_libraries(show_Rviz ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_
 
 
 
-#add_executable(collision_avoidance src/collision_avoidance.cpp)
-#target_link_libraries(collision_avoidance ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
+add_executable(collision_avoidance src/collision_avoidance.cpp)
+target_link_libraries(collision_avoidance ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
 add_executable(test_show_hand_point src/test_show_hand_point.cpp)
