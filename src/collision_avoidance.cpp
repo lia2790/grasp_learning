@@ -140,11 +140,11 @@ int main (int argc, char **argv)
 
 
    	ofstream file_output; //output file 
-   	std::string name = "box_collisionAvoidance_test";
+   	std::string name = "box_ca_test";
     file_output.open( file_name_out + name, ofstream::app);
 
     ofstream file_output_klampt; //output file for KLAMPT
-   	std::string name_ = "box_collisionAvoidance_test.csv";
+   	std::string name_ = "box_ca_test.csv";
     file_output_klampt.open( file_name_out + name_, ofstream::app);
     ///////////////////////////////////////////////////////////////////////////////////////////////
 

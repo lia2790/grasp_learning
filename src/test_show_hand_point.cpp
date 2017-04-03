@@ -213,6 +213,11 @@ int main (int argc, char **argv)
 
 		fcp.push_back(f_cp);
 
+
+
+
+
+
 		std::vector<KDL::Frame> f_hand;
 
 
@@ -230,10 +235,17 @@ int main (int argc, char **argv)
 			KDL::Frame f_hp_cp(R,f.p);
 
 			f_hand.push_back(f_hp_cp);
+
+			// f_hand.push_back(f);
 		}	
 
 		f_point.push_back(f_hand);
     }
+
+
+    cout << "fcp : " << fcp.size() << endl;
+    cout << "f_point : " << f_point.size() << endl;
+    cout << "f_hand_point : " << f_point[0].size() << endl;
 
 
     /////////////////////////////    SHOW RVIZ    ///////////////////////////////
@@ -290,7 +302,7 @@ int main (int argc, char **argv)
 	//////////////////////////////////////////////////////////////////////////////////////////////// 
 
 
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(0.5);
 
 
 	while(nh.ok())
@@ -303,59 +315,66 @@ int main (int argc, char **argv)
 
 
 		/////////////////////////////////////////////////// contact frame
-		for(int i = 0; i < f_point[0].size(); i++)
+		for(int j = 0 ; j < f_point.size() ; j++)
 		{
-			std::string stringaFrameIdPadre = "base_frame";
-			std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(i);
+			for(int i = 0; i < f_point[33].size(); i++)
+			{
+				std::string stringaFrameIdPadre = "base_frame";
+				std::string stringaFrameIdFiglio = "contact_frame_" + std::to_string(i);
 
-			std::string stringaFrameIdPadre_ = "base_frame";
-			std::string stringaFrameIdFiglio_ = "contact_frame_cp" ;
 
-			double px_ = fcp[0].p.x();
-			double py_ = fcp[0].p.y();
-			double pz_ = fcp[0].p.z();
+
+				// //////////////////// // point where put my hand
+
+				std::string stringaFrameIdPadre_ = "base_frame";
+				std::string stringaFrameIdFiglio_ = "contact_frame_cp" ;
+
+				double px_ = fcp[33].p.x();
+				double py_ = fcp[33].p.y();
+				double pz_ = fcp[33].p.z();
 		
-			double qx_ = 0;
-			double qy_ = 0;
-			double qz_ = 0;
-			double qw_ = 1;
+				double qx_ = 0;
+				double qy_ = 0;
+				double qz_ = 0;
+				double qw_ = 1;
 
-			fcp[0].M.GetQuaternion(qx_,qy_,qz_,qw_);
-
-
-
-			tf::Quaternion rotazione_(qx_,qy_,qz_,qw_);
-    		tf::Vector3 traslazione_(px_,py_,pz_);
-    		tf::Transform trasformazione_(rotazione_, traslazione_);
-
-			tf::StampedTransform ObjToSurfaceT(trasformazione_, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_);
-			tf_broadcaster.sendTransform(ObjToSurfaceT);
+				fcp[33].M.GetQuaternion(qx_,qy_,qz_,qw_);
 
 
 
+				tf::Quaternion rotazione_(qx_,qy_,qz_,qw_);
+    			tf::Vector3 traslazione_(px_,py_,pz_);
+    			tf::Transform trasformazione_(rotazione_, traslazione_);
+
+				tf::StampedTransform ObjToSurfaceT(trasformazione_, ros::Time::now(), stringaFrameIdPadre_, stringaFrameIdFiglio_);
+				tf_broadcaster.sendTransform(ObjToSurfaceT);
+				// //////////////////// // ///////////////////////////// // ////////////////////////////////////////////////
 
 
-			double px = f_point[0][i].p.x();
-			double py = f_point[0][i].p.y();
-			double pz = f_point[0][i].p.z();
+				// //////////////////// // point where put my hand
+
+				double px = f_point[33][i].p.x();
+				double py = f_point[33][i].p.y();
+				double pz = f_point[33][i].p.z();
 		
-			double qx = 0;
-			double qy = 0;
-			double qz = 0;
-			double qw = 1;
+				double qx = 0;
+				double qy = 0;
+				double qz = 0;
+				double qw = 1;
 
-			f_point[0][i].M.GetQuaternion(qx,qy,qz,qw);
+				f_point[33][i].M.GetQuaternion(qx,qy,qz,qw);
 			
 
-			cout << "Position: [ px : " << px << " , py : " << py << " , pz : " << pz << " ]" << endl;
-			cout << "Orientation : [ qx : " << qx << " , qy : " << qy << " , qz : " << qz << " , qw : " << qw << " ]" << endl;
+				cout << "Position: [ px : " << px << " , py : " << py << " , pz : " << pz << " ]" << endl;
+				cout << "Orientation : [ qx : " << qx << " , qy : " << qy << " , qz : " << qz << " , qw : " << qw << " ]" << endl;
 
-			tf::Quaternion rotazione(qx,qy,qz,qw);
-    		tf::Vector3 traslazione(px,py,pz);
-    		tf::Transform trasformazione(rotazione, traslazione);
+				tf::Quaternion rotazione(qx,qy,qz,qw);
+    			tf::Vector3 traslazione(px,py,pz);
+    			tf::Transform trasformazione(rotazione, traslazione);
 
-			tf::StampedTransform ObjToSurface(trasformazione, ros::Time::now(), stringaFrameIdPadre, stringaFrameIdFiglio);
-			tf_broadcaster.sendTransform(ObjToSurface);
+				tf::StampedTransform ObjToSurface(trasformazione, ros::Time::now(), stringaFrameIdPadre, stringaFrameIdFiglio);
+				tf_broadcaster.sendTransform(ObjToSurface);
+			}
 		}
 
 
