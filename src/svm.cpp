@@ -158,8 +158,8 @@ int main (int argc, char **argv)
 		n_sv++;
 	////////////////////////////////////////////////////////////////////////////////
 
-cout << "N_sv : " << n_sv << endl;
-cout << "Dim_cols : " << dim_cols << endl;
+    cout << "N_sv : " << n_sv << endl;
+    cout << "Dim_cols : " << dim_cols << endl;
 
 	Eigen::MatrixXd Model = MatrixXd::Zero(n_sv,dim_cols);
 
@@ -182,8 +182,8 @@ cout << "Dim_cols : " << dim_cols << endl;
 		n_samples++;
 	////////////////////////////////////////////////////////////////////////////////
 
-cout << "n_samples : " << n_samples << endl;
-cout << "dim_sample : " << dim_sample << endl;	
+    cout << "n_samples : " << n_samples << endl;
+    cout << "dim_sample : " << dim_sample << endl;	
 
 
 
@@ -293,7 +293,7 @@ cout << "dim_sample : " << dim_sample << endl;
     	row(0,0) = y_est;
 
     	for(int i = 0 ; i < (dim_cols-2) ; i++)
-    		row(0,1+i) = X_test(i);
+    		row(0,i+1) = X_test(i);
 
    
     	cout << " row : " << row << endl; 
@@ -301,7 +301,7 @@ cout << "dim_sample : " << dim_sample << endl;
     	int insert=0;
     	for(int i =0; i < n_samples; i++)
     	{
-    		if(box_est(i,0) <= row(0,0))
+    		if(abs(box_est(i,0)) <= abs(row(0,0)))
     		{
     			insert = i;
     			break;
@@ -329,7 +329,7 @@ cout << "dim_sample : " << dim_sample << endl;
    	}
 
 
-    for(int i = 1 ; i < box_est.rows(); i++)
+    for(int i = 0 ; i < box_est.rows(); i++)
     {   
         for(int j = 1 ; j < box_est.cols(); j++)
         {
