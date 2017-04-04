@@ -124,6 +124,23 @@ int main (int argc, char **argv)
     file_output.open( file_name_out + name, ofstream::app);
 
 
+    ofstream file_output_csv; //output file 
+   
+    std::string name_csv = "box_estimate.csv";
+    file_output_csv.open( file_name_out + name_csv, ofstream::app);
+
+    ////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
 
 
     int n_sv = 1;
@@ -301,7 +318,7 @@ cout << "dim_sample : " << dim_sample << endl;
     }
 
 
-    cout << " EST box : " << endl << box_est << endl;
+    //cout << " EST box : " << endl << box_est << endl;
 
 
     for(int i = 0 ; i < box_est.rows(); i++)
@@ -310,6 +327,22 @@ cout << "dim_sample : " << dim_sample << endl;
     		file_output<<box_est(i,j)<<' ';
    		file_output<<endl;
    	}
+
+
+    for(int i = 1 ; i < box_est.rows(); i++)
+    {   
+        for(int j = 1 ; j < box_est.cols(); j++)
+        {
+            file_output_csv<<box_est(i,j);
+
+            if(j+1 < box_est.cols())
+                file_output_csv<<',';
+
+        }
+
+        file_output_csv<<endl;
+    }
+
 
 
    	cout << "HAPPY" << endl;

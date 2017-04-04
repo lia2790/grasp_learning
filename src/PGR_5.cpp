@@ -138,8 +138,7 @@ int quality_index;
 int no_contact = 0;
 
 
-string file_name;
-string relative_path_file;
+
 
 
 string frame_name_finger[5];
@@ -177,10 +176,16 @@ int main (int argc, char **argv)
 	ros::init(argc, argv, "Grasp_quality");	// ROS node
 	ros::NodeHandle nh;
 
+  string relative_path_file_out;
+  string file_name_out;
+
+  string file_name;
+  string relative_path_file;
 
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	nh.param<std::string>("file_name", relative_path_file, "/db/box_db_2.csv" );
+  nh.param<std::string>("file_name_out", relative_path_file_out, "/box_estimate/" );
 	nh.param<std::string>("frame_name_index", frame_name_finger[0], "right_hand_index_distal_link" );
 	nh.param<std::string>("frame_name_little", frame_name_finger[1], "right_hand_little_distal_link" );
 	nh.param<std::string>("frame_name_middle", frame_name_finger[2], "right_hand_middle_distal_link");
@@ -198,38 +203,55 @@ int main (int argc, char **argv)
 
 
 
+
+  ///////////////////// load the data_base ////////////////////////////////////
+  std::string path = ros::package::getPath("grasp_learning");
+  
+
+
+  file_name = path + relative_path_file;
+  ifstream file(file_name); 
+
+  std::cout << "file: " << file_name.c_str() << " is " << (file.is_open() == true ? "already" : "not") << " open" << std::endl;
+  if(!file.is_open())
+  return 0;
+
+
+  file_name_out = path + relative_path_file_out;
+
+
 	ofstream file_output; //output file
-    file_output.open("box_db_quality_PGR", ofstream::app);
+  std::string name = "box_db_quality_PGR";
+    file_output.open(file_name_out + name, ofstream::app);
 
   ofstream file_output_1; //output file
-    file_output_1.open("box_db_quality_only_pgr", ofstream::app);
+  std::string name1 = "box_db_quality_only_pgr";
+    file_output_1.open(file_name_out + name1, ofstream::app);
 
   ofstream file_output_2; //output file
-    file_output_2.open("box_db_quality_only_not_zero", ofstream::app);
+  std::string name2 = "box_db_quality_only_not_zero";
+    file_output_2.open(file_name_out + name2, ofstream::app);
 
   ofstream file_output_3; //output file
-    file_output_3.open("box_db_quality_box_PGR", ofstream::app);
+  std::string name3 = "box_db_quality_box_PGR";
+    file_output_3.open(file_name_out + name3, ofstream::app);
   
   ofstream file_output_4; //output file
-    file_output_4.open("box_db_quality_PGR_matlab", ofstream::app);
+  std::string name4 = "box_db_quality_PGR_matlab";
+    file_output_4.open(file_name_out + name4, ofstream::app);
 
   ofstream file_output_5; //output file
-    file_output_5.open("box_db_quality_PGR_pos", ofstream::app);
-
+  std::string name5 = "box_db_quality_PGR_pos";
+    file_output_5.open(file_name_out + name5, ofstream::app);
 
   ofstream file_output_6; //output file
-    file_output_6.open("box_db_quality_PGR_matlab_pos", ofstream::app);
+  std::string name6 = "box_db_quality_PGR_matlab_pos";
+    file_output_6.open(file_name_out + name6, ofstream::app);
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-	///////////////////// load the data_base ////////////////////////////////////
-	std::string path = ros::package::getPath("grasp_learning");
-	file_name = path + relative_path_file;
-	ifstream file(file_name); 
 
-	std::cout << "file: " << file_name.c_str() << " is " << (file.is_open() == true ? "already" : "not") << " open" << std::endl;
-	if(!file.is_open())
-	return 0;
 
 
 
