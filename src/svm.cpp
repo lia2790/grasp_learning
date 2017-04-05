@@ -120,13 +120,13 @@ int main (int argc, char **argv)
 
    	ofstream file_output; //output file 
    	file_name_out = path + relative_path_file_out;
-   	std::string name = "box_estimate";
+   	std::string name = "box_estimate_";
     file_output.open( file_name_out + name, ofstream::app);
 
 
     ofstream file_output_csv; //output file 
    
-    std::string name_csv = "box_estimate.csv";
+    std::string name_csv = "box_estimate_.csv";
     file_output_csv.open( file_name_out + name_csv, ofstream::app);
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -234,7 +234,7 @@ int main (int argc, char **argv)
     Eigen::MatrixXd box_est = MatrixXd::Zero(n_samples,dim_cols-1);
 
 
-
+    int n = 0;
 	///////////////////////////////// get values //////////////////////////////////	
 	for(std::string line; getline( filein, line, '\n' ); )
 	{
@@ -295,30 +295,62 @@ int main (int argc, char **argv)
     	for(int i = 0 ; i < (dim_cols-2) ; i++)
     		row(0,i+1) = X_test(i);
 
+cout << "n " << n << "sample "<< n_samples <<endl;
+
+        box_est.block(n,0,1,11) = row;
+cout << "222" << endl;
    
-    	cout << " row : " << row << endl; 
+  //   	cout << " row : " << row << endl; 
 
-    	int insert=0;
-    	for(int i =0; i < n_samples; i++)
-    	{
-    		if(box_est(i,0) < row(0,0))
-    		{
-    			insert = i;
-    			break;
-    		}	
-    	}
+  //   	int insert=0;
+  //       bool stop = true;
+  //   	for(int i =0; i < n_samples; i++)
+  //   	{
+  //       	if(box_est(i,0) <= row(0,0))
+  //           {   
+  //               if(stop)
+  //   		    {  
+  //                   insert = i;
+  //                   stop = false ;
+  //               }
+  //           }
+  //       }
 
-    	int bloc = n_samples - insert - 1;
-    	Eigen::MatrixXd app(bloc, 11);
+  //       cout << "Insert : " << insert << endl;
+    			
+    
 
-		app = box_est.block(insert,0, bloc,11);    	
+  //   	int bloc = n_samples - insert;
+  //   	Eigen::MatrixXd app(bloc, 11);
 
-    	box_est.block(insert+1,0, bloc, 11) = app;
-    	box_est.block<1,11>(insert,0) = row;
+		// app = box_est.block(insert,0, bloc,11);    	
+
+  //   	box_est.block(insert+1,0, bloc, 11) = app;
+  //   	box_est.block<1,11>(insert,0) = row;
+        n++;
     }
 
 
     //cout << " EST box : " << endl << box_est << endl;
+cout << "3" << endl;
+    Eigen::MatrixXd row_app = MatrixXd::Zero(1,dim_cols-1); // 11 elem
+
+    int max = 0;
+    for(i=0; i<n_samples-1; i++) 
+    { 
+        max = i;
+
+        for(j=i+1; j<n_samples; j++) 
+            if(box_est(j,0) > box_est(max,0)) 
+                max = j;
+
+
+            cout << "mjax" << max << endl;
+        row_app = box_est.block(max,0,1,11); 
+        box_est.block(max,0,1,11) = box_est.block(i,0,1,11); 
+        box_est.block(i,0,1,11) = row_app; 
+    }
+
 
 
     for(int i = 0 ; i < box_est.rows(); i++)

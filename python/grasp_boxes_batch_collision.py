@@ -391,6 +391,10 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
     xform = resource.get("default_initial_%s.xform" % robotname, description="Initial hand transform",
                          default=se3.identity(), world=world, doedit=False)
 
+
+    file = open("box_db_filtered_0.csv","w")
+
+
     for box_dims, poses in box_db.db.items():
         if world.numRigidObjects() > 0:
             world.remove(world.rigidObject(0))
@@ -398,7 +402,8 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
                        box_dims[0],
                        box_dims[1],
                        box_dims[2])
-        poses_filtered = []
+        poses_filtered_ = []
+        
 
         R,t = obj.getTransform()
         obj.setTransform(R, [0, 0, box_dims[2]/2.])
@@ -422,23 +427,21 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
                 t_pp = pose_pp[1]
                 q_pp = so3.quaternion(pose_pp[0])
                 q_pp = [q_pp[1], q_pp[2], q_pp[3], q_pp[0]]
+                riga = []
                 riga = list(box_dims) + t_pp + q_pp
-                print riga
-                poses_filtered.append(riga)
-                print poses_filtered
-        print "Filtered", len(poses)-len(poses_filtered), "out of", len(poses), "poses"
+                file.write(' '.join([str(v) for v in riga]))
+                file.write('\n')
+                poses_filtered_.append(pose)
+        print "Filtered", len(poses)-len(poses_filtered_), "out of", len(poses), "poses"
+        
+        file.close()
         
     
+
+       
+     
+            
         
-        import numpy
-        numpy.savetxt('box_db_filtered.csv',poses_filtered, fmt='%11f', delimiter=' ')
-
-
-        file = open("box_db_filtered_0.csv","w")
-        for item in poses_filtered:
-            file.write(" ".join() % item)
-
-        file.close()
 
         # embed()
         # create a hand emulator from the given robot name
