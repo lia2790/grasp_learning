@@ -301,7 +301,7 @@ int main (int argc, char **argv)
     	int insert=0;
     	for(int i =0; i < n_samples; i++)
     	{
-    		if(abs(box_est(i,0)) <= abs(row(0,0)))
+    		if(box_est(i,0) < row(0,0))
     		{
     			insert = i;
     			break;
