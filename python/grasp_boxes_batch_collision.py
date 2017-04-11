@@ -392,7 +392,12 @@ def launch_test_mvbb_grasps(robotname, box_db, links_to_check = None):
                          default=se3.identity(), world=world, doedit=False)
 
 
-    file = open("box_db_filtered_0.csv","w")
+
+
+
+    import os
+    filename = os.path.splitext(sys.argv[1])[0]
+    file = open(filename+'_filtered_0.csv',"w")
 
 
     for box_dims, poses in box_db.db.items():

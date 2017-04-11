@@ -118,20 +118,18 @@ int main (int argc, char **argv)
 	return 0;
 
 
-   	ofstream file_output; //output file 
-   	file_name_out = path + relative_path_file_out;
-   	std::string name = "box_estimate_";
-    file_output.open( file_name_out + name, ofstream::app);
+  ofstream file_output; //output file 
+  file_name_out = path + relative_path_file_out;
+  std::string name = "box_estimate";
+  file_output.open( file_name_out + name, ofstream::app);
 
 
-    ofstream file_output_csv; //output file 
+  ofstream file_output_csv; //output file 
    
-    std::string name_csv = "box_estimate_.csv";
-    file_output_csv.open( file_name_out + name_csv, ofstream::app);
+  std::string name_csv = "box_estimate.csv";
+  file_output_csv.open( file_name_out + name_csv, ofstream::app);
 
-    ////////////////////////////////////////////////////////////////////////////////////
-
-
+  ////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -143,23 +141,25 @@ int main (int argc, char **argv)
 
 
 
-    int n_sv = 1;
-    int dim_cols = 0;
 
-    ///////////////////////////////// get values //////////////////////////////////
-    std::string line_model; 
-    getline( file_model, line_model, '\n' ); //count cols
-    std::istringstream iss_line_model(line_model);
+
+  int n_sv = 1;
+  int dim_cols = 0;
+
+  ///////////////////////////////// get values //////////////////////////////////
+  std::string line_model; 
+  getline( file_model, line_model, '\n' ); //count cols
+  std::istringstream iss_line_model(line_model);
    	
-    for(std::string value_model; getline(iss_line_model, value_model, ' ' ); )
-    	dim_cols++;
+  for(std::string value_model; getline(iss_line_model, value_model, ' ' ); )
+  	dim_cols++;
 	
-    for(std::string line_model; getline( file_model, line_model, '\n' ); )
+  for(std::string line_model; getline( file_model, line_model, '\n' ); )
 		n_sv++;
 	////////////////////////////////////////////////////////////////////////////////
 
-    cout << "N_sv : " << n_sv << endl;
-    cout << "Dim_cols : " << dim_cols << endl;
+  cout << "N_sv : " << n_sv << endl;
+  cout << "Dim_cols : " << dim_cols << endl;
 
 	Eigen::MatrixXd Model = MatrixXd::Zero(n_sv,dim_cols);
 
@@ -168,22 +168,22 @@ int main (int argc, char **argv)
 
 
 	int n_samples = 1;
-    int dim_sample = 0;
+  int dim_sample = 0;
 
-    ///////////////////////////////// get values //////////////////////////////////
-    std::string line_in; 
-    getline( file_in, line_in, '\n' ); //count cols
-    std::istringstream iss_line_in(line_in);
+  ///////////////////////////////// get values //////////////////////////////////
+  std::string line_in; 
+  getline( file_in, line_in, '\n' ); //count cols
+  std::istringstream iss_line_in(line_in);
   	
-    for(std::string value_in; getline(iss_line_in, value_in, ' ' ); )
-    	dim_sample++;
+  for(std::string value_in; getline(iss_line_in, value_in, ' ' ); )
+  	dim_sample++;
 	
-    for(std::string line; getline( file_in, line_in, '\n' ); )
+  for(std::string line; getline( file_in, line_in, '\n' ); )
 		n_samples++;
 	////////////////////////////////////////////////////////////////////////////////
 
-    cout << "n_samples : " << n_samples << endl;
-    cout << "dim_sample : " << dim_sample << endl;	
+  cout << "n_samples : " << n_samples << endl;
+  cout << "dim_sample : " << dim_sample << endl;	
 
 
 
@@ -205,181 +205,144 @@ int main (int argc, char **argv)
 
 		//cout << "yyy "<<endl;
 
-    	std::istringstream iss_linemodel(linemodel);	
-    	j=0;
-    	for(std::string valuemodel; getline(iss_linemodel, valuemodel, ' ' ); )
-    	{
-    			//cout << " elem : " << stod(valuemodel) << endl;
-    			Model(i,j) = stod(valuemodel);
-    			j++;
-    	}
-
-    	i++;
-    	
+    std::istringstream iss_linemodel(linemodel);	
+    j=0;
+    for(std::string valuemodel; getline(iss_linemodel, valuemodel, ' ' ); )
+    {
+    	//cout << " elem : " << stod(valuemodel) << endl;
+    	Model(i,j) = stod(valuemodel);
+    	j++;
     }
+
+    i++;
+    	
+  }
 
 
 
 	//cout << "Model : "<< endl << Model << endl;
 
 
-    ifstream filein(file_name_in); 
+  ifstream filein(file_name_in); 
 	std::cout << "file: " << file_name_in.c_str() << " is " << (filein.is_open() == true ? "already" : "not") << " open" << std::endl;
 	if(!file_in.is_open())
 	return 0;
 
 
 
-    Eigen::MatrixXd row = MatrixXd::Zero(1,dim_cols-1); // 11 elem
-    Eigen::MatrixXd box_est = MatrixXd::Zero(n_samples,dim_cols-1);
+  Eigen::MatrixXd row = MatrixXd::Zero(1,dim_cols-1); // 11 elem
+  Eigen::MatrixXd box_est = MatrixXd::Zero(n_samples,dim_cols-1);
 
 
-    int n = 0;
+  int n = 0;
 	///////////////////////////////// get values //////////////////////////////////	
 	for(std::string line; getline( filein, line, '\n' ); )
 	{
 		std::vector<double> values_inline;
-    	std::istringstream iss_line(line);	
-    	for(std::string value; getline(iss_line, value, ' ' ); )
-    		values_inline.push_back(stod(value));
+    std::istringstream iss_line(line);	
+    for(std::string value; getline(iss_line, value, ' ' ); )
+    	values_inline.push_back(stod(value));
 
-    	Eigen::VectorXd X_sv(dim_cols-2);
-    	Eigen::VectorXd X_test(dim_cols-2);	
+    Eigen::VectorXd X_sv(dim_cols-2);
+    Eigen::VectorXd X_test(dim_cols-2);	
 
-    	for(int i = 0; i < (dim_cols-2); i++)
-    		X_test(i) = values_inline[i];
+    for(int i = 0; i < (dim_cols-2); i++)
+    	X_test(i) = values_inline[i];
 
-    	Eigen::VectorXd dist = VectorXd::Zero(dim_cols-2);
-    	Eigen::VectorXd arg(1);
-    	arg << 0;
-    	double y_est = 0;
+    Eigen::VectorXd dist = VectorXd::Zero(dim_cols-2);
+    Eigen::VectorXd arg(1);
+    arg << 0;
+    double y_est = 0;
 
-    	for(int i = 0; i < n_sv ; i++)
-    	{
+    for(int i = 0; i < n_sv ; i++)
+    {
 
-    		for(int j=0 ; j< (dim_cols-2) ; j++)
-    			X_sv(j) = Model(i,2+j);
-
-    	
-    		dist = X_sv - X_test;		
-
-    		arg = dist.transpose() * dist;
-
-    		double gamma = Model(i,0);
-
-    		double beta = Model(i,1);
-
-    		double expo = std::exp(-(gamma*arg(0)));
-
-    		double gaussWeight = beta*expo;
+    	for(int j=0 ; j< (dim_cols-2) ; j++)
+    		X_sv(j) = Model(i,2+j);
 
     	
-    		y_est += gaussWeight;
+    	dist = X_sv - X_test;		
 
-    		cout << "X_sv " << i << " : " << endl << X_sv.transpose() << endl;
-    		cout << "X_test : " << endl << X_test.transpose() << endl;
-    		cout << "dist  " << i << " : " <<endl<< dist.transpose() << endl;
-    		cout << "arg  " << i << " : " << arg(0) << endl;
-    		cout << "gamma " << i << "  : " << gamma << endl;
-    		cout << "beta  " << i << " : " << beta << endl;
-    		cout << "expo " << i << "  : " << expo << endl;
-    		cout << "gaussWeight  " << i << " : " << gaussWeight << endl;
-    		cout << "y_est " << i << " : " << y_est << endl;    		
-    	}
+    	arg = dist.transpose() * dist;
 
+    	double gamma = Model(i,0);
 
-    	cout << "y_est : " << y_est << endl;
+    	double beta = Model(i,1);
 
-    	row(0,0) = y_est;
+    	double expo = std::exp(-(gamma*arg(0)));
 
-    	for(int i = 0 ; i < (dim_cols-2) ; i++)
-    		row(0,i+1) = X_test(i);
+    	double gaussWeight = beta*expo;
 
-cout << "n " << n << "sample "<< n_samples <<endl;
+    	
+    	y_est += gaussWeight;
 
-        box_est.block(n,0,1,11) = row;
-cout << "222" << endl;
-   
-  //   	cout << " row : " << row << endl; 
-
-  //   	int insert=0;
-  //       bool stop = true;
-  //   	for(int i =0; i < n_samples; i++)
-  //   	{
-  //       	if(box_est(i,0) <= row(0,0))
-  //           {   
-  //               if(stop)
-  //   		    {  
-  //                   insert = i;
-  //                   stop = false ;
-  //               }
-  //           }
-  //       }
-
-  //       cout << "Insert : " << insert << endl;
-    			
-    
-
-  //   	int bloc = n_samples - insert;
-  //   	Eigen::MatrixXd app(bloc, 11);
-
-		// app = box_est.block(insert,0, bloc,11);    	
-
-  //   	box_est.block(insert+1,0, bloc, 11) = app;
-  //   	box_est.block<1,11>(insert,0) = row;
-        n++;
+    	cout << "X_sv " << i << " : " << endl << X_sv.transpose() << endl;
+    	cout << "X_test : " << endl << X_test.transpose() << endl;
+    	cout << "dist  " << i << " : " <<endl<< dist.transpose() << endl;
+    	cout << "arg  " << i << " : " << arg(0) << endl;
+    	cout << "gamma " << i << "  : " << gamma << endl;
+    	cout << "beta  " << i << " : " << beta << endl;
+    	cout << "expo " << i << "  : " << expo << endl;
+    	cout << "gaussWeight  " << i << " : " << gaussWeight << endl;
+    	cout << "y_est " << i << " : " << y_est << endl;    		
     }
 
 
-    //cout << " EST box : " << endl << box_est << endl;
-cout << "3" << endl;
-    Eigen::MatrixXd row_app = MatrixXd::Zero(1,dim_cols-1); // 11 elem
+    cout << "y_est : " << y_est << endl;
 
-    int max = 0;
-    for(i=0; i<n_samples-1; i++) 
-    { 
-        max = i;
+    row(0,0) = y_est;
 
-        for(j=i+1; j<n_samples; j++) 
-            if(box_est(j,0) > box_est(max,0)) 
-                max = j;
+    for(int i = 0 ; i < (dim_cols-2) ; i++)
+    	row(0,i+1) = X_test(i);
+
+    box_est.block(n,0,1,11) = row;
+
+    n++;
+  }
 
 
-            cout << "mjax" << max << endl;
-        row_app = box_est.block(max,0,1,11); 
-        box_est.block(max,0,1,11) = box_est.block(i,0,1,11); 
-        box_est.block(i,0,1,11) = row_app; 
+  Eigen::MatrixXd row_app = MatrixXd::Zero(1,dim_cols-1); // 11 elem
+
+  int max = 0;
+  for(i=0; i<n_samples-1; i++) 
+  { 
+    max = i;
+
+    for(j=i+1; j<n_samples; j++) 
+      if(box_est(j,0) > box_est(max,0)) 
+        max = j;
+  
+    row_app = box_est.block(max,0,1,11); 
+    box_est.block(max,0,1,11) = box_est.block(i,0,1,11); 
+    box_est.block(i,0,1,11) = row_app; 
+  }
+
+
+
+  for(int i = 0 ; i < box_est.rows(); i++)
+  {	
+    for(int j = 0 ; j < box_est.cols(); j++)
+    	file_output<<box_est(i,j)<<' ';
+   	file_output<<endl;
+  }
+
+
+  for(int i = 0 ; i < box_est.rows(); i++)
+  {   
+    for(int j = 1 ; j < box_est.cols(); j++)
+    {
+      file_output_csv<<box_est(i,j);
+
+      if(j+1 < box_est.cols())
+        file_output_csv<<',';
     }
+    file_output_csv<<endl;
+  }
 
 
 
-    for(int i = 0 ; i < box_est.rows(); i++)
-    {	
-    	for(int j = 0 ; j < box_est.cols(); j++)
-    		file_output<<box_est(i,j)<<' ';
-   		file_output<<endl;
-   	}
+  cout << "HAPPY" << endl;
 
-
-    for(int i = 0 ; i < box_est.rows(); i++)
-    {   
-        for(int j = 1 ; j < box_est.cols(); j++)
-        {
-            file_output_csv<<box_est(i,j);
-
-            if(j+1 < box_est.cols())
-                file_output_csv<<',';
-
-        }
-
-        file_output_csv<<endl;
-    }
-
-
-
-   	cout << "HAPPY" << endl;
-
-    ros::spinOnce();
+  ros::spinOnce();
 	return 0;
-
 }

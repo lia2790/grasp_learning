@@ -136,56 +136,56 @@ int main (int argc, char **argv)
 
 
 	
-   	file_name_out = path + relative_path_file_out;
+  file_name_out = path + relative_path_file_out;
 
 
-   	ofstream file_output; //output file 
-   	std::string name = "box_ca_test";
-    file_output.open( file_name_out + name, ofstream::app);
+  ofstream file_output; //output file 
+  std::string name = "box_ca_test";
+  file_output.open( file_name_out + name, ofstream::app);
 
-    ofstream file_output_klampt; //output file for KLAMPT
-   	std::string name_ = "box_ca_test.csv";
-    file_output_klampt.open( file_name_out + name_, ofstream::app);
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-
+  ofstream file_output_klampt; //output file for KLAMPT
+  std::string name_ = "box_ca_test.csv";
+  file_output_klampt.open( file_name_out + name_, ofstream::app);
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    //////////////////////////////////////////////////////////////////////////// TAKE HAND POINT
-
-    std::vector<Eigen::VectorXd> hp; //collision point?
 
 
-    for(std::string line; getline( file_hand, line, '\n' ); )
+  //////////////////////////////////////////////////////////////////////////// TAKE HAND POINT
+
+  std::vector<Eigen::VectorXd> hp; //collision point?
+
+
+  for(std::string line; getline( file_hand, line, '\n' ); )
 	{
 		std::vector<double> values_inline;
-    	std::istringstream iss_line(line);	
-    	for(std::string value; getline(iss_line, value, ' ' ); )
-    		values_inline.push_back(stod(value));
+    std::istringstream iss_line(line);	
+    for(std::string value; getline(iss_line, value, ' ' ); )
+    	values_inline.push_back(stod(value));
 
 
 
-    	Eigen::VectorXd t(7);
+    Eigen::VectorXd t(7);
 
-    	double x = values_inline[0];
-    	double y = values_inline[1];
-    	double z = values_inline[2];
+    double x = values_inline[0];
+    double y = values_inline[1];
+    double z = values_inline[2];
 
-    	double qx = values_inline[3];
-    	double qy = values_inline[4];
-    	double qz = values_inline[5];
-    	double qw = values_inline[6];
+    double qx = values_inline[3];
+    double qy = values_inline[4];
+    double qz = values_inline[5];
+  	double qw = values_inline[6];
 
-    	t(0) = x;
-    	t(1) = y;
-    	t(2) = z;
-    	t(3) = qx;
-    	t(4) = qy;
-    	t(5) = qz;
-    	t(6) = qw;
+    t(0) = x;
+    t(1) = y;
+    t(2) = z;
+    t(3) = qx;
+    t(4) = qy;
+    t(5) = qz;
+    t(6) = qw;
 
-    	hp.push_back(t);
-    }
+    hp.push_back(t);
+  }
 
   ////////////////////////////////////////////////////////////////////////////// /////////////////
 
@@ -194,40 +194,40 @@ int main (int argc, char **argv)
   ////////////////////////////////////////////////////////////////////////////// TAKE GRASP POINT
 
 
-    for(std::string line; getline( file_in, line, '\n' ); )
+  for(std::string line; getline( file_in, line, '\n' ); )
 	{
 		std::vector<double> values_inline;
-    	std::istringstream iss_line(line);	
-    	for(std::string value; getline(iss_line, value, ' ' ); )
-    		values_inline.push_back(stod(value));
+    std::istringstream iss_line(line);	
+    for(std::string value; getline(iss_line, value, ' ' ); )
+    	values_inline.push_back(stod(value));
 
 
-    	box(0) = values_inline[0];
-    	box(1) = values_inline[1];
-    	box(2) = values_inline[2];
+    box(0) = values_inline[0];
+    box(1) = values_inline[1];
+    box(2) = values_inline[2];
 
-    	cp(0) = values_inline[3];
-    	cp(1) = values_inline[4];
-    	cp(2) = values_inline[5];
-    	cp(3) = values_inline[6];
-    	cp(4) = values_inline[7];
-    	cp(5) = values_inline[8];
-    	cp(6) = values_inline[9];
+    cp(0) = values_inline[3];
+    cp(1) = values_inline[4];
+    cp(2) = values_inline[5];
+    cp(3) = values_inline[6];
+    cp(4) = values_inline[7];
+    cp(5) = values_inline[8];
+    cp(6) = values_inline[9];
 
 
-    	if(CollisionAvoidance(box, cp, hp))
-    	{
-    		file_output<<line<<endl;
-    		file_output_klampt<<box(0)<<','<<box(1)<<','<<box(2)<<','<<cp(0)<<','<<cp(1)<<','<<cp(2)<<','<<cp(3)<<','<<cp(4)<<','<<cp(5)<<','<<cp(6)<<endl;
-    	}
+    if(CollisionAvoidance(box, cp, hp))
+    {
+    	file_output<<line<<endl;
+    	file_output_klampt<<box(0)<<','<<box(1)<<','<<box(2)<<','<<cp(0)<<','<<cp(1)<<','<<cp(2)<<','<<cp(3)<<','<<cp(4)<<','<<cp(5)<<','<<cp(6)<<endl;
     }
+  }
 
   ////////////////////////////////////////////////////////////////////////////// /////////////////
 
 
-    cout << "-------------------------------------------------" << endl;
-    cout << " You can see your result in this folder : " << (file_name_out + name) << endl;
-    cout << "-------------------------------------------------" << endl;
+  cout << "-------------------------------------------------" << endl;
+  cout << " You can see your result in this folder : " << (file_name_out + name) << endl;
+  cout << "-------------------------------------------------" << endl;
 
 
 	ros::spinOnce();

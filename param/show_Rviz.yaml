@@ -1,1 +1,2 @@
-file_name: "/box_estimate/box1est/box_estimate"
+file_name_grasp_total: "/AtestCollisionAvoidance/D_050510/model_40/box_db"
+file_name_grasp_svm: "/AtestCollisionAvoidance/D_050510/model_40/box_estimate"

@@ -42,6 +42,7 @@ find_package(catkin REQUIRED COMPONENTS
   rviz_visual_tools
   rviz
   eigen_conversions
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -78,18 +79,16 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+   FILES
+   box_dimension.msg
+)
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+   FILES
+   
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -99,10 +98,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs#   std_msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -136,9 +135,11 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES stima
-#  CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs
+CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs message_runtime
 #  DEPENDS system_lib
 DEPENDS orocos_kdl
+
+
 )
 
 ###########
@@ -227,8 +228,18 @@ add_executable(populate_grasp_dataset src/populate_grasp_dataset.cpp)
 target_link_libraries(populate_grasp_dataset ${catkin_LIBRARIES} ${Eigen_LIBRARIES} )
 
 
-add_executable(comunication src/comunication.cpp)
-target_link_libraries(comunication ${catkin_LIBRARIES})
+
+
+add_executable(vision src/vision.cpp)
+target_link_libraries(vision ${catkin_LIBRARIES})
+
+add_executable(comunication_vision src/comunication_vision.cpp)
+target_link_libraries(comunication_vision ${catkin_LIBRARIES})
+
+add_executable(comunication_robot src/comunication_robot.cpp)
+target_link_libraries(comunication_robot ${catkin_LIBRARIES})
+
+
 
 
 add_executable(test_file_2_fingers src/test_file_2_fingers.cpp)
