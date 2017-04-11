@@ -295,11 +295,13 @@ int main (int argc, char **argv)
 
 
     file_output.close();
-
+    file_output1.close();
 
 	cout << " END " << endl;
 
 
-	ros::spinOnce();
+
+	ros::shutdown();
+    ros::spin();
 	return 0;
 }

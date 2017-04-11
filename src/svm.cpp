@@ -339,10 +339,12 @@ int main (int argc, char **argv)
     file_output_csv<<endl;
   }
 
-
+  file_output.close();
+  file_output_csv.close();
 
   cout << "HAPPY" << endl;
 
-  ros::spinOnce();
+ 
+  ros::spin();
 	return 0;
 }
