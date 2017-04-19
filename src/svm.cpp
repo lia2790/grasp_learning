@@ -345,6 +345,6 @@ int main (int argc, char **argv)
   cout << "HAPPY" << endl;
 
  
-  ros::spin();
+  ros::shutdown();
 	return 0;
 }

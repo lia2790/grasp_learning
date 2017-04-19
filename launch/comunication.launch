@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<launch>
-
-	<rosparam file="$(find grasp_learning)/param/svm.yaml" command="load"/>
-	
-		<node name="svm" pkg="grasp_learning" type="svm" respawn="false" output="screen"/>
-
-</launch>

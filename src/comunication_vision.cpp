@@ -1,4 +1,4 @@
-/*
+-/*
 
 Software License Agreement (BSD License)
 
@@ -35,8 +35,12 @@ Contact GitHub API Training Shop Blog About
 
 #include <ros/ros.h>
 #include <ros/package.h>
+#include <tf/transform_broadcaster.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
 
-#include <grasp_learning/box_dimension.h>
+//#include <grasp_learning/box_dimension.h>
+
 
 #include <iostream>
 #include <fstream>
@@ -54,6 +58,8 @@ using namespace std;
 
 ofstream file_output;
 std::string relative_path_file_out;
+
+
 
 
 void listen_box_callback(const grasp_learning::box_dimension box_dim)

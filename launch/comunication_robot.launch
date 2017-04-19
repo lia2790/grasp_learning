@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_learning)/param/comunication_robot.yaml" command="load"/>
+	
+		<node name="comunication_robot" pkg="grasp_learning" type="comunication_robot" respawn="false" output="screen"/>
+
+</launch>

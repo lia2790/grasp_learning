@@ -228,13 +228,8 @@ add_executable(populate_grasp_dataset src/populate_grasp_dataset.cpp)
 target_link_libraries(populate_grasp_dataset ${catkin_LIBRARIES} ${Eigen_LIBRARIES} )
 
 
-
-
-add_executable(vision src/vision.cpp)
-target_link_libraries(vision ${catkin_LIBRARIES})
-
-add_executable(comunication_vision src/comunication_vision.cpp)
-target_link_libraries(comunication_vision ${catkin_LIBRARIES})
+# add_executable(comunication_vision src/comunication_vision.cpp)
+# target_link_libraries(comunication_vision ${catkin_LIBRARIES})
 
 add_executable(comunication_robot src/comunication_robot.cpp)
 target_link_libraries(comunication_robot ${catkin_LIBRARIES})

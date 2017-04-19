@@ -227,8 +227,10 @@ int main (int argc, char **argv)
 
     file_name_out = path + relative_path_file_out;
     
-    std::string name1 = "box_db";
-    std::string name  ="box_db.csv";
+
+    std::string discr_side = std::to_string(discretize_side);
+    std::string name1 = "box_db_" + discr_side;
+    std::string name  ="box_db_" + discr_side + "_.csv";
     file_output1.open( file_name_out + name1, ofstream::app);
     file_output.open( file_name_out + name, ofstream::app);
 

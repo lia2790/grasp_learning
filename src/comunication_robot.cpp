@@ -39,7 +39,6 @@ Contact GitHub API Training Shop Blog About
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
 
-#include <rviz_visual_tools/rviz_visual_tools.h>
 
 #include <iostream>
 #include <fstream>
@@ -66,7 +65,7 @@ int main(int argc, char** argv)
 
 	string relative_path_file_in;	
 	string file_name_in;
-	nn.param<std::string>("filename_in", relative_path_file_in, "/box_test/test" );
+	nn.param<std::string>("filename_in", relative_path_file_in, "/bottiglia/test_itself/model_40_8/box_estimate" );
 
 
 
@@ -90,10 +89,10 @@ int main(int argc, char** argv)
 	std::cout << "file: " << file_name_in.c_str() << " is " << (file_in.is_open() == true ? "already" : "not") << " open" << std::endl;
 	if(!file_in.is_open())
 	return 0;
-
+	//////////////////////////////////////////////////////////////////////////////////
 	
 
-	
+	///////////////////// take a first pose ////////////////////////////////////	
   	std::string line; 
   	getline( file_in, line, '\n' );
 	
@@ -101,7 +100,7 @@ int main(int argc, char** argv)
     std::istringstream iss_line(line);	
     for(std::string value; getline(iss_line, value, ' ' ); )
     	values_inline.push_back(stod(value));
-
+    //////////////////////////////////////////////////////////////////////////////////
 	
 
 
@@ -109,7 +108,7 @@ int main(int argc, char** argv)
 
 	geometry_msgs::Pose hand_pose;
 
-	hand_pose.position.x = values_inline[4];
+	hand_pose.position.x = values_inline[4] - 0.8;
 	hand_pose.position.y = values_inline[5];
 	hand_pose.position.z = values_inline[6];
 
@@ -124,11 +123,17 @@ int main(int argc, char** argv)
 
 	while(nn.ok())
 	{
-
 		grasping_pub.publish(hand_pose);
 
 		ros::spinOnce();
 		loop_rate.sleep();
+
+		cout << "grasp !" << endl;
+		cout << "------------------------------------" << endl;
+
+		cout << " x : " << hand_pose.position.x << " y : " << hand_pose.position.y << " z : " << hand_pose.position.z << endl;
+		cout << " qx : " << hand_pose.orientation.x << " qy : " << hand_pose.orientation.y << " qz : " << hand_pose.orientation.z << " qw : " << hand_pose.orientation.w << endl;
+		cout << "------------------------------------" << endl;
 
 	} 
 }
