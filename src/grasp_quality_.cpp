@@ -542,7 +542,6 @@ int main (int argc, char **argv)
 	  			case 4: // little
       						jnt_to_jac_solver_4->JntToJac(q_little, hand_jacob[4], which_falange);
 	  						break;
-
 	  		}// end switch
 
 	  		cout << " Jacobian thumb " << hand_jacob[0].data << endl ;
