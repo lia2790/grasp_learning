@@ -138,7 +138,7 @@ int main(int argc, char** argv)
 
 	double dx = -1; 
 	double dy = 0.0;
-	double dz = 0.03;//values_inline[6] -0.02 + 0.05;
+	double dz = values_inline[3]/2;// -0.02 + 0.05;
     Eigen::MatrixXd transf_World2Box =  MatrixXd::Identity(4,4);
 
     transf_World2Box(3,0) = dx;
@@ -239,8 +239,11 @@ int main(int argc, char** argv)
 	sleep(2.0);
 	error = 1000;
 	Eigen_error(0) = 1000;
-	e_treshold = 0.00001;
-	hand_pose.position.z = hand_pose.position.z - .3 - 0.025;
+	e_treshold = 0.0001;
+
+	hand_pose.position.x = hand_pose.position.x - 0.0005;
+	hand_pose.position.y = hand_pose.position.y - 0.0005;
+	hand_pose.position.z = hand_pose.position.z - .3 - 0.02;
 	while(nn.ok() && error > e_treshold)
 	{
 		grasping_pub.publish(hand_pose);
@@ -269,11 +272,11 @@ int main(int argc, char** argv)
     msg_jointT_hand.points[0].accelerations[0] = 0.0;
     msg_jointT_hand.points[0].effort.resize(1);
     msg_jointT_hand.points[0].effort[0] = 0.0;
-    msg_jointT_hand.points[0].time_from_start = ros::Duration(1.0); // 1s;
+    msg_jointT_hand.points[0].time_from_start = ros::Duration(10.0); // 10s;
     msg_jointT_hand.joint_names[0] = synergy_joint.c_str();
     hand_publisher.publish(msg_jointT_hand);
     ros::spinOnce();
-    sleep(1.0);
+    sleep(30.0);
     hand_pose.position.x = World2Hand(3,0);
 	hand_pose.position.y = World2Hand(3,1);
 	hand_pose.position.z = World2Hand(3,2) + 0.2;
@@ -283,7 +286,7 @@ int main(int argc, char** argv)
 	hand_pose.orientation.w = q3.w();
     grasping_pub.publish(hand_pose);
     ros::spinOnce();
-    sleep(1.0);
+    sleep(30.0);
 	// close hand
 	trajectory_msgs::JointTrajectory msg_joint_T_hand;
     msg_joint_T_hand.header.stamp = ros::Time::now();
@@ -297,7 +300,7 @@ int main(int argc, char** argv)
     msg_joint_T_hand.points[0].accelerations[0] = 0.0;
     msg_joint_T_hand.points[0].effort.resize(1);
     msg_joint_T_hand.points[0].effort[0] = 0.0;
-    msg_joint_T_hand.points[0].time_from_start = ros::Duration(1.0); // 1s;
+    msg_joint_T_hand.points[0].time_from_start = ros::Duration(3.0); // 1s;
     msg_joint_T_hand.joint_names[0] = synergy_joint.c_str();
     hand_publisher.publish(msg_joint_T_hand);
     ros::spin();

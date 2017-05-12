@@ -845,14 +845,14 @@ int main (int argc, char **argv)
     	Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
     	for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++) //Kp
     		Joint_Stiffness_Matrix(j,j) = joint_stiffness;
-cout << "J_C :" << endl << J_c << endl;
+
     			
     		// quality_i = quality_pcr_pgr_5(f_c, G_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
     	quality_i = quality_pcr_pgr_5(f_c, G_w_T_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
     		//qualiti = quality_pcr_pgr_5(f_c, G_b, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
 
 
-        f7 << quality_i << ' ';
+  f7 << quality_i << ' ';
 
   for(int i = 0; i < box.size(); i++)
     f7 << box(i) << ' ';
@@ -960,43 +960,9 @@ cout << "J_C :" << endl << J_c << endl;
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;
 
-  cout << " < Manuel are you ready ? you're slow , soooo much>" << endl;
+  cout << " < Manuel are you ready ? you're slow , soooo much >" << endl;
 
 
-  double max = 0;
-  double id_max = 0;
-  double id = 0;
-  std::vector<double> grasp_hand;
-
-
-  for(std::string line; getline(read_f7, line, '\n' ); ) // for each line
-  {
-      std::vector<double> values_inline;
-      std::istringstream iss_line(line);  
-      for(std::string value; getline(iss_line, value, ',' ); )
-          values_inline.push_back(stod(value));
-
-      if ( max > values_inline[0])
-      {
-          max = values_inline[0];
-          id_max = id;
-          grasp_hand = values_inline;
-      }
-
-      id++;
-  }
-
-
-
-
-  ofstream f_M;
-  std::string nameM = "Manuelito";
-  f_M.open(file_name_out + nameM, ofstream::app);
-
-  for(int i = 0 ; i < grasp_hand.size() ; i++)
-    f_M << grasp_hand[i] << ' ' ;
-
-  
 
 	ros::spinOnce();
 	return 0;
