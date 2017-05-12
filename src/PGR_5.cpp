@@ -860,6 +860,9 @@ int main (int argc, char **argv)
   for(int i = 0; i < pose_grasp_nominal.size(); i++)
     f7 << pose_grasp_nominal(i) << ' ';
 
+  for(int i = 0; i < pose_grasp_success.size(); i++)
+    f7 << pose_grasp_success(i) << ' ';
+
   for(int i = 0; i < contact_points.size(); i++)
     f7 << contact_points(i) << ' ';
   
@@ -960,7 +963,6 @@ int main (int argc, char **argv)
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;
 
-  cout << " < Manuel are you ready ? you're slow , soooo much >" << endl;
 
 
 
