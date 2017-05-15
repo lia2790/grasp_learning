@@ -877,7 +877,10 @@ int main (int argc, char **argv)
     for(int j = 0 ; j < J_c.cols(); j++)
       f7 << J_c(i,j) << ' ';
 
-    f7 << endl;
+  for(int i = 0; i < joints.size(); i++)
+    f7 << contact_wrenches(i) << ' ';
+
+  f7 << endl;
 
     }
     else
