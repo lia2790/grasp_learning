@@ -871,6 +871,9 @@ int main (int argc, char **argv)
   
   for(int i = 0; i < joints.size(); i++)
     f7 << joints(i) << ' ';
+
+  for(int i = 0; i < contact_wrenches.size(); i++)
+    f7 << contact_wrenches(i) << ' ';
   
   for(int i = 0; i < G_w_T_c.rows(); i++)
     for(int j = 0 ; j < G_w_T_c.cols(); j++)
@@ -880,8 +883,7 @@ int main (int argc, char **argv)
     for(int j = 0 ; j < J_c.cols(); j++)
       f7 << J_c(i,j) << ' ';
 
-  for(int i = 0; i < contact_wrenches.size(); i++)
-    f7 << contact_wrenches(i) << ' ';
+  
 
   f7 << endl;
 
