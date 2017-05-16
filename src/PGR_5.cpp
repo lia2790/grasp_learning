@@ -347,7 +347,10 @@ int main (int argc, char **argv)
    		int k = 0;
    		for(int i = 0 ; i < 20 ; i++)
    			for(int j=0 ; j < 3 ; j++)
-			{	cp(i,j) = values_inline[50 + k]; if( !std::isnan(cp(i,j))) contact_flag(i) = 1; k++; } cout << "cp : " << endl << cp << endl; // condition of valid contact
+			{	cp(i,j) = values_inline[50 + k]; 
+        if( !std::isnan(cp(i,j))) 
+          contact_flag(i) = 1; k++; 
+          } cout << "cp : " << endl << cp << endl; // condition of valid contact
 
 
 		
@@ -877,7 +880,7 @@ int main (int argc, char **argv)
     for(int j = 0 ; j < J_c.cols(); j++)
       f7 << J_c(i,j) << ' ';
 
-  for(int i = 0; i < joints.size(); i++)
+  for(int i = 0; i < contact_wrenches.size(); i++)
     f7 << contact_wrenches(i) << ' ';
 
   f7 << endl;
