@@ -58,7 +58,7 @@
 
         <!-- load Gazebo simulation environment -->
         <include file="$(find gazebo_ros)/launch/empty_world.launch">
-            <arg name="world_name" value="$(find vito_description)/worlds/simple_environment.world"/>
+            <arg name="world_name" value="$(find grasp_learning)/worlds/simple_environment.world"/>
             <arg name="paused" value="true"/>
             <!-- when using the real/sim scenario in parallel, set "use_enabled_time" to false -->
             <arg name="use_sim_time" value="true"/>
@@ -71,7 +71,7 @@
         <node name="spawn_workbench" pkg="gazebo_ros" type="spawn_model" args="-param workbench -urdf -model workbench -x 0 -y 0 -z 1.0 -R 0 -P 0 -Y 0" respawn="false" output="screen"/> -->
 
         <param name="cube_description" command="$(find xacro)/xacro --inorder $(find grasp_learning)/urdf/cube.urdf.xacro" />
-        <node name="cube_spawner" pkg="gazebo_ros" type="spawn_model" args="-param cube_description -urdf -model cube -x -1.0 -y 0 -z 2.5 -R 0 -P 0 -Y 0" respawn="false" output="screen"/>
+        <node name="cube_spawner" pkg="gazebo_ros" type="spawn_model" args="-param cube_description -urdf -model cube -x -0.977 -y 0 -z 2.5 -R 0 -P 0 -Y 0" respawn="false" output="screen"/>
     </group>
     <!-- calibration transformations -->
         <!-- <group if="$(arg use_calibration_package)"> -->
