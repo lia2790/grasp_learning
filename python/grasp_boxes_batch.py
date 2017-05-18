@@ -18,6 +18,7 @@ import string
 import sys, traceback
 import time
 import pickle
+import colorama
 
 from klampt.math import so3, se3
 import numpy as np
@@ -356,13 +357,13 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
             """ here I should first determine a "contact" reference frame
             cp_M_cp = TODO
             if np.all(wrench_avg[l_i*3+3:l_i*3+5] > 1e-12):
-                print "\n\n\n\n\n"
+                print "\n\n\n\n\n" + colorama.Fore.RED
                 print "xxxxxxxxxxxxxxxxxxxxxxxxx"
                 print "xxxxxxxxxxxxxxxxxxxxxxxxx"
                 print "WARNING: moments on cp for link", robot.link(lId_to_lIndex[lId]).getName(), "are not soft finger model"
                 print "xxxxxxxxxxxxxxxxxxxxxxxxx"
                 print "xxxxxxxxxxxxxxxxxxxxxxxxx"
-                print "\n\n\n\n\n"
+                print "\n\n\n\n\n" + colorama.Fore.RESET
 
             """
 
@@ -370,13 +371,13 @@ def getObjectPhalanxMeanContactPoint(sim, obj, robot, links = None):
         clist = sim.getContacts(oId, lId)
 
         if len(clist) > 0:
-            print "\n\n\n\n\n"
+            print "\n\n\n\n\n" + colorama.Fore.MAGENTA
             print "xxxxxxxxxxxxxxxxxxxxxxxxx"
             print "xxxxxxxxxxxxxxxxxxxxxxxxx"
             print "ERROR: link", robot.link(lId_to_lIndex[lId]).getName(), "is in contact with", obj.getName(), "but is not checked for collision"
             print "xxxxxxxxxxxxxxxxxxxxxxxxx"
             print "xxxxxxxxxxxxxxxxxxxxxxxxx"
-            print "\n\n\n\n\n"
+            print "\n\n\n\n\n" + colorama.Fore.RESET
 
     return (cps_avg, wrench_avg)
 
