@@ -1,5 +1,5 @@
 number_box: 1
 distance_hand: 0.02
-discrete_side: 20
-box_input: [0.05, 0.05, 0.05]
-filename_out: "/MFG/"
+discrete_side: 10
+box_input: [0.062, 0.110, 0.094]
+filename_out: "/box_004010020/D_062110094/"
