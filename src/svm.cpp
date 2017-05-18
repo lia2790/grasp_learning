@@ -120,13 +120,13 @@ int main (int argc, char **argv)
 
   ofstream file_output; //output file 
   file_name_out = path + relative_path_file_out;
-  std::string name = "box_estimate_10";
+  std::string name = "box_estimate";
   file_output.open( file_name_out + name, ofstream::app);
 
 
   ofstream file_output_csv; //output file 
    
-  std::string name_csv = "box_estimate_10.csv";
+  std::string name_csv = "box_estimate.csv";
   file_output_csv.open( file_name_out + name_csv, ofstream::app);
 
   ////////////////////////////////////////////////////////////////////////////////////
