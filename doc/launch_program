@@ -6,6 +6,7 @@ rosservice call /right_arm/controller_manager/switch_controller "start_controlle
 stop_controllers: ['joint_trajectory_controller', 'stiffness_trajectory_controller', 'damping_trajectory_controller', 'add_torque_trajectory_controller']
 strictness: 2" 
 
+rostopic pub /right_arm/teleoperation_controller/start_controller std_msgs/Bool "data: true"
 
 
 rostopic pub /right_arm/teleoperation_controller/command geometry_msgs/Pose "position:

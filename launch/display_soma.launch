@@ -1,0 +1,131 @@
+<launch>
+    <!-- LAUNCH INTERFACE -->
+    <arg name="gui" default="false" />
+    <arg name="robot_name" default="vito_soma"/>
+    <arg name="use_rviz" default="true"/>
+    <arg name="use_joint_state_publisher" default="true"/>
+    <arg name="use_grasp_estimator" default="false"/>
+    <arg name="use_calibration_package" default="true"/>
+
+    <!-- configure whether the real hardware is enabled or not -->
+    <arg name="head_enabled" default="false"/>
+    <arg name="left_arm_enabled" default="false"/>
+    <arg name="left_hand_enabled" default="false"/>
+    <arg name="right_arm_enabled" default="false"/>
+    <arg name="right_hand_enabled" default="false"/>
+
+
+    <!-- choose whether or not to start the full robot simulation -->
+    <arg name="use_robot_sim" default="true"/>
+
+    <!-- LAUNCH IMPLEMENTATION -->
+
+    <!-- #### -->
+
+    <!-- load the full robot in robot_description, useful for visualization, collision detection and planning simultaneously -->
+    <!-- the selection is only due to the hand visualization which is different in real and simulation -->
+    <group if="$(arg use_robot_sim)">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find grasp_learning)/robot/$(arg robot_name).urdf.xacro use_mimic_tag:=false"/>
+    </group>
+    <group unless="$(arg use_robot_sim)">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find grasp_learning)/robot/$(arg robot_name).urdf.xacro use_mimic_tag:=true"/>
+    </group>
+
+    <group if="$(arg use_joint_state_publisher)">
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+            <param name="use_gui" value="$(arg gui)"/>
+            <!-- listens to each part -->
+            <rosparam param="source_list">[/left_arm/joint_states,/left_hand/joint_states,/right_arm/joint_states,/right_hand/joint_states,/head/joint_states]</rosparam>
+        </node>
+    </group>
+
+    <param name="publish_frequency" value="100"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  />
+
+    <group if="$(arg use_rviz)">
+        <node name="my_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(find vito_description)/launch/rviz_config.rviz" output="screen"/>
+    </group>
+
+    <!-- load hardware interface and controller configurations -->
+    <rosparam command="load" file="$(find vito_description)/config/vito_controllers_soma.yaml"/>
+    <rosparam command="load" file="$(find vito_description)/config/hardware_interfaces.yaml"/>
+
+    <!-- #### simulation and planning -->
+
+    <group if="$(arg use_robot_sim)">
+        <!-- Spawn the full robot into Gazebo  -->
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name) -x 0 -y 0 -z 1.0 -R 0 -P 0 -Y 0" respawn="false" output="screen"/>
+
+        <!-- load Gazebo simulation environment -->
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(find vito_description)/worlds/simple_environment.world"/>
+            <arg name="paused" value="true"/>
+            <!-- when using the real/sim scenario in parallel, set "use_enabled_time" to false -->
+            <arg name="use_sim_time" value="true"/>
+            <arg name="gui" value="true"/>
+            <arg name="headless" value="true"/>
+            <arg name="debug" value="false"/>
+        </include>
+<!-- 
+        <param name="workbench" command="$(find xacro)/xacro $(find lwr_force_position_controllers)/robot/workbench.urdf.xacro"/>
+        <node name="spawn_workbench" pkg="gazebo_ros" type="spawn_model" args="-param workbench -urdf -model workbench -x 0 -y 0 -z 1.0 -R 0 -P 0 -Y 0" respawn="false" output="screen"/> -->
+
+        <param name="cube_description" command="$(find xacro)/xacro --inorder $(find grasp_learning)/urdf/cube.urdf.xacro" />
+        <node name="cube_spawner" pkg="gazebo_ros" type="spawn_model" args="-param cube_description -urdf -model cube -x -1.0 -y 0 -z 2.5 -R 0 -P 0 -Y 0" respawn="false" output="screen"/>
+    </group>
+    <!-- calibration transformations -->
+        <!-- <group if="$(arg use_calibration_package)"> -->
+            <!-- it takes the last calibration performed, you can call calibrate and it will overwrite the yaml file -->
+            <!-- <include file="$(find calibration)/launch/asus_head_vito_broadcaster.launch"/> -->
+            <!-- for the fake eyes, which are not still included here -->
+        <!-- </group> -->
+
+    <!-- #### components -->
+
+    <!-- controllers are launched always, since either real or simulated hardware will be present -->
+    
+    <group ns="right_arm">
+        <group if="$(arg right_arm_enabled)">
+            <!--add a copy of the robot description within the name space -->
+            <param name="robot_description" command="$(find xacro)/xacro --inorder $(find grasp_learning)/robot/$(arg robot_name).urdf.xacro use_mimic_tag:=true"/>
+
+            <rosparam command="load" file="$(find vito_description)/config/right_arm_names.yaml" />
+
+            <include file="$(find lwr_hw)/launch/lwr_hw.launch">
+                <arg name="port" value="49939"/>
+                <arg name="ip" value="192.168.0.10"/>
+                <arg name="name" value="right_arm"/>
+            </include>
+        </group>
+
+        <!-- load the controllers in current namespace -->
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_state_controller joint_trajectory_controller stiffness_trajectory_controller damping_trajectory_controller add_torque_trajectory_controller"/>
+        <node name="controller_stopper" pkg="controller_manager" type="spawner" args="--stopped joint_impedance_controller teleoperation_controller"/>
+    </group>
+
+    <group ns="right_hand">
+        <group if="$(arg right_hand_enabled)">
+            <!--add a copy of the robot description within the name space -->
+            <param name="robot_description" command="$(find xacro)/xacro --inorder $(find grasp_learning)/robot/$(arg robot_name).urdf.xacro use_mimic_tag:=true"/>
+
+            <rosparam command="load" file="$(find vito_description)/config/right_hand_names.yaml" />
+
+            <include file="$(find soft_hand_ros_control)/launch/soft_hand_hw.launch">
+                <arg name="use_deafult_joint_names" value="false"/>
+                <arg name="hand_id" value="20"/>
+            </include>
+        </group>
+
+        <!-- load the controllers in current namespace -->
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_state_controller joint_trajectory_controller"/>
+
+        <!-- grasp estimator -->
+        <group if="$(arg use_grasp_estimator)">
+            <rosparam command="load" file="$(find grasp_state_publisher)/config/softgrasp.yaml" />
+            <node name="grasp_state_publisher" pkg="grasp_state_publisher" type="grasp_state_publisher" respawn="false" output="screen" />
+        </group>
+    </group>
+
+    <!-- <node name="trik_controller_node" pkg="trik_controller" type="trik_controller_node" respawn="false" output="screen"/> -->
+
+</launch>

@@ -247,6 +247,13 @@ int main (int argc, char **argv)
   ofstream file_output_6; //output file
   std::string name6 = "box_db_quality_PGR_matlab_pos";
     file_output_6.open(file_name_out + name6, ofstream::app);
+
+
+  ofstream f7;
+   std::string name7 = "Manuel";
+    f7.open(file_name_out + name7, ofstream::app);
+
+  ifstream read_f7(file_name_out + name7);
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -325,6 +332,12 @@ int main (int argc, char **argv)
     	for(int i = 0 ; i < 60 ; i++)
     		contact_points(i) = values_inline[50 + i];
 
+
+
+
+
+
+
    		for(int i = 0 ; i < 120 ; i++)
    			contact_wrenches(i) = values_inline[110 + i];
 
@@ -334,7 +347,10 @@ int main (int argc, char **argv)
    		int k = 0;
    		for(int i = 0 ; i < 20 ; i++)
    			for(int j=0 ; j < 3 ; j++)
-			{	cp(i,j) = values_inline[50 + k]; if( !std::isnan(cp(i,j))) contact_flag(i) = 1; k++; } cout << "cp : " << endl << cp << endl; // condition of valid contact
+			{	cp(i,j) = values_inline[50 + k]; 
+        if( !std::isnan(cp(i,j))) 
+          contact_flag(i) = 1; k++; 
+          } cout << "cp : " << endl << cp << endl; // condition of valid contact
 
 
 		
@@ -832,11 +848,45 @@ int main (int argc, char **argv)
     	Eigen::MatrixXd Joint_Stiffness_Matrix = MatrixXd::Zero(n_q,n_q);    // Kp    				
     	for(int j = 0 ; j < Joint_Stiffness_Matrix.rows() ; j++) //Kp
     		Joint_Stiffness_Matrix(j,j) = joint_stiffness;
-cout << "J_C :" << endl << J_c << endl;
+
     			
     		// quality_i = quality_pcr_pgr_5(f_c, G_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
     	quality_i = quality_pcr_pgr_5(f_c, G_w_T_c, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
     		//qualiti = quality_pcr_pgr_5(f_c, G_b, J_c, R_c, Contact_Stiffness_Matrix, Joint_Stiffness_Matrix, mu, f_i_max);
+
+
+  f7 << quality_i << ' ';
+
+  for(int i = 0; i < box.size(); i++)
+    f7 << box(i) << ' ';
+
+  for(int i = 0; i < pose_grasp_nominal.size(); i++)
+    f7 << pose_grasp_nominal(i) << ' ';
+
+  for(int i = 0; i < pose_grasp_success.size(); i++)
+    f7 << pose_grasp_success(i) << ' ';
+
+  for(int i = 0; i < contact_points.size(); i++)
+    f7 << contact_points(i) << ' ';
+  
+  for(int i = 0; i < joints.size(); i++)
+    f7 << joints(i) << ' ';
+
+  for(int i = 0; i < contact_wrenches.size(); i++)
+    f7 << contact_wrenches(i) << ' ';
+  
+  for(int i = 0; i < G_w_T_c.rows(); i++)
+    for(int j = 0 ; j < G_w_T_c.cols(); j++)
+      f7 << G_w_T_c(i,j) << ' ';
+
+  for(int i = 0; i < J_c.rows(); i++)
+    for(int j = 0 ; j < J_c.cols(); j++)
+      f7 << J_c(i,j) << ' ';
+
+  
+
+  f7 << endl;
+
     }
     else
     {	
@@ -893,6 +943,12 @@ cout << "J_C :" << endl << J_c << endl;
     file_output_6 << ' ' << endl;
   }
 
+
+
+
+
+
+
   if(quality_i > quality_max)
     quality_max = quality_i;
 
@@ -914,6 +970,9 @@ cout << "J_C :" << endl << J_c << endl;
 	
 	cout << " YEAH ENJOY " << endl;
 	cout << "   fine   " << endl;
+
+
+
 
 	ros::spinOnce();
 	return 0;

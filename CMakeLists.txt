@@ -232,7 +232,7 @@ target_link_libraries(populate_grasp_dataset ${catkin_LIBRARIES} ${Eigen_LIBRARI
 # target_link_libraries(comunication_vision ${catkin_LIBRARIES})
 
 add_executable(comunication_robot src/comunication_robot.cpp)
-target_link_libraries(comunication_robot ${catkin_LIBRARIES})
+target_link_libraries(comunication_robot ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
 
