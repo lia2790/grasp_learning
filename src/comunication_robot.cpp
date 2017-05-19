@@ -97,6 +97,8 @@ int main(int argc, char** argv)
 	ros::init(argc, argv, "Comunication");// ROS node
 	ros::NodeHandle nn;
 
+	tf::TransformBroadcaster tf_broadcaster; 
+
 
 	string relative_path_file_in, on_topic, synergy_joint;	
 	string file_name_in;
@@ -265,9 +267,31 @@ int main(int argc, char** argv)
 	hand_pose.position.x = hand_pose.position.x + gap_x;
 	hand_pose.position.y = hand_pose.position.y + gap_y;
 	hand_pose.position.z = hand_pose.position.z - .3 + gap_z;
+
+	//publish pose in RViz
+	double px_ = hand_pose.position.x;
+	double py_ = hand_pose.position.y;
+	double pz_ = hand_pose.position.z;
+		
+	double qx_ = hand_pose.orientation.x;
+	double qy_ = hand_pose.orientation.y;
+	double qz_ = hand_pose.orientation.z;
+	double qw_ = hand_pose.orientation.w;
+
+	std::string stringaFrameIdPadre = "/world";
+	std::string stringaFrameIdFiglio = "hand_grasp_poses";
+
+	tf::Quaternion rotazione(qx_,qy_,qz_,qw_);
+    tf::Vector3 traslazione(px_,py_,pz_);
+    tf::Transform trasformazione(rotazione, traslazione);
+	tf::StampedTransform ObjToSurface(trasformazione, ros::Time::now(), stringaFrameIdPadre, stringaFrameIdFiglio);
+
+
+
 	while(nn.ok() && error > e_treshold)
 	{
 		grasping_pub.publish(hand_pose);
+		tf_broadcaster.sendTransform(ObjToSurface);
 
 		ros::spinOnce();
 		loop_rate.sleep();
