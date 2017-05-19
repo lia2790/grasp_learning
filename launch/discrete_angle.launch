@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<rosparam file="$(find grasp_learning)/param/discrete_angle.yaml" command="load"/>
+	
+		<node name="discrete_angle" pkg="grasp_learning" type="discrete_angle" respawn="false" output="screen"/>
+
+</launch>

@@ -1,0 +1,10 @@
+filename_in: "/box_005/006/box_estimate"
+dx_box: -0.977
+dy_box: 0
+dz_box: 0.061
+gap_x: 0.0
+gap_y: 0.01
+gap_z: 0.0
+gap_up: 0.2
+duration: 3.0
+duration_grasping: 3.0

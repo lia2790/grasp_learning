@@ -88,8 +88,11 @@ double gap_x = 0;
 double gap_y = 0;
 double gap_z = 0;
 double gap_up = 0;
+double hand_up = 0;
 double duration_grasping = 3.0;//duration of grasping
 double duration_ = 10.0;//duration of hand closure
+
+std::string string_tf = "/world";
 
 int main(int argc, char** argv)
 {
@@ -97,12 +100,15 @@ int main(int argc, char** argv)
 	ros::init(argc, argv, "Comunication");// ROS node
 	ros::NodeHandle nn;
 
+	tf::TransformBroadcaster tf_broadcaster; 
+
 
 	string relative_path_file_in, on_topic, synergy_joint;	
 	string file_name_in;
 	nn.param<std::string>("filename_in", relative_path_file_in, "/bottiglia/test_itself/model_40_8/box_estimate" );
   	nn.param<std::string>("on_topic", on_topic, "/right_hand/joint_trajectory_controller/command");
   	nn.param<std::string>("synergy_joint", synergy_joint, "right_hand_synergy_joint");
+  	nn.param<std::string>("string_tf", string_tf,"/world");
   	nn.param<double>("dx_box",dx_,0);
   	nn.param<double>("dy_box",dy_,0);
   	nn.param<double>("dz_box",dz_,0);
@@ -110,6 +116,7 @@ int main(int argc, char** argv)
   	nn.param<double>("gap_y",gap_y,0);
   	nn.param<double>("gap_z",gap_z,0);
   	nn.param<double>("gap_up",gap_up,0);
+  	nn.param<double>("hand_up",hand_up,0.3);
   	nn.param<double>("duration",duration_,3.0);//Duration of hand closure
   	nn.param<double>("duration_grasping",duration_grasping,3.0);
 
@@ -240,21 +247,22 @@ int main(int argc, char** argv)
 
 	hand_pose.position.x = hand_pose.position.x + gap_x;
 	hand_pose.position.y = hand_pose.position.y + gap_y;
-	hand_pose.position.z = hand_pose.position.z + .3 + gap_z;
+	hand_pose.position.z = hand_pose.position.z + hand_up + gap_z;
 	while(nn.ok() && error > e_treshold)
 	{
 		grasping_pub.publish(hand_pose);
+		
 
 		ros::spinOnce();
 		loop_rate.sleep();
 
 		error = Eigen_error.norm();
 		std::cout << "error: " << error << std::endl;
-		// cout << "grasp !" << endl;
-		// cout << "------------------------------------" << endl;
-		// cout << " x : " << hand_pose.position.x << " y : " << hand_pose.position.y << " z : " << hand_pose.position.z << endl;
-		// cout << " qx : " << hand_pose.orientation.x << " qy : " << hand_pose.orientation.y << " qz : " << hand_pose.orientation.z << " qw : " << hand_pose.orientation.w << endl;
-		// cout << "------------------------------------" << endl;
+		cout << "grasp !" << endl;
+		cout << "------------------------------------" << endl;
+		cout << " x : " << hand_pose.position.x << " y : " << hand_pose.position.y << " z : " << hand_pose.position.z << endl;
+		cout << " qx : " << hand_pose.orientation.x << " qy : " << hand_pose.orientation.y << " qz : " << hand_pose.orientation.z << " qw : " << hand_pose.orientation.w << endl;
+		cout << "------------------------------------" << endl;
 	}
 	std::cout << "Approaching" << std::endl;
 	sleep(2.0);
@@ -264,10 +272,32 @@ int main(int argc, char** argv)
 
 	hand_pose.position.x = hand_pose.position.x + gap_x;
 	hand_pose.position.y = hand_pose.position.y + gap_y;
-	hand_pose.position.z = hand_pose.position.z - .3 + gap_z;
+	hand_pose.position.z = hand_pose.position.z - hand_up + gap_z;
+
+	//publish pose in RViz
+	double px_ = hand_pose.position.x;
+	double py_ = hand_pose.position.y;
+	double pz_ = hand_pose.position.z;
+		
+	double qx_ = hand_pose.orientation.x;
+	double qy_ = hand_pose.orientation.y;
+	double qz_ = hand_pose.orientation.z;
+	double qw_ = hand_pose.orientation.w;
+
+	std::string stringaFrameIdPadre = string_tf;
+	std::string stringaFrameIdFiglio = "hand_grasp_poses";
+
+	tf::Quaternion rotazione(qx_,qy_,qz_,qw_);
+    tf::Vector3 traslazione(px_,py_,pz_);
+    tf::Transform trasformazione(rotazione, traslazione);
+	tf::StampedTransform ObjToSurface(trasformazione, ros::Time::now(), stringaFrameIdPadre, stringaFrameIdFiglio);
+
+
+
 	while(nn.ok() && error > e_treshold)
 	{
 		grasping_pub.publish(hand_pose);
+		
 
 		ros::spinOnce();
 		loop_rate.sleep();

@@ -234,7 +234,8 @@ target_link_libraries(populate_grasp_dataset ${catkin_LIBRARIES} ${Eigen_LIBRARI
 add_executable(comunication_robot src/comunication_robot.cpp)
 target_link_libraries(comunication_robot ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
-
+add_executable(discrete_angle src/discrete_angle.cpp)
+target_link_libraries(discrete_angle ${catkin_LIBRARIES} ${Eigen_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 
 add_executable(test_file_2_fingers src/test_file_2_fingers.cpp)
