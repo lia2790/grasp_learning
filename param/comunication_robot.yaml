@@ -1,6 +1,6 @@
-filename_in: "/bottiglia/test_itself/model_40_6/box_estimate"
+filename_in: "/box_004010020/D_062110094/box_estimate_5"
 dx_box: -0.977
-dy_box: 0.1
+dy_box: 0.0
 dz_box: 0.0
 gap_x: 0.0
 gap_y: 0.01

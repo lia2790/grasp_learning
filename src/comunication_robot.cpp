@@ -258,11 +258,11 @@ int main(int argc, char** argv)
 
 		error = Eigen_error.norm();
 		std::cout << "error: " << error << std::endl;
-		// cout << "grasp !" << endl;
-		// cout << "------------------------------------" << endl;
-		// cout << " x : " << hand_pose.position.x << " y : " << hand_pose.position.y << " z : " << hand_pose.position.z << endl;
-		// cout << " qx : " << hand_pose.orientation.x << " qy : " << hand_pose.orientation.y << " qz : " << hand_pose.orientation.z << " qw : " << hand_pose.orientation.w << endl;
-		// cout << "------------------------------------" << endl;
+		cout << "grasp !" << endl;
+		cout << "------------------------------------" << endl;
+		cout << " x : " << hand_pose.position.x << " y : " << hand_pose.position.y << " z : " << hand_pose.position.z << endl;
+		cout << " qx : " << hand_pose.orientation.x << " qy : " << hand_pose.orientation.y << " qz : " << hand_pose.orientation.z << " qw : " << hand_pose.orientation.w << endl;
+		cout << "------------------------------------" << endl;
 	}
 	std::cout << "Approaching" << std::endl;
 	sleep(2.0);
