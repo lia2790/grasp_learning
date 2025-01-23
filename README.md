@@ -18,3 +18,9 @@ cd python;
 python simple_batch_splitter.py ../db/box_db_test_only_successful.csv
 python view_bozes_grasps.py ../db/box_db_test_only_successful.csv
 ```
+
+## Database usage
+Once the database with successful and unsuccessful grasps has been made, an SVM is used to generate a function to use in real time to estimate a valid grasp pose of a novel obejct. A valid pose is intended to be a grasp pose with the higher probability of success in executing the grasp. 
+
+## Final execution
+Finally, in the execution of a main program, the SVM's learnt function is used to give in output a valid grasp pose over a novel object.
